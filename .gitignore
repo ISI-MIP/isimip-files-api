@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+
+*~
+*-
+*.swp
+*.save
+.DS_Store
+
+/env
+/.env
+/log
