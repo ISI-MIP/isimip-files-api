@@ -1,17 +1,21 @@
 import numpy as np
 import numpy.ma as ma
-from flask import url_for
 
-from .settings import BASE_URL
+from .settings import BASE_URL, OUTPUT_URL
 
 
 def get_response(job, http_status):
-    return {
+    response = {
         'id': job.id,
-        'url': BASE_URL + url_for('detail', job_id=job.id),
+        'url': BASE_URL + '/' + job.id,
         'meta': job.meta,
         'status': job.get_status(),
-    }, http_status
+    }
+
+    if job.get_status() == 'finished':
+        response['file'] = OUTPUT_URL + '/' + job.id
+
+    return response, http_status
 
 
 def get_errors_response(errors):
