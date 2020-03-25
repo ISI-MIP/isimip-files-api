@@ -1,3 +1,5 @@
+import hashlib
+
 import numpy as np
 import numpy.ma as ma
 
@@ -29,6 +31,12 @@ def get_cutout_path(path, region):
     cutout_name = path.name.replace(path.suffix, '_' + region + path.suffix)
     cutout_path = path.parent / cutout_name
     return cutout_path
+
+
+def get_hash(cutout_path):
+    m = hashlib.sha1()
+    m.update(str(cutout_path).encode())
+    return m.hexdigest()
 
 
 def perform_cutout(ds, co, ilat0, ilat1, ilon0, ilon1, mask=None):

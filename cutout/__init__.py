@@ -5,7 +5,7 @@ from flask import Flask, request
 from .jobs import create_job, delete_job, fetch_job
 from .settings import LOG_FILE, LOG_LEVEL
 from .tasks import cutout_bbox, cutout_country
-from .utils import get_cutout_path, get_errors_response
+from .utils import get_cutout_path, get_errors_response, get_hash
 from .validators import (validate_bbox, validate_country, validate_data,
                          validate_path)
 
@@ -37,13 +37,15 @@ def create_app():
             bbox = validate_bbox(data, errors)
             if errors:
                 cutout_path = get_cutout_path(path, '{}-{}-{}-{}'.format(*bbox))
-                return create_job(cutout_bbox, str(cutout_path), args=[path, cutout_path, bbox])
+                job_id = get_hash(cutout_path)
+                return create_job(cutout_bbox, job_id, args=[path, cutout_path, bbox])
 
         elif 'country' in data:
             country = validate_country(data, errors)
             if not errors:
                 cutout_path = get_cutout_path(path, country)
-                return create_job(cutout_country, str(cutout_path), args=[path, cutout_path, country])
+                job_id = get_hash(cutout_path)
+                return create_job(cutout_country, job_id, args=[path, cutout_path, country])
 
         else:
             errors['data'] = 'Either bbox or country needs to be provided'
