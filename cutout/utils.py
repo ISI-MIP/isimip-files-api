@@ -7,13 +7,13 @@ from .settings import BASE_URL, OUTPUT_URL
 def get_response(job, http_status):
     response = {
         'id': job.id,
-        'url': BASE_URL + '/' + job.id,
+        'job_url': BASE_URL + '/' + job.id,
         'meta': job.meta,
         'status': job.get_status(),
     }
 
     if job.get_status() == 'finished':
-        response['file'] = OUTPUT_URL + '/' + job.id
+        response['file_url'] = OUTPUT_URL + '/' + job.id
 
     return response, http_status
 
