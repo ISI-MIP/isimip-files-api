@@ -8,6 +8,8 @@ load_dotenv(Path().cwd() / '.env')
 LOG_FILE = os.getenv('LOG_FILE')
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'ERROR')
 
+BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:5000')
+
 INPUT_PATH = Path(os.getenv('INPUT_PATH', 'input'))
 OUTPUT_PATH = Path(os.getenv('OUTPUT_PATH', 'output'))
 

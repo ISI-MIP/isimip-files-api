@@ -1,5 +1,24 @@
 import numpy as np
 import numpy.ma as ma
+from flask import url_for
+
+from .settings import BASE_URL
+
+
+def get_response(job, http_status):
+    return {
+        'id': job.id,
+        'url': BASE_URL + url_for('detail', job_id=job.id),
+        'meta': job.meta,
+        'status': job.get_status(),
+    }, http_status
+
+
+def get_errors_response(errors):
+    return {
+        'status': 'error',
+        'errors': errors
+    }, 400
 
 
 def get_cutout_path(path, region):

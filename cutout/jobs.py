@@ -3,6 +3,8 @@ from rq import Queue
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
+from .utils import get_response
+
 redis = Redis()
 
 
@@ -36,11 +38,3 @@ def delete_job(job_id):
         return {
             'status': 'not found'
         }, 404
-
-
-def get_response(job, http_status):
-    return {
-        'id': job.id,
-        'meta': job.meta,
-        'status': job.get_status(),
-    }, http_status

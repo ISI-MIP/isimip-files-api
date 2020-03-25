@@ -10,6 +10,8 @@ def validate_data(data, errors):
     if not data:
         errors['data'] = 'No json data provided with POST'
 
+    return data
+
 
 def validate_path(data, errors):
     # check if path is given

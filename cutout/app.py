@@ -5,7 +5,7 @@ from flask import Flask, request
 from .jobs import create_job, delete_job, fetch_job
 from .settings import LOG_FILE, LOG_LEVEL
 from .tasks import cutout_bbox, cutout_country
-from .utils import get_cutout_path
+from .utils import get_cutout_path, get_errors_response
 from .validators import (validate_bbox, validate_country, validate_data,
                          validate_path)
 
@@ -23,30 +23,32 @@ def list():
 
 @app.route('/', methods=['POST'])
 def create():
-    data = request.json
     errors = {}
 
-    validate_data(data, errors)
+    data = validate_data(request.json, errors)
     path = validate_path(data, errors)
 
-    if not errors:
-        if 'bbox' in data:
-            bbox = validate_bbox(data, errors)
-            if not errors:
-                cutout_path = get_cutout_path(path, '{}-{}-{}-{}'.format(*bbox))
-                return create_job(cutout_bbox, str(cutout_path), args=[path, cutout_path, bbox])
+    # if errors already occurred, return immediately
+    if errors:
+        get_errors_response(errors)
 
-        elif 'country' in data:
-            country = validate_country(data, errors)
-            if not errors:
-                cutout_path = get_cutout_path(path, country)
-                return create_job(cutout_country, str(cutout_path), args=[path, cutout_path, country])
+    if 'bbox' in data:
+        bbox = validate_bbox(data, errors)
+        if errors:
+            cutout_path = get_cutout_path(path, '{}-{}-{}-{}'.format(*bbox))
+            return create_job(cutout_bbox, str(cutout_path), args=[path, cutout_path, bbox])
+
+    elif 'country' in data:
+        country = validate_country(data, errors)
+        if not errors:
+            cutout_path = get_cutout_path(path, country)
+            return create_job(cutout_country, str(cutout_path), args=[path, cutout_path, country])
+
+    else:
+        errors['data'] = 'Either bbox or country needs to be provided'
 
     # if it did not work, return errors
-    return {
-        'status': 'error',
-        'errors': errors
-    }, 400
+    return get_errors_response(errors)
 
 
 @app.route('/<job_id>', methods=['GET'])
