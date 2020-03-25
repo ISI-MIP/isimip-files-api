@@ -3,17 +3,21 @@ from rq import Queue
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
-from .utils import get_response
+from .utils import get_hash, get_response
 
 redis = Redis()
 
 
-def create_job(task, job_id=None, args=[]):
+def create_job(task, cutout_path, args=[]):
+    job_id = get_hash(cutout_path)
+
     try:
         job = Job.fetch(job_id, connection=redis)
         return get_response(job, 200)
     except NoSuchJobError:
         job = Queue(connection=redis).enqueue(task, job_id=job_id, args=args)
+        job.meta['cutout_path'] = str(cutout_path)
+        job.save_meta()
         return get_response(job, 201)
 
 

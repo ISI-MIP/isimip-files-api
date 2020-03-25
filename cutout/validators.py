@@ -10,6 +10,9 @@ def validate_data(data, errors):
     if not data:
         errors['data'] = 'No json data provided with POST'
 
+    if not isinstance(data, dict):
+        errors['data'] = 'Provided json data is malformatted'
+
     return data
 
 

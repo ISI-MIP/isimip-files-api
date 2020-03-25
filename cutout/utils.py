@@ -1,4 +1,5 @@
 import hashlib
+from pathlib import Path
 
 import numpy as np
 import numpy.ma as ma
@@ -15,7 +16,8 @@ def get_response(job, http_status):
     }
 
     if job.get_status() == 'finished':
-        response['file_url'] = OUTPUT_URL + '/' + job.id
+        if 'cutout_path' in job.meta:
+            response['file_url'] = OUTPUT_URL + '/' + job.meta['cutout_path']
 
     return response, http_status
 
@@ -28,9 +30,9 @@ def get_errors_response(errors):
 
 
 def get_cutout_path(path, region):
-    cutout_name = path.name.replace(path.suffix, '_' + region + path.suffix)
+    cutout_name = Path(path).name.replace(path.suffix, '_' + region + path.suffix)
     cutout_path = path.parent / cutout_name
-    return cutout_path
+    return str(cutout_path)
 
 
 def get_hash(cutout_path):
