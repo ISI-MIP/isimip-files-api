@@ -20,7 +20,8 @@ def cutout_bbox(dataset_path, cutout_path, bbox):
             ilat0, ilat1 = where_lat[0], where_lat[-1] + 1
             ilon0, ilon1 = where_lon[0], where_lon[-1] + 1
 
-            output_path = OUTPUT_PATH.joinpath(cutout_path).parent.mkdir(parents=True, exist_ok=True)
+            output_path = OUTPUT_PATH / cutout_path
+            output_path.parent.mkdir(parents=True, exist_ok=True)
             with Dataset(output_path, 'w', format='NETCDF4') as co:
                 perform_cutout(ds, co, ilat0, ilat1, ilon0, ilon1)
 
@@ -37,6 +38,7 @@ def cutout_country(dataset_path, cutout_path, country):
 
                 country_mask = cm[country_var][ilat0:ilat1, ilon0:ilon1]
 
-                output_path = OUTPUT_PATH.joinpath(cutout_path).parent.mkdir(parents=True, exist_ok=True)
+                output_path = OUTPUT_PATH / cutout_path
+                output_path.parent.mkdir(parents=True, exist_ok=True)
                 with Dataset(output_path, 'w', format='NETCDF4') as co:
                     perform_cutout(ds, co, ilat0, ilat1, ilon0, ilon1, mask=country_mask)
