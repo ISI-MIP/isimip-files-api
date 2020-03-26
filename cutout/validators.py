@@ -7,10 +7,9 @@ from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH
 
 def validate_data(data, errors):
     # check if any data is provided
-    if not data:
+    if (not data) or (data is None):
         errors['data'] = 'No json data provided with POST'
-
-    if not isinstance(data, dict):
+    elif not isinstance(data, dict):
         errors['data'] = 'Provided json data is malformatted'
 
     return data
