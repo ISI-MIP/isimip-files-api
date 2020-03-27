@@ -47,9 +47,16 @@ def validate_country(data, errors):
     country = data['country'].lower()
 
     if country.upper() not in COUNTRYMASKS_COUNTRIES:
-        errors['country'] = 'country not in the list of supported countries (e.g. DEU, )'
+        errors['country'] = 'country not in the list of supported countries (e.g. DEU)'
 
     return country
+
+
+def validate_landonly(data, errors):
+    if data['landonly'] is True:
+        return True
+    else:
+        errors['landonly'] = 'Set {"landonly": true} to mask sea data'
 
 
 def validate_dataset(ds):

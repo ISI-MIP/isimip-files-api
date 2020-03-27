@@ -8,15 +8,15 @@ from .utils import get_hash, get_response
 redis = Redis()
 
 
-def create_job(task, cutout_path, args=[]):
-    job_id = get_hash(cutout_path)
+def create_job(task, output_path, args=[]):
+    job_id = get_hash(output_path)
 
     try:
         job = Job.fetch(job_id, connection=redis)
         return get_response(job, 200)
     except NoSuchJobError:
         job = Queue(connection=redis).enqueue(task, job_id=job_id, args=args)
-        job.meta['cutout_path'] = str(cutout_path)
+        job.meta['output_path'] = str(output_path)
         job.save_meta()
         return get_response(job, 201)
 

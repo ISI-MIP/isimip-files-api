@@ -9,7 +9,7 @@ LOG_FILE = os.getenv('LOG_FILE')
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'ERROR')
 
 BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:5000').rstrip('/')
-OUTPUT_URL = os.getenv('OUTPUT_URL', 'http://localhost/cutout').rstrip('/')
+OUTPUT_URL = os.getenv('OUTPUT_URL', 'http://127.0.0.1/api/output/').rstrip('/')
 
 INPUT_PATH = Path(os.getenv('INPUT_PATH', 'input'))
 OUTPUT_PATH = Path(os.getenv('OUTPUT_PATH', 'output'))
@@ -39,3 +39,5 @@ COUNTRYMASKS_COUNTRIES = [
     'UKR', 'ARE', 'TZA', 'VIR', 'USA', 'URY', 'UZB', 'VUT', 'VEN', 'VNM',
     'ESH', 'YEM', 'ZMB', 'ZWE'
 ]
+
+LANDSEAMASK_FILE_PATH = Path(os.getenv('LANDSEAMASK_FILE_PATH', 'landseamask.nc'))

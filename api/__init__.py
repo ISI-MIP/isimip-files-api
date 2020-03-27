@@ -4,10 +4,10 @@ from flask import Flask, request
 
 from .jobs import create_job, delete_job, fetch_job
 from .settings import LOG_FILE, LOG_LEVEL
-from .tasks import cutout_bbox, cutout_country
-from .utils import get_cutout_path, get_errors_response
+from .tasks import mask_bbox, mask_country, mask_landonly
+from .utils import get_errors_response, get_output_path
 from .validators import (validate_bbox, validate_country, validate_data,
-                         validate_path)
+                         validate_landonly, validate_path)
 
 logging.basicConfig(level=LOG_LEVEL, filename=LOG_FILE)
 
@@ -37,17 +37,23 @@ def create_app():
         if 'bbox' in data:
             bbox = validate_bbox(data, errors)
             if not errors:
-                cutout_path = get_cutout_path(path, '{}-{}-{}-{}'.format(*bbox))
-                return create_job(cutout_bbox, cutout_path, args=[path, cutout_path, bbox])
+                output_path = get_output_path(path, '{}-{}-{}-{}'.format(*bbox))
+                return create_job(mask_bbox, output_path, args=[path, output_path, bbox])
 
         elif 'country' in data:
             country = validate_country(data, errors)
             if not errors:
-                cutout_path = get_cutout_path(path, country)
-                return create_job(cutout_country, cutout_path, args=[path, cutout_path, country])
+                output_path = get_output_path(path, country)
+                return create_job(mask_country, output_path, args=[path, output_path, country])
+
+        elif 'landonly' in data:
+            validate_landonly(data, errors)
+            if not errors:
+                output_path = get_output_path(path, 'landonly')
+                return create_job(mask_landonly, output_path, args=[path, output_path])
 
         else:
-            errors['data'] = 'Either bbox or country needs to be provided'
+            errors['data'] = 'Either bbox, country, or landonly needs to be provided'
 
         # if it did not work, return errors
         return get_errors_response(errors)

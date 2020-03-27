@@ -13,8 +13,8 @@ def get_response(job, http_status):
     }
 
     if job.get_status() == 'finished':
-        if 'cutout_path' in job.meta:
-            response['file_url'] = OUTPUT_URL + '/' + job.meta['cutout_path']
+        if 'output_path' in job.meta:
+            response['file_url'] = OUTPUT_URL + '/' + job.meta['output_path']
 
     return response, http_status
 
@@ -26,13 +26,13 @@ def get_errors_response(errors):
     }, 400
 
 
-def get_cutout_path(path, region):
-    cutout_name = Path(path).name.replace(path.suffix, '_' + region + path.suffix)
-    cutout_path = path.parent / cutout_name
-    return str(cutout_path)
+def get_output_path(path, region):
+    output_name = Path(path).name.replace(path.suffix, '_' + region + path.suffix)
+    output_path = path.parent / output_name
+    return str(output_path)
 
 
-def get_hash(cutout_path):
+def get_hash(output_path):
     m = hashlib.sha1()
-    m.update(str(cutout_path).encode())
+    m.update(str(output_path).encode())
     return m.hexdigest()
