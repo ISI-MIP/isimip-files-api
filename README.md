@@ -182,4 +182,4 @@ Lastly, add
     }
 ```
 
-to your NGINX virtual host configuration. The service should then be available at https://yourdomain/api/v1/
+to your NGINX virtual host configuration. The service should then be available at https://yourdomain/api/v1/.
