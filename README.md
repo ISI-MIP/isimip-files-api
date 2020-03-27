@@ -1,14 +1,14 @@
 isimip-files-api
 ================
 
-Microservice to asynchronously mask regions from an [ISIMIP](https://isimip.org) NetCDF file, using [Flask](https://palletsprojects.com/p/flask/) and [RQ](https://python-rq.org/).
+Micro service to asynchronously mask regions from an [ISIMIP](https://isimip.org) NetCDF file, using [Flask](https://palletsprojects.com/p/flask/) and [RQ](https://python-rq.org/).
 
 Setup
 -----
 
-The service needs [redis](https://redis.io/) to be set up and configured proberly. With redit it is especially important to [guard it agains remote access](https://redis.io/topics/security).
+The service needs [redis](https://redis.io/) to be set up and configured properly. With redit it is especially important to [guard it agains remote access](https://redis.io/topics/security).
 
-The python dependencies can be installed (in a virtual enviroment) using:
+The python dependencies can be installed (in a virtual environment) using:
 
 ```
 pip install -r requirements.txt
@@ -26,7 +26,7 @@ Once the application is setup, the development server can be started using:
 flask run
 ```
 
-The worker for the asyncronous jobs need to be started in a different terminal session using:
+The worker for the asynchronous jobs need to be started in a different terminal session using:
 
 ```
 rq worker
@@ -182,4 +182,4 @@ Lastly, add
     }
 ```
 
-to your nginx virtual host configuration. The service should then be available at https://yourdomain/api/v1/
+to your NGINX virtual host configuration. The service should then be available at https://yourdomain/api/v1/
