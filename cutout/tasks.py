@@ -1,8 +1,9 @@
 import numpy as np
+
 from netCDF4 import Dataset
 
+from .netcdf import copy_data
 from .settings import COUNTRYMASKS_FILE_PATH, INPUT_PATH, OUTPUT_PATH
-from .utils import perform_cutout
 from .validators import validate_dataset
 
 
@@ -20,10 +21,13 @@ def cutout_bbox(dataset_path, cutout_path, bbox):
             ilat0, ilat1 = where_lat[0], where_lat[-1] + 1
             ilon0, ilon1 = where_lon[0], where_lon[-1] + 1
 
+            mask = np.ones((lat.shape[0], lon.shape[0]), dtype=bool)
+            mask[ilat0:ilat1, ilon0:ilon1] = False
+
             output_path = OUTPUT_PATH / cutout_path
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with Dataset(output_path, 'w', format='NETCDF4') as co:
-                perform_cutout(ds, co, ilat0, ilat1, ilon0, ilon1)
+                copy_data(ds, co, mask)
 
 
 def cutout_country(dataset_path, cutout_path, country):
@@ -31,14 +35,9 @@ def cutout_country(dataset_path, cutout_path, country):
         if validate_dataset(ds):
             with Dataset(COUNTRYMASKS_FILE_PATH, 'r', format='NETCDF4') as cm:
                 country_var = 'm_{}'.format(country.upper())
-                where = np.where(cm[country_var][:, :] == 1)
-
-                ilat0, ilat1 = np.min(where[0]), np.max(where[0]) + 1
-                ilon0, ilon1 = np.min(where[1]), np.max(where[1]) + 1
-
-                country_mask = cm[country_var][ilat0:ilat1, ilon0:ilon1]
+                country_mask = np.logical_not(cm[country_var][...])
 
                 output_path = OUTPUT_PATH / cutout_path
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 with Dataset(output_path, 'w', format='NETCDF4') as co:
-                    perform_cutout(ds, co, ilat0, ilat1, ilon0, ilon1, mask=country_mask)
+                    copy_data(ds, co, country_mask)

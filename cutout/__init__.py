@@ -36,7 +36,7 @@ def create_app():
 
         if 'bbox' in data:
             bbox = validate_bbox(data, errors)
-            if errors:
+            if not errors:
                 cutout_path = get_cutout_path(path, '{}-{}-{}-{}'.format(*bbox))
                 return create_job(cutout_bbox, cutout_path, args=[path, cutout_path, bbox])
 
