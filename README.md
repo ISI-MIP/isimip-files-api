@@ -32,6 +32,68 @@ The worker for the asynchronous jobs need to be started in a different terminal 
 rq worker
 ```
 
+Asynchronous jobs are created using a HTTP `POST` request to the root api entpoint. To mask everything but a bounding box in lat/lon use:
+
+```
+POST /
+
+{
+  "path": "path/to/file.nc",
+  "bbox": [south, north, west, east]
+}
+```
+
+where `south`, `north`, `west`, `east` are floats and `path` is the path to the file on the server relative to `INPUT_PATH` given in `.env`. For a country use:
+
+```
+POST /
+
+{
+  "path": "path/to/file.nc",
+  "bbox": "deu"
+}
+```
+
+for, e. g. Germany. To mask out all sea and antarctica data use:
+
+```
+POST /
+
+{
+  "path": "path/to/file.nc",
+  "landonly": true
+}
+```
+
+The response is a JSON like this:
+
+```
+{
+    "id": "5741ca0e7f824d37ef23e107f5e5261a31e974a6",
+    "job_url": "http://127.0.0.1:5000/5741ca0e7f824d37ef23e107f5e5261a31e974a6",
+    "meta": {
+        "output_path": "path/to/file.nc"
+    },
+    "status": "queued"
+}
+```
+
+Performing the initial request again, or performing a `GET` on the url given in `job_url` will give an update on the job status, e.g.
+
+```
+{
+    "file_url": "http://127.0.0.1/api/output/path/to/file.nc",
+    "id": "5741ca0e7f824d37ef23e107f5e5261a31e974a6",
+    "job_url": "http://127.0.0.1:5000/5741ca0e7f824d37ef23e107f5e5261a31e974a6",
+    "meta": {
+        "output_path": "path/to/file.nc"
+    },
+    "status": "finished"
+}
+```
+
+When the job is finished, the resulting file is located at `path/to/file.nc` relative to the path given in `OUTPUT_PATH` in `.env`. When `OUTPUT_PATH` is made public via a web server (e.g. NGINX, see below for deployment), the file can be downloaded under the URL given by `file_url`.
+
 
 Deployment
 ----------
