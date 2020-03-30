@@ -36,7 +36,6 @@ Asynchronous jobs are created using a HTTP `POST` request to the root api entpoi
 
 ```
 POST /
-
 {
   "path": "path/to/file.nc",
   "bbox": [south, north, west, east]
@@ -47,10 +46,9 @@ where `south`, `north`, `west`, `east` are floats and `path` is the path to the 
 
 ```
 POST /
-
 {
   "path": "path/to/file.nc",
-  "bbox": "deu"
+  "country": "deu"
 }
 ```
 
@@ -58,7 +56,6 @@ for, e. g. Germany. To mask out all sea and antarctica data use:
 
 ```
 POST /
-
 {
   "path": "path/to/file.nc",
   "landonly": true
@@ -78,7 +75,7 @@ The response is a JSON like this:
 }
 ```
 
-Performing the initial request again, or performing a `GET` on the url given in `job_url` will give an update on the job status, e.g.
+Performing the initial request again, or performing a `GET` on the url given in `job_url`, will give an update on the job status, e.g.
 
 ```
 {
@@ -94,6 +91,17 @@ Performing the initial request again, or performing a `GET` on the url given in 
 
 When the job is finished, the resulting file is located at `path/to/file.nc` relative to the path given in `OUTPUT_PATH` in `.env`. When `OUTPUT_PATH` is made public via a web server (e.g. NGINX, see below for deployment), the file can be downloaded under the URL given by `file_url`.
 
+The following exaples can be used from the command line with [httpie](https://httpie.org/) or [curl](https://curl.haxx.se/):
+
+```
+http :5000 path=path/to/file.nc bbox=:"[0, 10, 0, 10]"
+http :5000 path=path/to/file.nc country=deu
+http :5000 path=path/to/file.nc landonly:=true
+
+curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "bbox": [south, north, west, east]}'
+curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "country": "deu"}'
+curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "landonly": true}'
+```
 
 Deployment
 ----------
