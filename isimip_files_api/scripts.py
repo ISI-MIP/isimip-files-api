@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from redis import Redis
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
@@ -13,6 +14,8 @@ redis = Redis()
 
 
 def clean():
+    load_dotenv(Path().cwd() / '.env')
+
     for root, dirs, files in os.walk(OUTPUT_PATH, topdown=False):
         root_path = Path(root)
 
