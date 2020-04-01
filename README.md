@@ -138,10 +138,10 @@ systemd-tmpfiles --create
 In order to run the api service with systemd three scripts need to be added to `/etc/systemd/system`
 
 ```
-# in /etc/systemd/system/isimip-api.service
+# in /etc/systemd/system/isimip-files-api.service
 
 [Unit]
-Description=pseudo-service to start/stop all isimip-api services
+Description=pseudo-service to start/stop all isimip-files-api services
 
 [Service]
 Type=oneshot
@@ -153,11 +153,12 @@ WantedBy=network.target
 ```
 
 ```
-# in /etc/systemd/system/isimip-api-app.service
+# in /etc/systemd/system/isimip-files-api-app.service
 
 [Unit]
 Description=isimip-api gunicorn daemon
-After=network.target
+PartOf=isimip-files-api.service
+After=isimip-files-api.service
 
 [Service]
 User=isimip
@@ -184,11 +185,12 @@ WantedBy=isimip-api.target
 ```
 
 ```
-# in /etc/systemd/system/isimip-api-worker.service
+# in /etc/systemd/system/isimip-files-api-worker.service
 
 [Unit]
 Description=RQ worker for isimip-api
-After=network.target
+PartOf=isimip-files-api.service
+After=isimip-files-api.service
 
 [Service]
 User=isimip
