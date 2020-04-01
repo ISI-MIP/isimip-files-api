@@ -173,7 +173,7 @@ ExecStart=/bin/sh -c '${GUNICORN_BIN} \
   --timeout ${GUNICORN_TIMEOUT} \
   --access-logfile ${GUNICORN_ACCESS_LOG_FILE} \
   --error-logfile ${GUNICORN_ERROR_LOG_FILE} \
-  "api:create_app()"'
+  "isimip_files_api:app:create_app()"'
 
 ExecReload=/bin/sh -c '/usr/bin/pkill -HUP -F ${GUNICORN_PID_FILE}'
 
@@ -253,3 +253,10 @@ Lastly, add
 ```
 
 to your NGINX virtual host configuration. The service should then be available at https://yourdomain/api/v1/.
+
+The created files can be automatically deleted using the included `isimip-files-api-clean` script. To do so, add the following to the crontab of the `isimip` user (by using `crontab -e`):
+
+```
+# clean files everyday at 5 a.m.
+0 5 * * * cd /home/isimip/api; /home/isimip/api/env/bin/isimip-files-api-clean
+```
