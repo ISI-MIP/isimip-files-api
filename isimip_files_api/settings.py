@@ -14,6 +14,8 @@ OUTPUT_URL = os.getenv('OUTPUT_URL', 'http://127.0.0.1/api/output/').rstrip('/')
 INPUT_PATH = Path(os.getenv('INPUT_PATH', 'input'))
 OUTPUT_PATH = Path(os.getenv('OUTPUT_PATH', 'output'))
 
+CORS = os.getenv('CORS', '').upper() in ['TRUE', 1]
+
 COUNTRYMASKS_FILE_PATH = Path(os.getenv('COUNTRYMASKS_FILE_PATH', 'countrymasks.nc'))
 COUNTRYMASKS_COUNTRIES = [
     'AFG', 'ALB', 'DZA', 'AND', 'AGO', 'ATG', 'ARG', 'ARM', 'AUS', 'AUT',

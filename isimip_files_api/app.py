@@ -1,6 +1,7 @@
 import logging
 
 from flask import Flask, request
+from flask_cors import CORS
 
 from .jobs import create_job, delete_job, fetch_job
 from .settings import LOG_FILE, LOG_LEVEL
@@ -15,6 +16,9 @@ logging.basicConfig(level=LOG_LEVEL, filename=LOG_FILE)
 def create_app():
     # create and configure the app
     app = Flask(__name__)
+
+    if CORS:
+        CORS(app)
 
     @app.route('/', methods=['GET'])
     def list():
