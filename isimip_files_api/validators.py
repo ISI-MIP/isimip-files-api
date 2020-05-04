@@ -1,8 +1,7 @@
-from pathlib import Path
-
 from rq import get_current_job
 
-from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH
+from .settings import COUNTRYMASKS_COUNTRIES, GLOBAL, INPUT_PATH, MAX_FILES
+from .utils import find_files
 
 
 def validate_data(data, errors):
@@ -19,44 +18,75 @@ def validate_path(data, errors):
     # check if path is given
     if 'path' not in data:
         errors['path'] = 'This field is required'
+        return None
 
-    # construct file_path
-    file_path = INPUT_PATH / data['path']
+    # check that '_global_ is in filename'
+    if GLOBAL not in data['path']:
+        errors['path'] = 'Only global files can be processed.'
+        return None
 
     # prevent tree traversal
     try:
-        file_path.resolve().relative_to(INPUT_PATH.resolve())
+        absolute_path = INPUT_PATH / data['path']
+        absolute_path.parent.resolve().relative_to(INPUT_PATH.resolve())
     except ValueError:
-        errors['path'] = 'File is below root path'
+        errors['path'] = 'Path is below root path'
 
-    # check if file exists
-    if not file_path.is_file():
+    # check if file(s) exists
+    files = find_files(data['path'])
+
+    if len(files) < 1:
         errors['path'] = 'File not found'
+    elif len(files) > MAX_FILES:
+        errors['path'] = 'Two many files match that dataset (max: {})'.format(MAX_FILES)
+    else:
+        return data['path']
 
-    return Path(data['path'])
+    return None
+
+
+def validate_args(data, errors):
+    args = {
+        'bbox': validate_bbox(data, errors),
+        'country': validate_country(data, errors),
+        'landonly': validate_landonly(data, errors)
+    }
+    if all([v is None for v in args.values()]):
+        errors['args'] = 'Either bbox, country, or landonly needs to be provided'
+    else:
+        return args
 
 
 def validate_bbox(data, errors):
-    try:
-        return [float(item) for item in data['bbox']]
-    except ValueError:
-        errors['bbox'] = 'bbox is not of the form [%f, %f, %f, %f]'
+    if 'bbox' in data:
+        try:
+            return [int(item) for item in data['bbox']]
+        except ValueError:
+            errors['bbox'] = 'bbox is not of the form [%d, %d, %d, %d]'
+    else:
+        return None
 
 
 def validate_country(data, errors):
-    country = data['country'].lower()
+    if 'country' in data:
+        country = data['country'].lower()
 
-    if country.upper() not in COUNTRYMASKS_COUNTRIES:
-        errors['country'] = 'country not in the list of supported countries (e.g. DEU)'
+        if country.upper() not in COUNTRYMASKS_COUNTRIES:
+            errors['country'] = 'country not in the list of supported countries (e.g. DEU)'
 
-    return country
+        return country
+    else:
+        return None
 
 
 def validate_landonly(data, errors):
-    if data['landonly'] is True:
-        return True
+    if 'landonly' in data:
+        if data['landonly'] is True:
+            return True
+        else:
+            errors['landonly'] = 'Set {"landonly": true} to mask sea data'
     else:
-        errors['landonly'] = 'Set {"landonly": true} to mask sea data'
+        return None
 
 
 def validate_dataset(ds):

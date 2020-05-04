@@ -5,10 +5,8 @@ from flask_cors import CORS
 
 from .jobs import create_job, delete_job, fetch_job
 from .settings import LOG_FILE, LOG_LEVEL
-from .tasks import mask_bbox, mask_country, mask_landonly
 from .utils import get_errors_response, get_output_path
-from .validators import (validate_bbox, validate_country, validate_data,
-                         validate_landonly, validate_path)
+from .validators import validate_args, validate_data, validate_path
 
 logging.basicConfig(level=LOG_LEVEL, filename=LOG_FILE)
 
@@ -38,29 +36,12 @@ def create_app():
         if errors:
             return get_errors_response(errors)
 
-        if 'bbox' in data:
-            bbox = validate_bbox(data, errors)
-            if not errors:
-                output_path = get_output_path(path, '{}-{}-{}-{}'.format(*bbox))
-                return create_job(mask_bbox, output_path, args=[path, output_path, bbox])
+        args = validate_args(data, errors)
+        if errors:
+            return get_errors_response(errors)
 
-        elif 'country' in data:
-            country = validate_country(data, errors)
-            if not errors:
-                output_path = get_output_path(path, country)
-                return create_job(mask_country, output_path, args=[path, output_path, country])
-
-        elif 'landonly' in data:
-            validate_landonly(data, errors)
-            if not errors:
-                output_path = get_output_path(path, 'landonly')
-                return create_job(mask_landonly, output_path, args=[path, output_path])
-
-        else:
-            errors['data'] = 'Either bbox, country, or landonly needs to be provided'
-
-        # if it did not work, return errors
-        return get_errors_response(errors)
+        output_path = get_output_path(path, args)
+        return create_job(path, output_path, args)
 
     @app.route('/<job_id>', methods=['GET'])
     def detail(job_id):
