@@ -1,10 +1,10 @@
 import logging
 
 from flask import Flask, request
-from flask_cors import CORS
+from flask_cors import CORS as FlaskCORS
 
 from .jobs import create_job, delete_job, fetch_job
-from .settings import LOG_FILE, LOG_LEVEL
+from .settings import CORS, LOG_FILE, LOG_LEVEL
 from .utils import get_errors_response, get_output_path
 from .validators import validate_args, validate_data, validate_path
 
@@ -16,7 +16,7 @@ def create_app():
     app = Flask(__name__)
 
     if CORS:
-        CORS(app)
+        FlaskCORS(app)
 
     @app.route('/', methods=['GET'])
     def list():
