@@ -201,7 +201,7 @@ Environment=LANG=en_US.UTF-8
 Environment=LC_ALL=en_US.UTF-8
 Environment=LC_LANG=en_US.UTF-8
 
-ExecStart=/home/isimip/api/env/bin/rq worker
+ExecStart=/home/isimip/api/env/bin/rq worker -w 'isimip_files_api.worker.LogWorker'
 
 ExecReload=/bin/kill -s HUP $MAINPID
 
