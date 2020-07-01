@@ -15,7 +15,7 @@ INPUT_PATH = Path(os.getenv('INPUT_PATH', 'input'))
 OUTPUT_PATH = Path(os.getenv('OUTPUT_PATH', 'output'))
 
 CORS = os.getenv('CORS', '').upper() in ['TRUE', 1]
-MAX_FILES = int(os.getenv('MAX_FILES', '16'))
+MAX_FILES = int(os.getenv('MAX_FILES', '32'))
 GLOBAL = os.getenv('GLOBAL', '_global_')
 
 WORKER_TIMEOUT = int(os.getenv('WORKER_TIMEOUT', '180'))
