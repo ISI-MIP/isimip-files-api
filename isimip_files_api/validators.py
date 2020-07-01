@@ -38,7 +38,7 @@ def validate_path(data, errors):
     if len(files) < 1:
         errors['path'] = 'File not found'
     elif len(files) > MAX_FILES:
-        errors['path'] = 'Two many files match that dataset (max: {})'.format(MAX_FILES)
+        errors['path'] = 'To many files match that dataset (max: {})'.format(MAX_FILES)
     else:
         return data['path']
 
