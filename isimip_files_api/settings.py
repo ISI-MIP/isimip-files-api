@@ -15,12 +15,15 @@ INPUT_PATH = Path(os.getenv('INPUT_PATH', 'input'))
 OUTPUT_PATH = Path(os.getenv('OUTPUT_PATH', 'output'))
 
 CORS = os.getenv('CORS', '').upper() in ['TRUE', 1]
-MAX_FILES = int(os.getenv('MAX_FILES', '32'))
 GLOBAL = os.getenv('GLOBAL', '_global_')
+MAX_FILES = int(os.getenv('MAX_FILES', '32'))
 
 WORKER_TIMEOUT = int(os.getenv('WORKER_TIMEOUT', '180'))
 WORKER_LOG_FILE = os.getenv('WORKER_LOG_FILE')
 WORKER_LOG_LEVEL = os.getenv('WORKER_LOG_LEVEL', 'ERROR')
+WORKER_TTL = int(os.getenv('RESULT_TTL', '86400'))          # one day
+WORKER_FAILURE_TTL = int(os.getenv('WORKER_FAILURE_TTL', '86400'))  # one day
+WORKER_RESULT_TTL = int(os.getenv('WORKER_RESULT_TTL', '604800'))  # one week
 
 COUNTRYMASKS_FILE_PATH = Path(os.getenv('COUNTRYMASKS_FILE_PATH', 'countrymasks.nc'))
 COUNTRYMASKS_COUNTRIES = [

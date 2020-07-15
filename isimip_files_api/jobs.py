@@ -3,7 +3,8 @@ from rq import Queue
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
-from .settings import WORKER_TIMEOUT
+from .settings import (WORKER_FAILURE_TTL, WORKER_RESULT_TTL, WORKER_TIMEOUT,
+                       WORKER_TTL)
 from .tasks import run_task
 from .utils import get_hash, get_response
 
@@ -19,7 +20,10 @@ def create_job(path, output_path, args):
         job = Job.fetch(job_id, connection=redis)
         return get_response(job, 200)
     except NoSuchJobError:
-        job = Job.create(run_task, id=job_id, timeout=WORKER_TIMEOUT, args=job_args, connection=redis)
+        job = Job.create(run_task, id=job_id, args=job_args,
+                         timeout=WORKER_TIMEOUT, ttl=WORKER_TTL,
+                         result_ttl=WORKER_RESULT_TTL, failure_ttl=WORKER_FAILURE_TTL,
+                         connection=redis)
         queue = Queue(connection=redis)
         queue.enqueue_job(job)
         job.meta['output_path'] = str(output_path)
