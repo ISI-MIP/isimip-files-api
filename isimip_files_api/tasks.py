@@ -6,6 +6,7 @@ from zipfile import ZipFile
 import numpy as np
 import numpy.ma as ma
 from netCDF4 import Dataset
+from rq import get_current_job
 
 from .netcdf import copy_data
 from .settings import (COUNTRYMASKS_FILE_PATH, INPUT_PATH,
@@ -15,6 +16,16 @@ from .validators import validate_dataset
 
 
 def run_task(path, output_path, args):
+    # find files
+    files = find_files(path)
+
+    # get current job and init metadata
+    job = get_current_job()
+    job.meta['output_path'] = str(output_path)
+    job.meta['created_files'] = 0
+    job.meta['total_files'] = len(files)
+    job.save_meta()
+
     output_path = OUTPUT_PATH / output_path
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -25,7 +36,7 @@ def run_task(path, output_path, args):
         # open zipfile
         z = ZipFile(output_path, 'w')
 
-        for file_path in find_files(path):
+        for file_path in files:
             input_path = INPUT_PATH / file_path
             tmp_name = get_output_name(file_path, args)
             tmp_path = tmp / tmp_name
@@ -38,6 +49,10 @@ def run_task(path, output_path, args):
                 mask_landonly(input_path, tmp_path)
 
             z.write(tmp_path, tmp_name)
+
+            # update the current job and store progress
+            job.meta['created_files'] += 1
+            job.save_meta()
 
         # close zip file
         z.close()

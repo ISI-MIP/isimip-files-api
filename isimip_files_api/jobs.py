@@ -26,8 +26,6 @@ def create_job(path, output_path, args):
                          connection=redis)
         queue = Queue(connection=redis)
         queue.enqueue_job(job)
-        job.meta['output_path'] = str(output_path)
-        job.save_meta()
         return get_response(job, 201)
 
 
