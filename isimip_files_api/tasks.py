@@ -10,65 +10,51 @@ from rq import get_current_job
 
 from .netcdf import copy_data
 from .settings import (COUNTRYMASKS_FILE_PATH, INPUT_PATH,
-                       LANDSEAMASK_FILE_PATH, OUTPUT_PATH)
-from .utils import find_files, get_output_name
+                       LANDSEAMASK_FILE_PATH, OUTPUT_PATH, OUTPUT_PREFIX)
+from .utils import get_output_name
 from .validators import validate_dataset
 
 
-def run_task(path, output_path, args):
-    # find files
-    files = find_files(path)
-
+def run_task(paths, args):
     # get current job and init metadata
     job = get_current_job()
-    job.meta['output_path'] = str(output_path)
     job.meta['created_files'] = 0
-    job.meta['total_files'] = len(files)
+    job.meta['total_files'] = len(paths)
     job.save_meta()
 
-    output_path = OUTPUT_PATH / output_path
+    # create output paths
+    output_path = OUTPUT_PATH.joinpath(OUTPUT_PREFIX + job.id).with_suffix('.zip')
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if Path(output_path).suffix == '.zip':
-        # create a temporary directory
-        tmp = Path(mkdtemp(prefix='isimip-files-api-'))
+    # create a temporary directory
+    tmp = Path(mkdtemp(prefix=OUTPUT_PREFIX))
 
-        # open zipfile
-        z = ZipFile(output_path, 'w')
+    # open zipfile
+    z = ZipFile(output_path, 'w')
 
-        for file_path in files:
-            input_path = INPUT_PATH / file_path
-            tmp_name = get_output_name(file_path, args)
-            tmp_path = tmp / tmp_name
-
-            if args['bbox']:
-                mask_bbox(input_path, tmp_path, args['bbox'])
-            elif args['country']:
-                mask_country(input_path, tmp_path, args['country'])
-            elif args['landonly']:
-                mask_landonly(input_path, tmp_path)
-
-            z.write(tmp_path, tmp_name)
-
-            # update the current job and store progress
-            job.meta['created_files'] += 1
-            job.save_meta()
-
-        # close zip file
-        z.close()
-
-        # delete temporary directory
-        shutil.rmtree(tmp)
-
-    else:
+    for path in paths:
         input_path = INPUT_PATH / path
+        tmp_name = get_output_name(path, args)
+        tmp_path = tmp / tmp_name
 
         if args['bbox']:
-            mask_bbox(input_path, output_path, args['bbox'])
+            mask_bbox(input_path, tmp_path, args['bbox'])
         elif args['country']:
-            mask_country(input_path, output_path, args['country'])
+            mask_country(input_path, tmp_path, args['country'])
         elif args['landonly']:
-            mask_landonly(input_path, output_path)
+            mask_landonly(input_path, tmp_path)
+
+        z.write(tmp_path, tmp_name)
+
+        # update the current job and store progress
+        job.meta['created_files'] += 1
+        job.save_meta()
+
+    # close zip file
+    z.close()
+
+    # delete temporary directory
+    shutil.rmtree(tmp)
 
     # return True to indicate success
     return True

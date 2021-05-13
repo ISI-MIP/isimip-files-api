@@ -1,4 +1,5 @@
 from redis import Redis
+
 from rq import Queue
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
@@ -11,16 +12,13 @@ from .utils import get_hash, get_response
 redis = Redis()
 
 
-def create_job(path, output_path, args):
-    # get job_id from output path
-    job_id = get_hash(output_path)
-    job_args = [path, output_path, args]
-
+def create_job(paths, args):
+    job_id = get_hash(paths, args)
     try:
         job = Job.fetch(job_id, connection=redis)
         return get_response(job, 200)
     except NoSuchJobError:
-        job = Job.create(run_task, id=job_id, args=job_args,
+        job = Job.create(run_task, id=job_id, args=[paths, args],
                          timeout=WORKER_TIMEOUT, ttl=WORKER_TTL,
                          result_ttl=WORKER_RESULT_TTL, failure_ttl=WORKER_FAILURE_TTL,
                          connection=redis)

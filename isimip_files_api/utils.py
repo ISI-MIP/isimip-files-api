@@ -1,7 +1,7 @@
 import hashlib
 from pathlib import Path
 
-from .settings import BASE_URL, GLOBAL, INPUT_PATH, OUTPUT_URL
+from .settings import BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL
 
 
 def get_response(job, http_status):
@@ -13,8 +13,10 @@ def get_response(job, http_status):
     }
 
     if job.get_status() == 'finished':
-        if 'output_path' in job.meta:
-            response['file_url'] = OUTPUT_URL + '/' + job.meta['output_path']
+        response['file_url'] = '{}/{}'.format(
+            OUTPUT_URL,
+            Path(OUTPUT_PREFIX + job.id).with_suffix('.zip').as_posix()
+        )
 
     return response, http_status
 
@@ -28,34 +30,23 @@ def get_errors_response(errors):
 
 def get_output_name(path, args):
     if args['bbox']:
-        region = '_lat{}to{}lon{}to{}_'.format(*args['bbox'])
+        region = 'lat{}to{}lon{}to{}'.format(*args['bbox'])
     elif args['country']:
-        region = '_{}_'.format(args['country'].lower())
+        region = args['country'].lower()
     elif args['landonly']:
-        region = '_landonly_'
+        region = 'landonly'
 
-    return Path(path).name.replace(GLOBAL, region)
-
-
-def get_output_path(path, args):
-    output_name = get_output_name(path, args)
-    output_path = Path(path).parent / output_name
-    if not output_path.suffix:
-        output_path = output_path.with_suffix('.zip')
-
-    return str(output_path)
+    path = Path(path)
+    if GLOBAL in path.name:
+        # replace the _global_ specifier
+        return path.name.replace(GLOBAL, '_{}_'.format(region))
+    else:
+        # append region specifier
+        return path.stem + '_{}'.format(region) + path.suffix
 
 
-def get_hash(output_path):
+def get_hash(paths, args):
     m = hashlib.sha1()
-    m.update(str(output_path).encode())
+    m.update(str(paths).encode())
+    m.update(str(args).encode())
     return m.hexdigest()
-
-
-def find_files(path):
-    files = []
-    for file_name in INPUT_PATH.joinpath(path).parent.iterdir():
-        # filter files which starts with the name part of path and end with .nc or .nc4
-        if file_name.name.startswith(Path(path).name) and file_name.suffix in ['.nc', '.nc4']:
-            files.append(file_name)
-    return files

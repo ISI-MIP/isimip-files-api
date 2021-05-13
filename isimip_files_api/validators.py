@@ -1,7 +1,6 @@
 from rq import get_current_job
 
-from .settings import COUNTRYMASKS_COUNTRIES, GLOBAL, INPUT_PATH, MAX_FILES
-from .utils import find_files
+from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH, MAX_FILES
 
 
 def validate_data(data, errors):
@@ -10,39 +9,39 @@ def validate_data(data, errors):
         errors['data'] = 'No json data provided with POST'
     elif not isinstance(data, dict):
         errors['data'] = 'Provided json data is malformatted'
-
-    return data
-
-
-def validate_path(data, errors):
-    # check if path is given
-    if 'path' not in data:
-        errors['path'] = 'This field is required'
-        return None
-
-    # check that '_global_ is in filename'
-    if GLOBAL not in data['path']:
-        errors['path'] = 'Only global files can be processed.'
-        return None
-
-    # prevent tree traversal
-    try:
-        absolute_path = INPUT_PATH / data['path']
-        absolute_path.parent.resolve().relative_to(INPUT_PATH.resolve())
-    except ValueError:
-        errors['path'] = 'Path is below root path'
-
-    # check if file(s) exists
-    files = find_files(data['path'])
-
-    if len(files) < 1:
-        errors['path'] = 'File not found'
-    elif len(files) > MAX_FILES:
-        errors['path'] = 'To many files match that dataset (max: {})'.format(MAX_FILES)
     else:
-        return data['path']
+        paths = validate_paths(data, errors)
+        args = validate_args(data, errors)
+        return paths, args
 
-    return None
+
+def validate_paths(data, errors):
+    # check if path is given
+    if 'paths' not in data:
+        errors['paths'].append('This field is required.')
+        return None
+
+    if len(data['paths']) > MAX_FILES:
+        errors['paths'].append('To many files match that dataset (max: {}).'.format(MAX_FILES))
+        return None
+
+    for path in data['paths']:
+        # prevent tree traversal
+        try:
+            absolute_path = INPUT_PATH / path
+            absolute_path.parent.resolve().relative_to(INPUT_PATH.resolve())
+        except ValueError:
+            errors['paths'].append('{} is below the root path.'.format(path))
+
+        # check if the file exists
+        if not absolute_path.is_file():
+            errors['paths'].append('{} was not found on the server.'.format(path))
+
+        # check if the file exists
+        if absolute_path.suffix not in ['.nc', '.nc4']:
+            errors['paths'].append('{} is not a NetCDF file..'.format(path))
+
+    return data['paths']
 
 
 def validate_args(data, errors):
