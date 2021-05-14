@@ -1,24 +1,19 @@
 import hashlib
 from pathlib import Path
 
-from .settings import BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL
+from .settings import (BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL,
+                       WORKER_RESULT_TTL)
 
 
 def get_response(job, http_status):
-    response = {
+    return {
         'id': job.id,
         'job_url': BASE_URL + '/' + job.id,
+        'file_url': OUTPUT_URL + '/' + get_zip_file_name(job.id),
         'meta': job.meta,
+        'ttl': WORKER_RESULT_TTL,
         'status': job.get_status(),
-    }
-
-    if job.get_status() == 'finished':
-        response['file_url'] = '{}/{}'.format(
-            OUTPUT_URL,
-            Path(OUTPUT_PREFIX + job.id).with_suffix('.zip').as_posix()
-        )
-
-    return response, http_status
+    }, http_status
 
 
 def get_errors_response(errors):
@@ -43,6 +38,10 @@ def get_output_name(path, args):
     else:
         # append region specifier
         return path.stem + '_{}'.format(region) + path.suffix
+
+
+def get_zip_file_name(job_id):
+    return Path(OUTPUT_PREFIX + job_id).with_suffix('.zip').as_posix()
 
 
 def get_hash(paths, args):

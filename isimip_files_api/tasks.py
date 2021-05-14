@@ -11,7 +11,7 @@ from rq import get_current_job
 from .netcdf import copy_data
 from .settings import (COUNTRYMASKS_FILE_PATH, INPUT_PATH,
                        LANDSEAMASK_FILE_PATH, OUTPUT_PATH, OUTPUT_PREFIX)
-from .utils import get_output_name
+from .utils import get_output_name, get_zip_file_name
 from .validators import validate_dataset
 
 
@@ -23,7 +23,7 @@ def run_task(paths, args):
     job.save_meta()
 
     # create output paths
-    output_path = OUTPUT_PATH.joinpath(OUTPUT_PREFIX + job.id).with_suffix('.zip')
+    output_path = OUTPUT_PATH / get_zip_file_name(job.id)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # create a temporary directory
