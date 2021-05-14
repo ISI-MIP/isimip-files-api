@@ -93,8 +93,4 @@ def validate_dataset(ds):
     if ds.dimensions['lat'].size == 360 or ds.dimensions['lon'].size == 720:
         return True
     else:
-        # store the information that the job failed in job.meta
-        job = get_current_job()
-        job.meta['error'] = 'File is not global gridded data'
-        job.save_meta()
         return False

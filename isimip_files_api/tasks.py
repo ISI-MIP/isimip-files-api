@@ -44,7 +44,12 @@ def run_task(paths, args):
         elif args['landonly']:
             mask_landonly(input_path, tmp_path)
 
-        z.write(tmp_path, tmp_name)
+        if tmp_path.is_file():
+            z.write(tmp_path, tmp_name)
+        else:
+            error_path = Path(tmp_path).with_suffix('.txt')
+            error_path.write_text('Error: Original file could not be masked. Probably it is not using a global grid.')
+            z.write(error_path, error_path.name)
 
         # update the current job and store progress
         job.meta['created_files'] += 1
