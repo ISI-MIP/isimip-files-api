@@ -34,7 +34,8 @@ setup(
     entry_points={
         'console_scripts': [
             'isimip-files-api-mask=isimip_files_api.scripts:mask',
-            'isimip-files-api-clean=isimip_files_api.scripts:clean',
+            'isimip-files-api-cutout=isimip_files_api.scripts:cutout',
+            'isimip-files-api-clean=isimip_files_api.scripts:clean'
         ]
     }
 )

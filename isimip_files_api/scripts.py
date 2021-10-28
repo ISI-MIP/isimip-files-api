@@ -9,7 +9,8 @@ from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
 from .settings import OUTPUT_PATH
-from .tasks import mask_bbox, mask_country, mask_landonly
+from .nco import cutout_bbox
+from .netcdf import mask_bbox, mask_country, mask_landonly
 from .utils import get_hash, get_output_name
 
 redis = Redis()
@@ -43,6 +44,27 @@ def mask():
             mask_country(input_path, output_path, args['country'])
         elif args['landonly']:
             mask_landonly(input_path, output_path)
+
+
+def cutout():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('paths', nargs='+', help='List of files to mask')
+    parser.add_argument('--bbox', help='Mask by bounding box (south, north, west, east), e.g. "-23.43,23.43,-180,180"')
+    parser.add_argument('--output', help='Output directory, default: .', default='.')
+    parser_args = parser.parse_args()
+
+    if not any([parser_args.bbox]):
+        parser.error('Please provide at least --bbox.')
+
+    args = {
+        'bbox': [float(c) for c in parser_args.bbox.split(',')]
+    }
+
+    for path in parser_args.paths:
+        input_path = Path(path)
+        output_path = Path(parser_args.output).expanduser() / get_output_name(path, args)
+
+        cutout_bbox(input_path, output_path, args['bbox'])
 
 
 def clean():

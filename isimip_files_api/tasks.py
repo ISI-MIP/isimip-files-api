@@ -3,16 +3,11 @@ from pathlib import Path
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
-import numpy as np
-import numpy.ma as ma
-from netCDF4 import Dataset
 from rq import get_current_job
 
-from .netcdf import copy_data
-from .settings import (COUNTRYMASKS_FILE_PATH, INPUT_PATH,
-                       LANDSEAMASK_FILE_PATH, OUTPUT_PATH, OUTPUT_PREFIX)
+from .settings import (INPUT_PATH, OUTPUT_PATH, OUTPUT_PREFIX)
 from .utils import get_output_name, get_zip_file_name
-from .validators import validate_dataset
+from .netcdf import mask_bbox, mask_country, mask_landonly
 
 
 def run_task(paths, args):
@@ -63,45 +58,3 @@ def run_task(paths, args):
 
     # return True to indicate success
     return True
-
-
-def mask_bbox(dataset_path, output_path, bbox):
-    with Dataset(dataset_path) as ds_in:
-        if validate_dataset(ds_in):
-            lat = ds_in.variables['lat'][:]
-            lon = ds_in.variables['lon'][:]
-
-            lat_min, lat_max, lon_min, lon_max = bbox
-
-            where_lat = np.where((lat > lat_min) & (lat < lat_max))[0]
-            where_lon = np.where((lon > lon_min) & (lon < lon_max))[0]
-
-            ilat0, ilat1 = where_lat[0], where_lat[-1] + 1
-            ilon0, ilon1 = where_lon[0], where_lon[-1] + 1
-
-            mask = np.ones((lat.shape[0], lon.shape[0]), dtype=bool)
-            mask[ilat0:ilat1, ilon0:ilon1] = False
-
-            with Dataset(output_path, 'w', format='NETCDF4_CLASSIC') as ds_out:
-                copy_data(ds_in, ds_out, mask)
-
-
-def mask_country(dataset_path, output_path, country):
-    with Dataset(dataset_path) as ds_in:
-        if validate_dataset(ds_in):
-            with Dataset(COUNTRYMASKS_FILE_PATH) as cm:
-                country_var = 'm_{}'.format(country.upper())
-                country_mask = np.logical_not(cm[country_var][...])
-
-                with Dataset(output_path, 'w', format='NETCDF4_CLASSIC') as ds_out:
-                    copy_data(ds_in, ds_out, country_mask)
-
-
-def mask_landonly(dataset_path, output_path):
-    with Dataset(dataset_path) as ds_in:
-        if validate_dataset(ds_in):
-            with Dataset(LANDSEAMASK_FILE_PATH) as lsm:
-                landsea_mask = np.logical_not(ma.filled(lsm['mask'][0, :, :], fill_value=0.0), dtype=bool)
-
-                with Dataset(output_path, 'w', format='NETCDF4_CLASSIC') as ds_out:
-                    copy_data(ds_in, ds_out, landsea_mask)

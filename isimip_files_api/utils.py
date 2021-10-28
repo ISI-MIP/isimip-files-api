@@ -25,7 +25,8 @@ def get_errors_response(errors):
 
 def get_output_name(path, args):
     if args['bbox']:
-        region = 'lat{}to{}lon{}to{}'.format(*args['bbox'])
+        south, north, west, east = args['bbox']
+        region = 'lat{}to{}lon{}to{}'.format(south, north, west, east)
     elif args['country']:
         region = args['country'].lower()
     elif args['landonly']:
