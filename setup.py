@@ -33,6 +33,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
+            'isimip-files-api-mask=isimip_files_api.scripts:mask',
             'isimip-files-api-clean=isimip_files_api.scripts:clean',
         ]
     }

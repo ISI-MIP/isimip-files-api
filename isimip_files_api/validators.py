@@ -1,5 +1,3 @@
-from rq import get_current_job
-
 from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH, MAX_FILES
 
 
