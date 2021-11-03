@@ -66,9 +66,9 @@ def validate_task(data, errors):
 def validate_bbox(data, errors):
     if 'bbox' in data:
         try:
-            return [int(item) for item in data['bbox']]
+            return [float(item) for item in data['bbox']]
         except ValueError:
-            errors['bbox'] = 'bbox is not of the form [%d, %d, %d, %d]'
+            errors['bbox'] = 'bbox is not of the form [%f, %f, %f, %f]'
     else:
         return None
 
