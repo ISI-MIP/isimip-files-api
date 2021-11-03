@@ -78,7 +78,7 @@ def clean():
 
             # construct relative path and job_id
             path = root_path.relative_to(OUTPUT_PATH) / file_name
-            job_id = get_hash(path)
+            job_id = path.stem.split('-')[-1]
 
             # check if there is a job for this
             try:
