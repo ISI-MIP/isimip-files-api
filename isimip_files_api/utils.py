@@ -24,12 +24,12 @@ def get_errors_response(errors):
 
 
 def get_output_name(path, args):
-    if args['bbox']:
+    if args['task'] in ['cutout_bbox', 'mask_bbox']:
         south, north, west, east = args['bbox']
         region = 'lat{}to{}lon{}to{}'.format(south, north, west, east)
-    elif args['country']:
+    elif args['task'] == 'mask_country':
         region = args['country'].lower()
-    elif args['landonly']:
+    elif args['task'] == 'mask_landonly':
         region = 'landonly'
 
     path = Path(path)

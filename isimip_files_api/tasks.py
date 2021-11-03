@@ -8,6 +8,7 @@ from rq import get_current_job
 from .settings import (INPUT_PATH, OUTPUT_PATH, OUTPUT_PREFIX)
 from .utils import get_output_name, get_zip_file_name
 from .netcdf import mask_bbox, mask_country, mask_landonly
+from .nco import cutout_bbox
 
 
 def run_task(paths, args):
@@ -32,11 +33,13 @@ def run_task(paths, args):
         tmp_name = get_output_name(path, args)
         tmp_path = tmp / tmp_name
 
-        if args['bbox']:
-            mask_bbox(input_path, tmp_path, args['bbox'])
-        elif args['country']:
+        if args['task'] == 'cutout_bbox':
+            cutout_bbox(input_path, tmp_path, args['bbox'])
+        elif args['task'] == 'mask_country':
             mask_country(input_path, tmp_path, args['country'])
-        elif args['landonly']:
+        elif args['task'] == 'mask_bbox':
+            mask_bbox(input_path, tmp_path, args['bbox'])
+        elif args['task'] == 'mask_landonly':
             mask_landonly(input_path, tmp_path)
 
         if tmp_path.is_file():

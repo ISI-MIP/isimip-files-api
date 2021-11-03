@@ -44,14 +44,23 @@ def validate_paths(data, errors):
 
 def validate_args(data, errors):
     args = {
+        'task': validate_task(data, errors),
         'bbox': validate_bbox(data, errors),
-        'country': validate_country(data, errors),
-        'landonly': validate_landonly(data, errors)
+        'country': validate_country(data, errors)
     }
-    if all([v is None for v in args.values()]):
-        errors['args'] = 'Either bbox, country, or landonly needs to be provided'
+    if args['task'] in ['mask_country'] and not args['country']:
+            errors['args'] = 'country needs to be provided'
+    elif args['task'] in ['cutout_bbox', 'mask_bbox'] and not args['bbox']:
+            errors['args'] = 'bbox needs to be provided'
     else:
         return args
+
+
+def validate_task(data, errors):
+    if 'task' not in data or data['task'] not in ['cutout_bbox', 'mask_bbox', 'mask_country', 'mask_landonly']:
+        errors['task'] = 'task needs to be provided'
+    else:
+        return data['task']
 
 
 def validate_bbox(data, errors):
@@ -72,16 +81,6 @@ def validate_country(data, errors):
             errors['country'] = 'country not in the list of supported countries (e.g. DEU)'
 
         return country
-    else:
-        return None
-
-
-def validate_landonly(data, errors):
-    if 'landonly' in data:
-        if data['landonly'] is True:
-            return True
-        else:
-            errors['landonly'] = 'Set {"landonly": true} to mask sea data'
     else:
         return None
 
