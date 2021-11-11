@@ -15,6 +15,8 @@ INPUT_PATH = Path(os.getenv('INPUT_PATH', 'input'))
 OUTPUT_PATH = Path(os.getenv('OUTPUT_PATH', 'output'))
 OUTPUT_PREFIX = os.getenv('OUTPUT_PREFIX', 'isimip-files-api-')
 
+NCKS_BIN = os.getenv('NCKS_BIN', 'ncks')
+
 CORS = os.getenv('CORS', '').upper() in ['TRUE', 1]
 GLOBAL = os.getenv('GLOBAL', '_global_')
 MAX_FILES = int(os.getenv('MAX_FILES', '32'))
