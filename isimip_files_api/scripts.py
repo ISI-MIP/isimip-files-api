@@ -4,14 +4,18 @@ import argparse
 from pathlib import Path
 
 from dotenv import load_dotenv
+import logging
+
 from redis import Redis
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
-from .settings import OUTPUT_PATH
+from .cdo import mask_bbox, mask_country, mask_landonly, select_bbox, select_country, select_point
 from .nco import cutout_bbox
-from .netcdf import mask_bbox, mask_country, mask_landonly, select_bbox, select_country, select_point
+from .settings import LOG_LEVEL, LOG_FILE, OUTPUT_PATH
 from .utils import get_output_name
+
+logging.basicConfig(level=LOG_LEVEL, filename=LOG_FILE)
 
 redis = Redis()
 
@@ -54,51 +58,43 @@ def mask():
     parser = argparse.ArgumentParser()
     parser.add_argument('paths', nargs='+', help='List of files to mask')
     parser.add_argument('--country', help='Mask by country, e.g. "deu"')
-    parser.add_argument('--bbox', help='Mask by bounding box, e.g. "-23.43651,23.43651,-180,180"')
+    parser.add_argument('--bbox', help='Mask by bounding box, e.g. "-23.43651,23.43651,-180,180"',
+                        action=FloatListAction)
     parser.add_argument('--landonly', action='store_true', help='Mask only land data')
     parser.add_argument('--output', help='Output directory, default: .', default='.')
-    parser_args = parser.parse_args()
+    args = parser.parse_args()
 
-    if not any([parser_args.country, parser_args.bbox, parser_args.landonly]):
+    if not any([args.country, args.bbox, args.landonly]):
         parser.error('Please provide at least --country, --bbox, or --landonly.')
 
-    args = {
-        'country': parser_args.country,
-        'bbox': [float(c) for c in parser_args.bbox.split(',')],
-        'landonly': parser_args.landonly
-    }
-
-    for path in parser_args.paths:
+    for path in args.paths:
         input_path = Path(path)
-        output_path = Path(parser_args.output).expanduser() / get_output_name(path, args)
+        output_path = Path(args.output).expanduser() / get_output_name(path, vars(args))
 
-        if args['bbox']:
-            mask_bbox(input_path, output_path, args['bbox'])
-        elif args['country']:
-            mask_country(input_path, output_path, args['country'])
-        elif args['landonly']:
+        if args.bbox:
+            mask_bbox(input_path, output_path, args.bbox)
+        elif args.country:
+            mask_country(input_path, output_path, args.country)
+        elif args.landonly:
             mask_landonly(input_path, output_path)
 
 
 def cutout():
     parser = argparse.ArgumentParser()
     parser.add_argument('paths', nargs='+', help='List of files to mask')
-    parser.add_argument('--bbox', help='Mask by bounding box (south, north, west, east), e.g. "-23.43,23.43,-180,180"')
+    parser.add_argument('--bbox', help='Mask by bounding box (south, north, west, east), e.g. "-23.43,23.43,-180,180"',
+                        action=FloatListAction)
     parser.add_argument('--output', help='Output directory, default: .', default='.')
-    parser_args = parser.parse_args()
+    args = parser.parse_args()
 
-    if not any([parser_args.bbox]):
+    if not any([args.bbox]):
         parser.error('Please provide at least --bbox.')
 
-    args = {
-        'bbox': [float(c) for c in parser_args.bbox.split(',')]
-    }
-
-    for path in parser_args.paths:
+    for path in args.paths:
         input_path = Path(path)
-        output_path = Path(parser_args.output).expanduser() / get_output_name(path, args)
+        output_path = Path(args.output).expanduser() / get_output_name(path, vars(args))
 
-        cutout_bbox(input_path, output_path, args['bbox'])
+        cutout_bbox(input_path, output_path, args.bbox)
 
 
 def clean():

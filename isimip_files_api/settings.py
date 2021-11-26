@@ -15,6 +15,7 @@ INPUT_PATH = Path(os.getenv('INPUT_PATH', 'input'))
 OUTPUT_PATH = Path(os.getenv('OUTPUT_PATH', 'output'))
 OUTPUT_PREFIX = os.getenv('OUTPUT_PREFIX', 'isimip-files-api-')
 
+CDO_BIN = os.getenv('CDO_BIN', 'cdo')
 NCKS_BIN = os.getenv('NCKS_BIN', 'ncks')
 
 CORS = os.getenv('CORS', '').upper() in ['TRUE', 1]
@@ -27,6 +28,16 @@ WORKER_LOG_LEVEL = os.getenv('WORKER_LOG_LEVEL', 'ERROR')
 WORKER_TTL = int(os.getenv('RESULT_TTL', '86400'))          # one day
 WORKER_FAILURE_TTL = int(os.getenv('WORKER_FAILURE_TTL', '86400'))  # one day
 WORKER_RESULT_TTL = int(os.getenv('WORKER_RESULT_TTL', '604800'))  # one week
+
+TASKS = [
+    'cutout_bbox',
+    'mask_bbox',
+    'mask_country',
+    'mask_landonly',
+    'select_bbox',
+    'select_country',
+    'select_point'
+]
 
 COUNTRYMASKS_FILE_PATH = Path(os.getenv('COUNTRYMASKS_FILE_PATH', 'countrymasks.nc'))
 COUNTRYMASKS_COUNTRIES = [

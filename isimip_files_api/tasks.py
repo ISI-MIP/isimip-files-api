@@ -7,8 +7,9 @@ from rq import get_current_job
 
 from .settings import (INPUT_PATH, OUTPUT_PATH, OUTPUT_PREFIX)
 from .utils import get_output_name, get_zip_file_name
-from .netcdf import mask_bbox, mask_country, mask_landonly, select_country, select_bbox, select_point
+from .cdo import mask_bbox, mask_country, mask_landonly, select_country, select_bbox, select_point
 from .nco import cutout_bbox
+from .netcdf import get_index
 
 
 def run_task(paths, args):

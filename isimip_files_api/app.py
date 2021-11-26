@@ -7,7 +7,7 @@ from flask_cors import CORS as FlaskCORS
 from .jobs import create_job, delete_job, fetch_job
 from .settings import CORS, LOG_FILE, LOG_LEVEL
 from .utils import get_errors_response
-from .validators import validate_data
+from .validators import validate_data, validate_datasets
 
 logging.basicConfig(level=LOG_LEVEL, filename=LOG_FILE)
 
@@ -30,6 +30,10 @@ def create_app():
         errors = defaultdict(list)
 
         cleaned_data = validate_data(request.json, errors)
+        if errors:
+            return get_errors_response(errors)
+
+        validate_datasets(*cleaned_data, errors)
         if errors:
             return get_errors_response(errors)
 

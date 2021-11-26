@@ -24,18 +24,18 @@ def get_errors_response(errors):
 
 
 def get_output_name(path, args, suffix=None):
-    if args['bbox'] is not None:
+    if args.get('bbox'):
         south, north, west, east = args['bbox']
         region = 'lat{}to{}lon{}to{}'.format(south, north, west, east)
 
-    elif args['country'] is not None:
+    elif args.get('country'):
         region = args['country'].lower()
 
-    elif args['point'] is not None:
+    elif args.get('point'):
         lat, lon = args['point']
         region = 'lat{}lon{}'.format(lat, lon)
 
-    elif args['landonly'] is True:
+    elif args.get('landonly'):
         region = 'landonly'
 
     else:
