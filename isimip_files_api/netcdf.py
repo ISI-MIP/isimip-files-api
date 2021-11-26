@@ -50,6 +50,18 @@ def mask_landonly(dataset_path, output_path):
                     copy_data(ds_in, ds_out, landsea_mask)
 
 
+def select_bbox(dataset_path, output_path, bbox):
+    pass
+
+
+def select_country(dataset_path, output_path, country):
+    pass
+
+
+def select_point(dataset_path, output_path, point):
+    pass
+
+
 def copy_data(ds_in, ds_out, mask):
     # create dimensions
     for dimension_name, dimension in ds_in.dimensions.items():

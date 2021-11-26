@@ -23,22 +23,32 @@ def get_errors_response(errors):
     }, 400
 
 
-def get_output_name(path, args):
-    if args['task'] in ['cutout_bbox', 'mask_bbox']:
+def get_output_name(path, args, suffix=None):
+    if args['bbox'] is not None:
         south, north, west, east = args['bbox']
         region = 'lat{}to{}lon{}to{}'.format(south, north, west, east)
-    elif args['task'] == 'mask_country':
+
+    elif args['country'] is not None:
         region = args['country'].lower()
-    elif args['task'] == 'mask_landonly':
+
+    elif args['point'] is not None:
+        lat, lon = args['point']
+        region = 'lat{}lon{}'.format(lat, lon)
+
+    elif args['landonly'] is True:
         region = 'landonly'
 
+    else:
+        raise RuntimeError('Could not determine region string.')
+
     path = Path(path)
+    suffix = suffix if suffix else path.suffix
     if GLOBAL in path.name:
         # replace the _global_ specifier
-        return path.name.replace(GLOBAL, '_{}_'.format(region))
+        return path.with_suffix(suffix).name.replace(GLOBAL, '_{}_'.format(region))
     else:
         # append region specifier
-        return path.stem + '_{}'.format(region) + path.suffix
+        return path.stem + '_{}'.format(region) + suffix
 
 
 def get_zip_file_name(job_id):

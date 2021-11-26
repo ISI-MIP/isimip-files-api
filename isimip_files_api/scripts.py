@@ -10,10 +10,44 @@ from rq.job import Job
 
 from .settings import OUTPUT_PATH
 from .nco import cutout_bbox
-from .netcdf import mask_bbox, mask_country, mask_landonly
-from .utils import get_hash, get_output_name
+from .netcdf import mask_bbox, mask_country, mask_landonly, select_bbox, select_country, select_point
+from .utils import get_output_name
 
 redis = Redis()
+
+
+class FloatListAction(argparse.Action):
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, [float(c) for c in values.split(',')])
+
+
+def parse_floats(string):
+    return [float(c) for c in string.bbox.split(',')] if string else None
+
+
+def select():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('paths', nargs='+', help='List of files to mask')
+    parser.add_argument('--point', help='Select by point, e.g. "52.39, 13.06"', action=FloatListAction)
+    parser.add_argument('--country', help='Select by country, e.g. "deu"')
+    parser.add_argument('--bbox', help='Select by bounding box, e.g. "-23.43651,23.43651,-180,180"', action=FloatListAction)
+    parser.add_argument('--output', help='Output directory, default: .', default='.')
+    args = parser.parse_args()
+
+    if not any([args.country, args.bbox, args.point]):
+        parser.error('Please provide at least --country, --bbox, or --point.')
+
+    for path in args.paths:
+        input_path = Path(path)
+        output_path = Path(args.output).expanduser() / get_output_name(path, vars(args), suffix='.csv')
+
+        if args.bbox:
+            select_bbox(input_path, output_path, args.bbox)
+        elif args.country:
+            select_country(input_path, output_path, args.country)
+        elif args.point:
+            select_point(input_path, output_path, args.point)
 
 
 def mask():
