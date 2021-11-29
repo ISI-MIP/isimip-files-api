@@ -6,10 +6,13 @@ from .settings import (BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL,
 
 
 def get_response(job, http_status):
+    file_name = get_zip_file_name(job.id)
+
     return {
         'id': job.id,
         'job_url': BASE_URL + '/' + job.id,
-        'file_url': OUTPUT_URL + '/' + get_zip_file_name(job.id),
+        'file_name': file_name,
+        'file_url': OUTPUT_URL + '/' + file_name,
         'meta': job.meta,
         'ttl': WORKER_RESULT_TTL,
         'status': job.get_status(),

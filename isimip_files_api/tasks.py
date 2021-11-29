@@ -9,7 +9,6 @@ from .settings import (INPUT_PATH, OUTPUT_PATH, OUTPUT_PREFIX)
 from .utils import get_output_name, get_zip_file_name
 from .cdo import mask_bbox, mask_country, mask_landonly, select_country, select_bbox, select_point
 from .nco import cutout_bbox
-from .netcdf import get_index
 
 
 def run_task(paths, args):
@@ -59,7 +58,7 @@ def run_task(paths, args):
             z.write(tmp_path, tmp_name)
         else:
             error_path = Path(tmp_path).with_suffix('.txt')
-            error_path.write_text('Error: Original file could not be masked. Probably it is not using a global grid.')
+            error_path.write_text('Something went wrong with processing the input file. Probably it is not using a global grid.')
             z.write(error_path, error_path.name)
 
         # update the current job and store progress

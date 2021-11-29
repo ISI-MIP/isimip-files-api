@@ -33,7 +33,7 @@ def parse_floats(string):
 def select():
     parser = argparse.ArgumentParser()
     parser.add_argument('paths', nargs='+', help='List of files to mask')
-    parser.add_argument('--point', help='Select by point, e.g. "52.39, 13.06"', action=FloatListAction)
+    parser.add_argument('--point', help='Select by point, e.g. "52.39,13.06"', action=FloatListAction)
     parser.add_argument('--country', help='Select by country, e.g. "deu"')
     parser.add_argument('--bbox', help='Select by bounding box, e.g. "-23.43651,23.43651,-180,180"', action=FloatListAction)
     parser.add_argument('--output', help='Output directory, default: .', default='.')
