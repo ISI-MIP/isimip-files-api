@@ -35,11 +35,8 @@ def get_output_name(path, args, suffix=None):
         lat, lon = args['point']
         region = 'lat{}lon{}'.format(lat, lon)
 
-    elif args.get('landonly'):
-        region = 'landonly'
-
     else:
-        raise RuntimeError('Could not determine region string.')
+        region = 'landonly'
 
     path = Path(path)
     suffix = suffix if suffix else path.suffix
