@@ -101,7 +101,8 @@ def validate_country(data, errors):
 
 def validate_datasets(paths, args, errors):
     for path in paths:
-        with open_dataset(path) as ds:
+        absolute_path = INPUT_PATH / path
+        with open_dataset(absolute_path) as ds:
             if args.get('task') in ['cutout_bbox']:
                 if not (check_halfdeg(ds) or check_30arcsec(ds)):
                     errors['paths'].append('{} is not using a 0.5 deg or 30 arcsec grid.'.format(path))
