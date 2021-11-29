@@ -30,7 +30,11 @@ def run_task(paths, args):
 
     for path in paths:
         input_path = INPUT_PATH / path
-        tmp_name = get_output_name(path, args)
+        if args['task'] in ['select_country', 'select_bbox', 'select_point']:
+            tmp_name = get_output_name(path, args, suffix='.csv')
+        else:
+            tmp_name = get_output_name(path, args)
+
         tmp_path = tmp / tmp_name
 
         if args['task'] == 'cutout_bbox':
@@ -45,14 +49,14 @@ def run_task(paths, args):
         elif args['task'] == 'mask_landonly':
             mask_landonly(input_path, tmp_path)
 
-        elif args['task'] == 'select_point':
-            select_point(input_path, tmp_path, args['point'])
-
         elif args['task'] == 'select_country':
             select_country(input_path, tmp_path, args['country'])
 
         elif args['task'] == 'select_bbox':
             select_bbox(input_path, tmp_path, args['bbox'])
+
+        elif args['task'] == 'select_point':
+            select_point(input_path, tmp_path, args['point'])
 
         if tmp_path.is_file():
             z.write(tmp_path, tmp_name)
