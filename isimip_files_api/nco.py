@@ -5,6 +5,7 @@ from .settings import NCKS_BIN
 
 
 def cutout_bbox(dataset_path, output_path, bbox):
+    # ncks -O -h -d lat,SOUTH,NORTH -d lon,WEST,EAST IFILE OFILE
     south, north, west, east = bbox
     ncks(
         '-O',                                        # overwrite

@@ -9,6 +9,7 @@ from .settings import (CDO_BIN,
 
 
 def mask_bbox(dataset_path, output_path, bbox):
+    # cdo -masklonlatbox,WEST,EAST,SOUTH,NORTH IFILE OFILE
     south, north, west, east = bbox
     cdo('-masklonlatbox,{:f},{:f},{:f},{:f}'.format(west, east, south, north),
         str(dataset_path),
@@ -16,6 +17,7 @@ def mask_bbox(dataset_path, output_path, bbox):
 
 
 def mask_country(dataset_path, output_path, country):
+    # cdo -div IFILE -setctomiss,0 -selname,m_COUNTRY COUNTRYMASK OFILE
     cdo('-div',
         str(dataset_path),
         '-setctomiss,0',
@@ -24,6 +26,7 @@ def mask_country(dataset_path, output_path, country):
 
 
 def mask_landonly(dataset_path, output_path):
+    # cdo -div IFILE -setctomiss,0 -selname,mask LANDSEAMASK OFILE
     cdo('-div',
         str(dataset_path),
         '-setctomiss,0',
@@ -33,6 +36,7 @@ def mask_landonly(dataset_path, output_path):
 
 
 def select_point(dataset_path, output_path, point):
+    # cdo -s outputtab,date,value,nohead -fldmean -selindexbox,IX,IX,IY,IY IFILE
     ix, iy = get_index(dataset_path, point)
     output = cdo('-s',
                  'outputtab,date,value,nohead',
@@ -43,6 +47,7 @@ def select_point(dataset_path, output_path, point):
 
 
 def select_bbox(dataset_path, output_path, bbox):
+    # cdo -s outputtab,date,value,nohead -fldmean -sellonlatbox,WEST,EAST,SOUTH,NORTH IFILE
     south, north, west, east = bbox
     output = cdo('-s',
                  'outputtab,date,value,nohead',
@@ -53,6 +58,7 @@ def select_bbox(dataset_path, output_path, bbox):
 
 
 def select_country(dataset_path, output_path, country):
+    # cdo -s outputtab,date,value,nohead -fldmean -div IFILE -setctomiss,0 -selname,m_COUNTRY COUNTRYMASK
     output = cdo('-s',
                  'outputtab,date,value,nohead',
                  '-fldmean',
