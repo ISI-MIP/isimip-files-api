@@ -1,4 +1,5 @@
-from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH, MAX_FILES
+from .netcdf import open_dataset, check_halfdeg, check_30arcsec
+from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH, MAX_FILES, TASKS
 
 
 def validate_data(data, errors):
@@ -46,18 +47,21 @@ def validate_args(data, errors):
     args = {
         'task': validate_task(data, errors),
         'bbox': validate_bbox(data, errors),
+        'point': validate_point(data, errors),
         'country': validate_country(data, errors)
     }
-    if args['task'] in ['mask_country'] and not args['country']:
+    if args['task'] in ['select_country', 'mask_country'] and not args['country']:
             errors['args'] = 'country needs to be provided'
-    elif args['task'] in ['cutout_bbox', 'mask_bbox'] and not args['bbox']:
+    elif args['task'] in ['cutout_bbox', 'mask_bbox', 'select_bbox'] and not args['bbox']:
             errors['args'] = 'bbox needs to be provided'
+    elif args['task'] in ['select_point'] and not args['point']:
+        errors['args'] = 'point needs to be provided'
     else:
         return args
 
 
 def validate_task(data, errors):
-    if 'task' not in data or data['task'] not in ['cutout_bbox', 'mask_bbox', 'mask_country', 'mask_landonly']:
+    if 'task' not in data or data['task'] not in TASKS:
         errors['task'] = 'task needs to be provided'
     else:
         return data['task']
@@ -66,9 +70,19 @@ def validate_task(data, errors):
 def validate_bbox(data, errors):
     if 'bbox' in data:
         try:
-            return [float(item) for item in data['bbox']]
-        except ValueError:
+            return [float(data['bbox'][0]), float(data['bbox'][1]), float(data['bbox'][2]), float(data['bbox'][3])]
+        except (ValueError, IndexError):
             errors['bbox'] = 'bbox is not of the form [%f, %f, %f, %f]'
+    else:
+        return None
+
+
+def validate_point(data, errors):
+    if 'point' in data:
+        try:
+            return [float(data['point'][0]), float(data['point'][1])]
+        except (ValueError, IndexError):
+            errors['bbox'] = 'bbox is not of the form [%f, %f]'
     else:
         return None
 
@@ -85,9 +99,13 @@ def validate_country(data, errors):
         return None
 
 
-def validate_dataset(ds):
-    # check if the dataset is actual global gridded data
-    if ds.dimensions['lat'].size == 360 or ds.dimensions['lon'].size == 720:
-        return True
-    else:
-        return False
+def validate_datasets(paths, args, errors):
+    for path in paths:
+        absolute_path = INPUT_PATH / path
+        with open_dataset(absolute_path) as ds:
+            if args.get('task') in ['cutout_bbox']:
+                if not (check_halfdeg(ds) or check_30arcsec(ds)):
+                    errors['paths'].append('{} is not using a 0.5 deg or 30 arcsec grid.'.format(path))
+            else:
+                if not check_halfdeg(ds):
+                    errors['paths'].append('{} is not using a 0.5 deg grid.'.format(path))

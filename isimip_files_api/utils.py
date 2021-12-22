@@ -6,10 +6,13 @@ from .settings import (BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL,
 
 
 def get_response(job, http_status):
+    file_name = get_zip_file_name(job.id)
+
     return {
         'id': job.id,
         'job_url': BASE_URL + '/' + job.id,
-        'file_url': OUTPUT_URL + '/' + get_zip_file_name(job.id),
+        'file_name': file_name,
+        'file_url': OUTPUT_URL + '/' + file_name,
         'meta': job.meta,
         'ttl': WORKER_RESULT_TTL,
         'status': job.get_status(),
@@ -23,22 +26,29 @@ def get_errors_response(errors):
     }, 400
 
 
-def get_output_name(path, args):
-    if args['task'] in ['cutout_bbox', 'mask_bbox']:
+def get_output_name(path, args, suffix=None):
+    if args.get('bbox'):
         south, north, west, east = args['bbox']
         region = 'lat{}to{}lon{}to{}'.format(south, north, west, east)
-    elif args['task'] == 'mask_country':
+
+    elif args.get('country'):
         region = args['country'].lower()
-    elif args['task'] == 'mask_landonly':
+
+    elif args.get('point'):
+        lat, lon = args['point']
+        region = 'lat{}lon{}'.format(lat, lon)
+
+    else:
         region = 'landonly'
 
     path = Path(path)
+    suffix = suffix if suffix else path.suffix
     if GLOBAL in path.name:
         # replace the _global_ specifier
-        return path.name.replace(GLOBAL, '_{}_'.format(region))
+        return path.with_suffix(suffix).name.replace(GLOBAL, '_{}_'.format(region))
     else:
         # append region specifier
-        return path.stem + '_{}'.format(region) + path.suffix
+        return path.stem + '_{}'.format(region) + suffix
 
 
 def get_zip_file_name(job_id):
