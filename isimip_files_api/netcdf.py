@@ -1,16 +1,17 @@
 from netCDF4 import Dataset
 
+from .settings import RESOLUTIONS
 
 def open_dataset(path):
     return Dataset(path)
 
 
-def check_halfdeg(ds):
-    return ds.dimensions['lat'].size == 360 or ds.dimensions['lon'].size == 720
-
-
-def check_30arcsec(ds):
-    return ds.dimensions['lat'].size == 20880 or ds.dimensions['lon'].size == 43200
+def check_resolution(ds, resolution):
+    try:
+        lat_size, lon_size = RESOLUTIONS[resolution]
+        return ds.dimensions['lat'].size == lat_size or ds.dimensions['lon'].size == lon_size
+    except KeyError:
+        return False
 
 
 def get_index(path, point):

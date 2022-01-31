@@ -29,15 +29,25 @@ WORKER_TTL = int(os.getenv('RESULT_TTL', '86400'))          # one day
 WORKER_FAILURE_TTL = int(os.getenv('WORKER_FAILURE_TTL', '86400'))  # one day
 WORKER_RESULT_TTL = int(os.getenv('WORKER_RESULT_TTL', '604800'))  # one week
 
-TASKS = [
-    'cutout_bbox',
-    'mask_bbox',
-    'mask_country',
-    'mask_landonly',
-    'select_bbox',
-    'select_country',
-    'select_point'
-]
+RESOLUTIONS = {
+    '30arcsec': (20880, 43200),
+    '90arcsec': (6960, 14400),
+    '360arcsec': (1740, 3600),
+    '1800arcsec': (348, 720),
+    'halfdeg': (360, 720),
+    'onedeg': (180, 360),
+    'twodeg': (90, 180)
+}
+
+TASKS = {
+    'cutout_bbox': ['30arcsec', '90arcsec', '360arcsec', '1800arcsec', 'halfdeg', 'onedeg', 'twodeg'],
+    'mask_bbox': ['halfdeg', 'onedeg', 'twodeg'],
+    'mask_country': ['halfdeg'],
+    'mask_landonly': ['halfdeg'],
+    'select_bbox': ['halfdeg'],
+    'select_country': ['halfdeg', 'onedeg', 'twodeg'],
+    'select_point': ['halfdeg', 'onedeg', 'twodeg']
+}
 
 COUNTRYMASKS_FILE_PATH = Path(os.getenv('COUNTRYMASKS_FILE_PATH', 'countrymasks.nc'))
 COUNTRYMASKS_COUNTRIES = [

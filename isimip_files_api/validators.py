@@ -1,4 +1,4 @@
-from .netcdf import open_dataset, check_halfdeg, check_30arcsec
+from .netcdf import open_dataset, check_resolution
 from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH, MAX_FILES, TASKS
 
 
@@ -61,7 +61,7 @@ def validate_args(data, errors):
 
 
 def validate_task(data, errors):
-    if 'task' not in data or data['task'] not in TASKS:
+    if 'task' not in data or data['task'] not in TASKS.keys():
         errors['task'] = 'task needs to be provided'
     else:
         return data['task']
@@ -103,9 +103,6 @@ def validate_datasets(paths, args, errors):
     for path in paths:
         absolute_path = INPUT_PATH / path
         with open_dataset(absolute_path) as ds:
-            if args.get('task') in ['cutout_bbox']:
-                if not (check_halfdeg(ds) or check_30arcsec(ds)):
-                    errors['paths'].append('{} is not using a 0.5 deg or 30 arcsec grid.'.format(path))
-            else:
-                if not check_halfdeg(ds):
-                    errors['paths'].append('{} is not using a 0.5 deg grid.'.format(path))
+            resolutions = TASKS[args.get('task')]
+            if not any([check_resolution(ds, resolution) for resolution in resolutions]):
+                errors['paths'].append('{} is not using the correct grid: {}.'.format(path, resolutions))
