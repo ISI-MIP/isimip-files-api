@@ -7,7 +7,7 @@ from .settings import NCKS_BIN
 def cutout_bbox(dataset_path, output_path, bbox):
     # ncks -O -h -d lat,SOUTH,NORTH -d lon,WEST,EAST IFILE OFILE
     south, north, west, east = bbox
-    ncks(
+    return ncks(
         '-O',                                        # overwrite
         '-h',                                        # omit history
         '-d', 'lat,{:f},{:f}'.format(south, north),  # longitude
@@ -18,8 +18,10 @@ def cutout_bbox(dataset_path, output_path, bbox):
 
 
 def ncks(*args):
-    cmd = [NCKS_BIN] + list(args)
-    cmd_string = ' '.join(cmd)
+    cmd_args = [NCKS_BIN] + list(args)
+    cmd = ' '.join(cmd_args)
 
-    logging.debug(cmd_string)
-    return subprocess.check_output(cmd)
+    logging.debug(cmd)
+    subprocess.check_output(cmd_args)
+
+    return mask_cmd(cmd)

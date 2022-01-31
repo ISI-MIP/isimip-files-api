@@ -28,6 +28,11 @@ def run_task(paths, args):
     # open zipfile
     z = ZipFile(output_path, 'w')
 
+    # open readme
+    readme_path = tmp / 'README.txt'
+    readme = readme_path.open('w')
+    readme.write('The following commands were used to create the files in this container:\n\n')
+
     for path in paths:
         input_path = INPUT_PATH / path
         if args['task'] in ['select_country', 'select_bbox', 'select_point']:
@@ -38,25 +43,28 @@ def run_task(paths, args):
         tmp_path = tmp / tmp_name
 
         if args['task'] == 'cutout_bbox':
-            cutout_bbox(input_path, tmp_path, args['bbox'])
+            cmd = cutout_bbox(input_path, tmp_path, args['bbox'])
 
         elif args['task'] == 'mask_country':
-            mask_country(input_path, tmp_path, args['country'])
+            cmd = mask_country(input_path, tmp_path, args['country'])
 
         elif args['task'] == 'mask_bbox':
-            mask_bbox(input_path, tmp_path, args['bbox'])
+            cmd = mask_bbox(input_path, tmp_path, args['bbox'])
 
         elif args['task'] == 'mask_landonly':
-            mask_landonly(input_path, tmp_path)
+            cmd = mask_landonly(input_path, tmp_path)
 
         elif args['task'] == 'select_country':
-            select_country(input_path, tmp_path, args['country'])
+            cmd = select_country(input_path, tmp_path, args['country'])
 
         elif args['task'] == 'select_bbox':
-            select_bbox(input_path, tmp_path, args['bbox'])
+            cmd = select_bbox(input_path, tmp_path, args['bbox'])
 
         elif args['task'] == 'select_point':
-            select_point(input_path, tmp_path, args['point'])
+            cmd = select_point(input_path, tmp_path, args['point'])
+
+        # write cmd into readme file
+        readme.write(cmd + '\n')
 
         if tmp_path.is_file():
             z.write(tmp_path, tmp_name)
@@ -68,6 +76,10 @@ def run_task(paths, args):
         # update the current job and store progress
         job.meta['created_files'] += 1
         job.save_meta()
+
+    # close and write readme file
+    readme.close()
+    z.write(readme_path, readme_path.name)
 
     # close zip file
     z.close()

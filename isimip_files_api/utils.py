@@ -1,4 +1,5 @@
 import hashlib
+import re
 from pathlib import Path
 
 from .settings import (BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL,
@@ -60,3 +61,7 @@ def get_hash(paths, args):
     m.update(str(paths).encode())
     m.update(str(args).encode())
     return m.hexdigest()
+
+
+def mask_cmd(cmd):
+    return re.sub(r'\/\S+\/', '', cmd)
