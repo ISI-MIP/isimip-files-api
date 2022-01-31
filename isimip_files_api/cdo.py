@@ -17,30 +17,26 @@ def mask_bbox(dataset_path, output_path, bbox):
 
 
 def mask_country(dataset_path, output_path, country):
-    # cdo -div IFILE -setctomiss,0 -selname,m_COUNTRY COUNTRYMASK OFILE
-    cdo('-div',
+    # cdo -ifthen IFILE -selname,m_COUNTRY COUNTRYMASK OFILE
+    cdo('-ifthen',
         str(dataset_path),
-        '-setctomiss,0',
         '-selname,m_{:3.3}'.format(country.upper()),
         str(COUNTRYMASKS_FILE_PATH), str(output_path))
 
 
 def mask_landonly(dataset_path, output_path):
-    # cdo -div IFILE -setctomiss,0 -selname,mask LANDSEAMASK OFILE
-    cdo('-div',
+    # cdo -ifthen IFILE LANDSEAMASK OFILE
+    cdo('-ifthen',
         str(dataset_path),
-        '-setctomiss,0',
-        '-selname,mask',
         str(LANDSEAMASK_FILE_PATH),
         str(output_path))
 
 
 def select_point(dataset_path, output_path, point):
-    # cdo -s outputtab,date,value,nohead -fldmean -selindexbox,IX,IX,IY,IY IFILE
+    # cdo -s outputtab,date,value,nohead -selindexbox,IX,IX,IY,IY IFILE
     ix, iy = get_index(dataset_path, point)
     output = cdo('-s',
                  'outputtab,date,value,nohead',
-                 '-fldmean',
                  '-selindexbox,{:d},{:d},{:d},{:d}'.format(ix, ix, iy, iy),
                  str(dataset_path))
     write_csv(output, output_path)
@@ -58,13 +54,12 @@ def select_bbox(dataset_path, output_path, bbox):
 
 
 def select_country(dataset_path, output_path, country):
-    # cdo -s outputtab,date,value,nohead -fldmean -div IFILE -setctomiss,0 -selname,m_COUNTRY COUNTRYMASK
+    # cdo -s outputtab,date,value,nohead -fldmean -ifthen IFILE -selname,m_COUNTRY COUNTRYMASK
     output = cdo('-s',
                  'outputtab,date,value,nohead',
                  '-fldmean',
-                 '-div',
+                 '-ifthen',
                  str(dataset_path),
-                 '-setctomiss,0',
                  '-selname,m_{:3.3}'.format(country.upper()),
                  str(COUNTRYMASKS_FILE_PATH))
     write_csv(output, output_path)
