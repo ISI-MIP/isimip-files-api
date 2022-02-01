@@ -10,16 +10,20 @@ from .utils import mask_cmd
 
 
 def mask_bbox(dataset_path, output_path, bbox):
-    # cdo -masklonlatbox,WEST,EAST,SOUTH,NORTH IFILE OFILE
+    # cdo -f nc4c -z zip_5 -masklonlatbox,WEST,EAST,SOUTH,NORTH IFILE OFILE
     south, north, west, east = bbox
-    return cdo('-masklonlatbox,{:f},{:f},{:f},{:f}'.format(west, east, south, north),
+    return cdo('-f', 'nc4c',
+               '-z', 'zip_5',
+               '-masklonlatbox,{:f},{:f},{:f},{:f}'.format(west, east, south, north),
                str(dataset_path),
                str(output_path))
 
 
 def mask_country(dataset_path, output_path, country):
-    # cdo -ifthen -selname,m_COUNTRY COUNTRYMASK IFILE OFILE
-    return cdo('-ifthen',
+    # cdo -f nc4c -z zip_5 -ifthen -selname,m_COUNTRY COUNTRYMASK IFILE OFILE
+    return cdo('-f', 'nc4c',
+               '-z', 'zip_5',
+               '-ifthen',
                '-selname,m_{:3.3}'.format(country.upper()),
                str(COUNTRYMASKS_FILE_PATH),
                str(dataset_path),
@@ -27,8 +31,10 @@ def mask_country(dataset_path, output_path, country):
 
 
 def mask_landonly(dataset_path, output_path):
-    # cdo -ifthen LANDSEAMASK IFILE OFILE
-    return cdo('-ifthen',
+    # cdo -f nc4c -z zip_5 -ifthen LANDSEAMASK IFILE OFILE
+    return cdo('-f', 'nc4c',
+               '-z', 'zip_5',
+               '-ifthen',
                str(LANDSEAMASK_FILE_PATH),
                str(dataset_path),
                str(output_path))
