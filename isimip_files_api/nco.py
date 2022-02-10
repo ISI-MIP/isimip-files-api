@@ -2,6 +2,7 @@ import logging
 import subprocess
 
 from .settings import NCKS_BIN
+from .utils import mask_cmd
 
 
 def cutout_bbox(dataset_path, output_path, bbox):
