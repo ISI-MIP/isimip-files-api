@@ -43,6 +43,10 @@ def mask_landonly(dataset_path, output_path):
 def select_point(dataset_path, output_path, point):
     # cdo -s outputtab,date,value,nohead -selindexbox,IX,IX,IY,IY IFILE
     ix, iy = get_index(dataset_path, point)
+
+    # add one since cdo is counting from 1!
+    ix, iy = ix + 1, iy + 1
+
     return cdo('-s',
                'outputtab,date,value,nohead',
                '-selindexbox,{:d},{:d},{:d},{:d}'.format(ix, ix, iy, iy),
