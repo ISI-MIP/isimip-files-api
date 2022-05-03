@@ -2,6 +2,7 @@ from netCDF4 import Dataset
 
 from .settings import RESOLUTIONS
 
+
 def open_dataset(path):
     return Dataset(path)
 
@@ -21,11 +22,7 @@ def get_index(path, point):
         dx = ds.variables['lon'][1] - ds.variables['lon'][0]
         dy = ds.variables['lat'][1] - ds.variables['lat'][0]
 
-        ix = int((lon - ds.variables['lon'][0]) / dx)
-
-        if dy > 0:
-            iy = int((lat - ds.variables['lat'][0]) / dy)
-        else:
-            iy = int((ds.variables['lat'][0] - lat) / -dy)
+        ix = round((lon - ds.variables['lon'][0]) / dx)
+        iy = round((lat - ds.variables['lat'][0]) / dy)
 
         return ix, iy
