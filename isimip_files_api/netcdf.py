@@ -22,7 +22,7 @@ def get_index(path, point):
         dx = ds.variables['lon'][1] - ds.variables['lon'][0]
         dy = ds.variables['lat'][1] - ds.variables['lat'][0]
 
-        ix = int(round((lon - ds.variables['lon'][0]) / dx))
-        iy = int(round((lat - ds.variables['lat'][0]) / dy))
+        ix = round(float((lon - ds.variables['lon'][0]) / dx))
+        iy = round(float((lat - ds.variables['lat'][0]) / dy))
 
         return ix, iy
