@@ -32,7 +32,7 @@ WORKER_RESULT_TTL = int(os.getenv('WORKER_RESULT_TTL', '604800'))  # one week
 RESOLUTIONS = {
     '30arcsec': (20880, 43200),
     '90arcsec': (6960, 14400),
-    '300arcsec': (1740, 3600),
+    '300arcsec': (2088, 4320),
     '1800arcsec': (348, 720),
     '30arcmin': (360, 720),
     '60arcmin': (180, 360),
