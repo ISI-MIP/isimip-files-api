@@ -43,7 +43,7 @@ RESOLUTIONS = {
 TASKS = {
     'cutout_bbox': ['30arcsec', '90arcsec', '300arcsec', '1800arcsec',
                     '15arcmin', '30arcmin', '60arcmin', '120arcmin'],
-    'mask_bbox': ['30arcmin', '60arcmin', '120arcmin'],
+    'mask_bbox': ['15arcmin', '30arcmin', '60arcmin', '120arcmin'],
     'mask_country': ['30arcmin'],
     'mask_landonly': ['30arcmin'],
     'select_bbox': ['15arcmin', '30arcmin', '60arcmin', '120arcmin'],
