@@ -34,19 +34,21 @@ RESOLUTIONS = {
     '90arcsec': (6960, 14400),
     '300arcsec': (2088, 4320),
     '1800arcsec': (348, 720),
+    '15arcmin': (180, 360),
     '30arcmin': (360, 720),
     '60arcmin': (180, 360),
     '120arcmin': (90, 180)
 }
 
 TASKS = {
-    'cutout_bbox': ['30arcsec', '90arcsec', '300arcsec', '1800arcsec', '30arcmin', '60arcmin', '120arcmin'],
+    'cutout_bbox': ['30arcsec', '90arcsec', '300arcsec', '1800arcsec',
+                    '15arcmin', '30arcmin', '60arcmin', '120arcmin'],
     'mask_bbox': ['30arcmin', '60arcmin', '120arcmin'],
     'mask_country': ['30arcmin'],
     'mask_landonly': ['30arcmin'],
     'select_bbox': ['30arcmin'],
-    'select_country': ['30arcmin', '60arcmin', '120arcmin'],
-    'select_point': ['30arcmin', '60arcmin', '120arcmin']
+    'select_country': ['15arcmin', '30arcmin', '60arcmin', '120arcmin'],
+    'select_point': ['15arcmin', '30arcmin', '60arcmin', '120arcmin']
 }
 
 COUNTRYMASKS_FILE_PATH = Path(os.getenv('COUNTRYMASKS_FILE_PATH', 'countrymasks.nc'))
