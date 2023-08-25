@@ -46,8 +46,8 @@ TASKS = {
     'mask_bbox': ['30arcmin', '60arcmin', '120arcmin'],
     'mask_country': ['30arcmin'],
     'mask_landonly': ['30arcmin'],
-    'select_bbox': ['30arcmin'],
-    'select_country': ['15arcmin', '30arcmin', '60arcmin', '120arcmin'],
+    'select_bbox': ['15arcmin', '30arcmin', '60arcmin', '120arcmin'],
+    'select_country': ['30arcmin'],
     'select_point': ['15arcmin', '30arcmin', '60arcmin', '120arcmin']
 }
 
