@@ -1,0 +1,12 @@
+cff-version: 1.1.0
+message: If you refer to this software in a publication, please cite it as below.
+authors:
+  - family-names: Klar
+    given-names:  Jochen
+    orcid:        https://orcid.org/0000-0002-5883-4273
+  - family-names: Mengel
+    given-names:  Matthias
+    orcid:        https://orcid.org/0000-0001-6724-9685
+title: ISIMIP Files API
+license: MID
+repository-code: https://github.com/ISI-MIP/isimip-files-api
