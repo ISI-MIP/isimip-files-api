@@ -1,18 +1,17 @@
 #!/usr/bin/env python
-import os
 import argparse
+import logging
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-import logging
-
 from redis import Redis
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
 from .cdo import mask_bbox, mask_country, mask_landonly, select_bbox, select_country, select_point
 from .nco import cutout_bbox
-from .settings import LOG_LEVEL, LOG_FILE, OUTPUT_PATH
+from .settings import LOG_FILE, LOG_LEVEL, OUTPUT_PATH
 from .utils import get_output_name
 
 logging.basicConfig(level=LOG_LEVEL, filename=LOG_FILE)
@@ -35,7 +34,8 @@ def select():
     parser.add_argument('paths', nargs='+', help='List of files to mask')
     parser.add_argument('--point', help='Select by point, e.g. "52.39,13.06"', action=FloatListAction)
     parser.add_argument('--country', help='Select by country, e.g. "deu"')
-    parser.add_argument('--bbox', help='Select by bounding box, e.g. "-23.43651,23.43651,-180,180"', action=FloatListAction)
+    parser.add_argument('--bbox', help='Select by bounding box, e.g. "-23.43651,23.43651,-180,180"',
+                        action=FloatListAction)
     parser.add_argument('--output', help='Output directory, default: .', default='.')
     args = parser.parse_args()
 
@@ -82,7 +82,8 @@ def mask():
 def cutout():
     parser = argparse.ArgumentParser()
     parser.add_argument('paths', nargs='+', help='List of files to mask')
-    parser.add_argument('--bbox', help='Mask by bounding box (south, north, west, east), e.g. "-23.43,23.43,-180,180"',
+    parser.add_argument('--bbox', help='Mask by bounding box (south, north, west, east),'
+                                       ' e.g. "-23.43,23.43,-180,180"',
                         action=FloatListAction)
     parser.add_argument('--output', help='Output directory, default: .', default='.')
     args = parser.parse_args()

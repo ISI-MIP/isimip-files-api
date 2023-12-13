@@ -1,11 +1,9 @@
 from redis import Redis
-
 from rq import Queue
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
-from .settings import (WORKER_FAILURE_TTL, WORKER_RESULT_TTL, WORKER_TIMEOUT,
-                       WORKER_TTL)
+from .settings import WORKER_FAILURE_TTL, WORKER_RESULT_TTL, WORKER_TIMEOUT, WORKER_TTL
 from .tasks import run_task
 from .utils import get_hash, get_response
 

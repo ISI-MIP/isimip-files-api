@@ -2,8 +2,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from .settings import (BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL,
-                       WORKER_RESULT_TTL)
+from .settings import BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL, WORKER_RESULT_TTL
 
 
 def get_response(job, http_status):
@@ -30,14 +29,14 @@ def get_errors_response(errors):
 def get_output_name(path, args, suffix=None):
     if args.get('bbox'):
         south, north, west, east = args['bbox']
-        region = 'lat{}to{}lon{}to{}'.format(south, north, west, east)
+        region = f'lat{south}to{north}lon{west}to{east}'
 
     elif args.get('country'):
         region = args['country'].lower()
 
     elif args.get('point'):
         lat, lon = args['point']
-        region = 'lat{}lon{}'.format(lat, lon)
+        region = f'lat{lat}lon{lon}'
 
     else:
         region = 'landonly'
@@ -46,10 +45,10 @@ def get_output_name(path, args, suffix=None):
     suffix = suffix if suffix else path.suffix
     if GLOBAL in path.name:
         # replace the _global_ specifier
-        return path.with_suffix(suffix).name.replace(GLOBAL, '_{}_'.format(region))
+        return path.with_suffix(suffix).name.replace(GLOBAL, f'_{region}_')
     else:
         # append region specifier
-        return path.stem + '_{}'.format(region) + suffix
+        return path.stem + f'_{region}' + suffix
 
 
 def get_zip_file_name(job_id):

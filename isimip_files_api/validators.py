@@ -1,4 +1,4 @@
-from .netcdf import open_dataset, check_resolution
+from .netcdf import check_resolution, open_dataset
 from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH, MAX_FILES, TASKS
 
 
@@ -21,7 +21,7 @@ def validate_paths(data, errors):
         return None
 
     if len(data['paths']) > MAX_FILES:
-        errors['paths'].append('To many files match that dataset (max: {}).'.format(MAX_FILES))
+        errors['paths'].append(f'To many files match that dataset (max: {MAX_FILES}).')
         return None
 
     for path in data['paths']:
@@ -30,15 +30,15 @@ def validate_paths(data, errors):
             absolute_path = INPUT_PATH / path
             absolute_path.parent.resolve().relative_to(INPUT_PATH.resolve())
         except ValueError:
-            errors['paths'].append('{} is below the root path.'.format(path))
+            errors['paths'].append(f'{path} is below the root path.')
 
         # check if the file exists
         if not absolute_path.is_file():
-            errors['paths'].append('{} was not found on the server.'.format(path))
+            errors['paths'].append(f'{path} was not found on the server.')
 
         # check if the file exists
         if absolute_path.suffix not in ['.nc', '.nc4']:
-            errors['paths'].append('{} is not a NetCDF file..'.format(path))
+            errors['paths'].append(f'{path} is not a NetCDF file..')
 
     return data['paths']
 
@@ -104,5 +104,5 @@ def validate_datasets(paths, args, errors):
         absolute_path = INPUT_PATH / path
         with open_dataset(absolute_path) as ds:
             resolutions = TASKS[args.get('task')]
-            if not any([check_resolution(ds, resolution) for resolution in resolutions]):
-                errors['paths'].append('{} is not using the correct grid: {}.'.format(path, resolutions))
+            if not any(check_resolution(ds, resolution) for resolution in resolutions):
+                errors['paths'].append(f'{path} is not using the correct grid: {resolutions}.')

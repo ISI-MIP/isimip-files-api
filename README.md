@@ -1,7 +1,7 @@
 isimip-files-api
 ================
 
-Micro service to asynchronously mask regions from an [ISIMIP](https://isimip.org) NetCDF file, using [Flask](https://palletsprojects.com/p/flask/) and [RQ](https://python-rq.org/).
+A webservice to asynchronously mask regions from NetCDF files, using [Flask](https://palletsprojects.com/p/flask/) and [RQ](https://python-rq.org/).
 
 Setup
 -----
