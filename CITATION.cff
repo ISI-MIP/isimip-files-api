@@ -11,8 +11,6 @@ authors:
   - family-names: Mengel
     given-names: Matthias
     orcid: 'https://orcid.org/0000-0001-6724-9685'
-identifiers:
-  - type: doi
-    value: 10.5281/zenodo.10371805
+doi: 10.5281/zenodo.10371805
 repository-code: 'https://github.com/ISI-MIP/isimip-files-api'
 license: MIT
