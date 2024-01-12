@@ -1,11 +1,14 @@
-from redis import Redis
+from flask import current_app as app
+
 from rq import Queue
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
-from .settings import WORKER_FAILURE_TTL, WORKER_RESULT_TTL, WORKER_TIMEOUT, WORKER_TTL
+from redis import Redis
+
+from .responses import get_response
 from .tasks import run_task
-from .utils import get_hash, get_response
+from .utils import get_hash
 
 redis = Redis()
 
@@ -17,8 +20,10 @@ def create_job(paths, args):
         return get_response(job, 200)
     except NoSuchJobError:
         job = Job.create(run_task, id=job_id, args=[paths, args],
-                         timeout=WORKER_TIMEOUT, ttl=WORKER_TTL,
-                         result_ttl=WORKER_RESULT_TTL, failure_ttl=WORKER_FAILURE_TTL,
+                         timeout=app.config['WORKER_TIMEOUT'],
+                         ttl=app.config['WORKER_TTL'],
+                         result_ttl=app.config['WORKER_RESULT_TTL'],
+                         failure_ttl=app.config['WORKER_FAILURE_TTL'],
                          connection=redis)
         queue = Queue(connection=redis)
         queue.enqueue_job(job)

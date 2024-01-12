@@ -1,7 +1,8 @@
 import logging
 import subprocess
 
-from .settings import NCKS_BIN
+from flask import current_app as app
+
 from .utils import mask_cmd
 
 
@@ -19,7 +20,7 @@ def cutout_bbox(dataset_path, output_path, bbox):
 
 
 def ncks(*args):
-    cmd_args = [NCKS_BIN, *list(args)]
+    cmd_args = [app.config['NCKS_BIN'], *list(args)]
     cmd = ' '.join(cmd_args)
 
     logging.debug(cmd)

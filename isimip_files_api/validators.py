@@ -1,5 +1,8 @@
+from pathlib import Path
+
+from flask import current_app as app
+
 from .netcdf import check_resolution, open_dataset
-from .settings import COUNTRYMASKS_COUNTRIES, INPUT_PATH, MAX_FILES, TASKS
 
 
 def validate_data(data, errors):
@@ -20,15 +23,16 @@ def validate_paths(data, errors):
         errors['paths'].append('This field is required.')
         return None
 
-    if len(data['paths']) > MAX_FILES:
-        errors['paths'].append(f'To many files match that dataset (max: {MAX_FILES}).')
+    if len(data['paths']) > app.config['MAX_FILES']:
+        errors['paths'].append('To many files match that dataset (max: {MAX_FILES}).'.format(**app.config))
         return None
 
     for path in data['paths']:
         # prevent tree traversal
         try:
-            absolute_path = INPUT_PATH / path
-            absolute_path.parent.resolve().relative_to(INPUT_PATH.resolve())
+            input_path = Path(app.config['INPUT_PATH']).expanduser()
+            absolute_path = input_path / path
+            absolute_path.parent.resolve().relative_to(input_path.resolve())
         except ValueError:
             errors['paths'].append(f'{path} is below the root path.')
 
@@ -55,14 +59,17 @@ def validate_args(data, errors):
     elif args['task'] in ['cutout_bbox', 'mask_bbox', 'select_bbox'] and not args['bbox']:
             errors['args'] = 'bbox needs to be provided'
     elif args['task'] in ['select_point'] and not args['point']:
-        errors['args'] = 'point needs to be provided'
+            errors['args'] = 'point needs to be provided'
     else:
         return args
 
 
 def validate_task(data, errors):
-    if 'task' not in data or data['task'] not in TASKS.keys():
+    app.logger.info(data)
+    if 'task' not in data:
         errors['task'] = 'task needs to be provided'
+    elif data['task'] not in app.config['TASKS']:
+        errors['task'] = "task '{task}' is not supported".format(**data)
     else:
         return data['task']
 
@@ -91,7 +98,7 @@ def validate_country(data, errors):
     if 'country' in data:
         country = data['country'].lower()
 
-        if country.upper() not in COUNTRYMASKS_COUNTRIES:
+        if country.upper() not in app.config['COUNTRYMASKS_COUNTRIES']:
             errors['country'] = 'country not in the list of supported countries (e.g. DEU)'
 
         return country
@@ -101,8 +108,9 @@ def validate_country(data, errors):
 
 def validate_datasets(paths, args, errors):
     for path in paths:
-        absolute_path = INPUT_PATH / path
+        input_path = Path(app.config['INPUT_PATH']).expanduser()
+        absolute_path = input_path / path
         with open_dataset(absolute_path) as ds:
-            resolutions = TASKS[args.get('task')]
+            resolutions = app.config['RESOLUTION_TAGS'].get(args.get('task'))
             if not any(check_resolution(ds, resolution) for resolution in resolutions):
                 errors['paths'].append(f'{path} is not using the correct grid: {resolutions}.')

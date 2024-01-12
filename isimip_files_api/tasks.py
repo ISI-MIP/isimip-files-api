@@ -3,11 +3,12 @@ from pathlib import Path
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
+from flask import current_app as app
+
 from rq import get_current_job
 
 from .cdo import mask_bbox, mask_country, mask_landonly, select_bbox, select_country, select_point
 from .nco import cutout_bbox
-from .settings import INPUT_PATH, OUTPUT_PATH, OUTPUT_PREFIX
 from .utils import get_output_name, get_zip_file_name
 
 
@@ -19,11 +20,11 @@ def run_task(paths, args):
     job.save_meta()
 
     # create output paths
-    output_path = OUTPUT_PATH / get_zip_file_name(job.id)
+    output_path = Path(app.config['OUTPUT_PATH']).expanduser() / get_zip_file_name(job.id)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # create a temporary directory
-    tmp = Path(mkdtemp(prefix=OUTPUT_PREFIX))
+    tmp = Path(mkdtemp(prefix=app.config['OUTPUT_PREFIX']))
 
     # open zipfile
     z = ZipFile(output_path, 'w')
@@ -34,7 +35,7 @@ def run_task(paths, args):
     readme.write('The following commands were used to create the files in this container:\n\n')
 
     for path in paths:
-        input_path = INPUT_PATH / path
+        input_path = Path(app.config['INPUT_PATH']).expanduser() / path
         if args['task'] in ['select_country', 'select_bbox', 'select_point']:
             tmp_name = get_output_name(path, args, suffix='.csv')
         else:

@@ -1,22 +1,31 @@
-import logging
 from collections import defaultdict
 
 from flask import Flask, request
+
+import tomli
 from flask_cors import CORS as FlaskCORS
 
 from .jobs import create_job, delete_job, fetch_job
-from .settings import CORS, LOG_FILE, LOG_LEVEL
-from .utils import get_errors_response
+from .logging import configure_logging
+from .responses import get_errors_response
 from .validators import validate_data, validate_datasets
-
-logging.basicConfig(level=LOG_LEVEL, filename=LOG_FILE)
 
 
 def create_app():
     # create and configure the app
     app = Flask(__name__)
+    app.config.from_object('isimip_files_api.config')
+    app.config.from_prefixed_env()
+    app.config.from_file(app.config['CONFIG'], load=tomli.load, text=False)
 
-    if CORS:
+    # configure logging
+    configure_logging(app)
+
+    # log config
+    app.logger.debug('app.config = %s', app.config)
+
+    # enable CORS
+    if app.config['CORS']:
         FlaskCORS(app)
 
     @app.route('/', methods=['GET'])
@@ -27,10 +36,13 @@ def create_app():
 
     @app.route('/', methods=['POST'])
     def create():
+        app.logger.debug('request.json = %s', request.json)
+
         errors = defaultdict(list)
 
         cleaned_data = validate_data(request.json, errors)
         if errors:
+            app.logger.debug('errors = %s', errors)
             return get_errors_response(errors)
 
         validate_datasets(*cleaned_data, errors)

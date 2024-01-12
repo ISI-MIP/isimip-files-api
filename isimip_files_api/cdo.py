@@ -1,9 +1,11 @@
 import csv
 import logging
 import subprocess
+from pathlib import Path
+
+from flask import current_app as app
 
 from .netcdf import get_index
-from .settings import CDO_BIN, COUNTRYMASKS_FILE_PATH, LANDSEAMASK_FILE_PATH
 from .utils import mask_cmd
 
 
@@ -19,21 +21,23 @@ def mask_bbox(dataset_path, output_path, bbox):
 
 def mask_country(dataset_path, output_path, country):
     # cdo -f nc4c -z zip_5 -ifthen -selname,m_COUNTRY COUNTRYMASK IFILE OFILE
+    mask_path = Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser()
     return cdo('-f', 'nc4c',
                '-z', 'zip_5',
                '-ifthen',
                f'-selname,m_{country.upper():3.3}',
-               str(COUNTRYMASKS_FILE_PATH),
+               str(mask_path),
                str(dataset_path),
                str(output_path))
 
 
 def mask_landonly(dataset_path, output_path):
     # cdo -f nc4c -z zip_5 -ifthen LANDSEAMASK IFILE OFILE
+    mask_path = Path(app.config['LANDSEAMASK_FILE_PATH']).expanduser()
     return cdo('-f', 'nc4c',
                '-z', 'zip_5',
                '-ifthen',
-               str(LANDSEAMASK_FILE_PATH),
+               str(mask_path),
                str(dataset_path),
                str(output_path))
 
@@ -65,18 +69,19 @@ def select_bbox(dataset_path, output_path, bbox):
 
 def select_country(dataset_path, output_path, country):
     # cdo -s outputtab,date,value,nohead -fldmean -ifthen -selname,m_COUNTRY COUNTRYMASK IFILE
+    mask_path = Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser()
     return cdo('-s',
                'outputtab,date,value,nohead',
                '-fldmean',
                '-ifthen',
                f'-selname,m_{country.upper():3.3}',
-               str(COUNTRYMASKS_FILE_PATH),
+               str(mask_path),
                str(dataset_path),
                output_path=output_path)
 
 
 def cdo(*args, output_path=None):
-    cmd_args = [CDO_BIN, *list(args)]
+    cmd_args = [app.config['CDO_BIN'], *list(args)]
     cmd = ' '.join(cmd_args)
     env = {
         'CDI_VERSION_INFO': '0',
