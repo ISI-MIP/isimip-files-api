@@ -13,6 +13,17 @@ from .utils import get_hash
 redis = Redis()
 
 
+def count_jobs():
+    queue = Queue(connection=redis)
+
+    return {
+        'started': queue.started_job_registry.count,
+        'deferred': queue.deferred_job_registry.count,
+        'finished': queue.finished_job_registry.count,
+        'failed': queue.failed_job_registry.count,
+        'scheduled': queue.scheduled_job_registry.count
+    }
+
 def create_job(paths, args):
     job_id = get_hash(paths, args)
     try:

@@ -5,7 +5,7 @@ from flask import Flask, request
 import tomli
 from flask_cors import CORS as FlaskCORS
 
-from .jobs import create_job, delete_job, fetch_job
+from .jobs import count_jobs, create_job, delete_job, fetch_job
 from .logging import configure_logging
 from .responses import get_errors_response
 from .validators import validate_data, validate_datasets
@@ -31,7 +31,8 @@ def create_app():
     @app.route('/', methods=['GET'])
     def index():
         return {
-            'status': 'ok'
+            'status': 'ok',
+            'jobs': count_jobs()
         }, 200
 
     @app.route('/', methods=['POST'])
