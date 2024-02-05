@@ -11,9 +11,6 @@ ENV = 'production'  # choose from 'production', 'development', 'testing'
 # enable Cross-Origin Resource Sharing (CORS)
 CORS = True
 
-# toml config file
-CONFIG = '../config.toml'
-
 # log level and (optional) path to flask.log
 LOG_LEVEL = 'ERROR'
 LOG_PATH = None

@@ -16,7 +16,8 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object('isimip_files_api.config')
     app.config.from_prefixed_env()
-    app.config.from_file(app.config['CONFIG'], load=tomli.load, text=False)
+    if 'CONFIG' in app.config:
+        app.config.from_file(app.config['CONFIG'], load=tomli.load, text=False)
 
     # configure logging
     configure_logging(app)
