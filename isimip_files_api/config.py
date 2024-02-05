@@ -107,6 +107,9 @@ COUNTRYMASKS_COUNTRIES = [
 # special settings for the land sea mask
 LANDSEAMASK_FILE_PATH = 'landseamask.nc'
 
+# redis configuration
+REDIS_URL = 'redis://localhost:6379'
+
 # configuration for the worker
 WORKER_TIMEOUT = 180
 WORKER_LOG_FILE = None

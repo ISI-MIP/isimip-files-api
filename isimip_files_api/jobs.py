@@ -10,10 +10,9 @@ from .responses import get_response
 from .tasks import run_task
 from .utils import get_hash
 
-redis = Redis()
-
 
 def count_jobs():
+    redis = Redis.from_url(app.config['REDIS_URL'])
     queue = Queue(connection=redis)
 
     return {
@@ -25,6 +24,8 @@ def count_jobs():
     }
 
 def create_job(paths, args):
+    redis = Redis.from_url(app.config['REDIS_URL'])
+
     job_id = get_hash(paths, args)
     try:
         job = Job.fetch(job_id, connection=redis)
@@ -42,6 +43,8 @@ def create_job(paths, args):
 
 
 def fetch_job(job_id):
+    redis = Redis.from_url(app.config['REDIS_URL'])
+
     try:
         job = Job.fetch(job_id, connection=redis)
         return get_response(job, 200)
@@ -53,6 +56,8 @@ def fetch_job(job_id):
 
 
 def delete_job(job_id):
+    redis = Redis.from_url(app.config['REDIS_URL'])
+
     try:
         job = Job.fetch(job_id, connection=redis)
         job.delete()

@@ -9,9 +9,12 @@ __pycache__/
 
 /build
 /dist
+/volumes
 /*.egg-info
 /env
 /log
 /*.log
 /*.toml
 !/pyproject.toml
+
+/.env
