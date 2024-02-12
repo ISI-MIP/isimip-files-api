@@ -33,6 +33,13 @@ OUTPUT_PREFIX = 'download-'
 # maximal number of files to process in one job
 MAX_FILES = 32
 
+# list of operations which can be performed
+OPERATIONS = [
+    'isimip_files_api.operations.cdo.OutputtabOperation',
+    'isimip_files_api.operations.cdo.FldmeanOperation',
+    'isimip_files_api.operations.cdo.SelectBBoxOperation'
+]
+
 # list of tasks which can be performed
 TASKS = [
     'cutout_bbox',

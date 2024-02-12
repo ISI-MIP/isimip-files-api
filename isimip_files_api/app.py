@@ -1,14 +1,13 @@
-from collections import defaultdict
 
 from flask import Flask, request
 
 import tomli
 from flask_cors import CORS as FlaskCORS
 
-from .jobs import count_jobs, create_job, delete_job, fetch_job
+from .jobs import count_jobs, delete_job, fetch_job
 from .logging import configure_logging
 from .responses import get_errors_response
-from .validators import validate_data, validate_datasets
+from .validators import validate_data, validate_operations, validate_paths
 
 
 def create_app():
@@ -21,9 +20,6 @@ def create_app():
 
     # configure logging
     configure_logging(app)
-
-    # log config
-    app.logger.debug('app.config = %s', app.config)
 
     # enable CORS
     if app.config['CORS']:
@@ -40,18 +36,40 @@ def create_app():
     def create():
         app.logger.debug('request.json = %s', request.json)
 
-        errors = defaultdict(list)
+        data = request.json
 
-        cleaned_data = validate_data(request.json, errors)
+        errors = validate_data(data)
         if errors:
             app.logger.debug('errors = %s', errors)
             return get_errors_response(errors)
 
-        validate_datasets(*cleaned_data, errors)
+        errors = dict(**validate_paths(data),
+                      **validate_operations(data))
         if errors:
+            app.logger.debug('errors = %s', errors)
             return get_errors_response(errors)
 
-        return create_job(*cleaned_data)
+        from .operations import OperationRegistry
+
+        commands = []
+        operation_registry = OperationRegistry()
+        for index, operation_config in enumerate(data['operations']):
+            operation = operation_registry.get(operation_config)
+
+            if not commands or commands[-1]['agent'] != operation.agent:
+                commands.append({
+                    'agent': operation.agent,
+                    'command': operation.get_command(),
+                    'command_args': operation.get_command_args(),
+                    'operation_args': operation.get_operation_args()
+                })
+            else:
+                commands[-1]['operation_args'] += operation.get_args()
+
+        print(commands)
+
+        # return create_job(data['paths'], data['operations'])
+        return {'status': 'ok'}, 200
 
     @app.route('/<job_id>', methods=['GET'])
     def detail(job_id):

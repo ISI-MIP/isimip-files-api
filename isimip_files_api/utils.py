@@ -1,4 +1,5 @@
 import hashlib
+import importlib
 import re
 from pathlib import Path
 
@@ -43,3 +44,8 @@ def get_hash(paths, args):
 
 def mask_cmd(cmd):
     return re.sub(r'\/\S+\/', '', cmd)
+
+
+def import_class(string):
+    module_name, class_name = string.rsplit('.', 1)
+    return getattr(importlib.import_module(module_name), class_name)
