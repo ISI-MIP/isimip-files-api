@@ -16,6 +16,7 @@ def validate_data(data):
 
     return errors
 
+
 def validate_paths(data):
     errors = defaultdict(list)
 
@@ -56,16 +57,16 @@ def validate_operations(data):
     else:
         operation_registry = OperationRegistry()
         for index, operation_config in enumerate(data['operations']):
-            if 'specifier' in operation_config:
+            if 'operation' in operation_config:
                 operation = operation_registry.get(operation_config)
                 if operation is None:
-                    errors['operations'].append('operation "{specifier}" was not found'.format(**operation_config))
+                    errors['operations'].append('operation "{operation}" was not found'.format(**operation_config))
                 else:
                     operation_errors = operation.validate()
                     if operation_errors:
                         errors['operations'] += operation_errors
             else:
-                errors['operations'].append(f'operation [{index}] does not have a specifier')
+                errors['operations'].append(f'operation [{index}] does not have a "operation" key')
 
     return errors
 

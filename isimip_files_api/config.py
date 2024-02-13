@@ -33,11 +33,23 @@ OUTPUT_PREFIX = 'download-'
 # maximal number of files to process in one job
 MAX_FILES = 32
 
+# list of commands which can be executed
+COMMANDS = [
+    'isimip_files_api.commands.cdo.CdoCommand',
+    'isimip_files_api.commands.ncks.NcksCommand'
+]
+
 # list of operations which can be performed
 OPERATIONS = [
-    'isimip_files_api.operations.cdo.OutputtabOperation',
+    'isimip_files_api.operations.cdo.SelectBBoxOperation',
+    'isimip_files_api.operations.cdo.SelectCountryOperation',
+    'isimip_files_api.operations.cdo.SelectPointOperation',
+    'isimip_files_api.operations.cdo.MaskBBoxOperation',
+    'isimip_files_api.operations.cdo.MaskCountryOperation',
+    'isimip_files_api.operations.cdo.MaskLandonlyOperation',
     'isimip_files_api.operations.cdo.FldmeanOperation',
-    'isimip_files_api.operations.cdo.SelectBBoxOperation'
+    'isimip_files_api.operations.cdo.OutputtabOperation',
+    'isimip_files_api.operations.ncks.CutOutBBoxOperation'
 ]
 
 # list of tasks which can be performed

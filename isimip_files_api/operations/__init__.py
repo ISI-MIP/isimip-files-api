@@ -6,16 +6,14 @@ from ..utils import import_class
 class OperationRegistry:
 
     def __init__(self):
-        from flask import current_app as app
-
         self.operations = {}
         for python_path in app.config['OPERATIONS']:
             operation_class = import_class(python_path)
-            self.operations[operation_class.specifier] = operation_class
+            self.operations[operation_class.operation] = operation_class
 
     def get(self, config):
-        if 'specifier' in config and config['specifier'] in self.operations:
-            return self.operations[config['specifier']](config)
+        if 'operation' in config and config['operation'] in self.operations:
+            return self.operations[config['operation']](config)
 
 
 class BaseOperation:
@@ -24,7 +22,16 @@ class BaseOperation:
         self.config = config
 
     def validate(self):
-        pass
+        raise NotImplementedError
+
+    def get_args(self):
+        raise NotImplementedError
+
+    def get_suffix(self):
+        return None
+
+    def get_region(self):
+        return None
 
 
 class BBoxOperationMixin:
@@ -44,7 +51,7 @@ class BBoxOperationMixin:
             except (ValueError, IndexError):
                 return ['bbox is not of the form [%f, %f, %f, %f]']
         else:
-            return [f'bbox is missing for operation "{self.specifier}"']
+            return [f'bbox is missing for operation "{self.operation}"']
 
 
 class PointOperationMixin:
@@ -62,7 +69,7 @@ class PointOperationMixin:
             except (ValueError, IndexError):
                 return ['bbox is not of the form [%f, %f]']
         else:
-            return [f'point is missing for operation "{self.specifier}"']
+            return [f'point is missing for operation "{self.operation}"']
 
 
 class CountryOperationMixin:
@@ -75,4 +82,4 @@ class CountryOperationMixin:
             if self.get_country() not in app.config['COUNTRYMASKS_COUNTRIES']:
                 return ['country not in the list of supported countries (e.g. DEU)']
         else:
-            return [f'country is missing for operation "{self.specifier}"']
+            return [f'country is missing for operation "{self.operation}"']

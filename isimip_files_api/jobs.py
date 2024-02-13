@@ -23,15 +23,15 @@ def count_jobs():
         'scheduled': queue.scheduled_job_registry.count
     }
 
-def create_job(paths, operations):
+def create_job(data):
     redis = Redis.from_url(app.config['REDIS_URL'])
 
-    job_id = get_hash(paths, operations)
+    job_id = get_hash(data)
     try:
         job = Job.fetch(job_id, connection=redis)
         return get_response(job, 200)
     except NoSuchJobError:
-        job = Job.create(run_task, id=job_id, args=[paths, operations],
+        job = Job.create(run_task, id=job_id, args=[data['paths'], data['operations']],
                          timeout=app.config['WORKER_TIMEOUT'],
                          ttl=app.config['WORKER_TTL'],
                          result_ttl=app.config['WORKER_RESULT_TTL'],

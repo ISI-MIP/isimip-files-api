@@ -7,6 +7,8 @@ from flask import current_app as app
 
 from rq import get_current_job
 
+from .commands import CommandsRegistry
+from .operations import OperationRegistry
 from .utils import get_zip_file_name
 
 
@@ -18,70 +20,76 @@ def run_task(paths, operations):
     job.save_meta()
 
     # create output paths
-    output_path = Path(app.config['OUTPUT_PATH']).expanduser() / get_zip_file_name(job.id)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    zip_path = Path(app.config['OUTPUT_PATH']).expanduser() / get_zip_file_name(job.id)
+    zip_path.parent.mkdir(parents=True, exist_ok=True)
 
     # create a temporary directory
-    tmp = Path(mkdtemp(prefix=app.config['OUTPUT_PREFIX']))
+    tmp_path = Path(mkdtemp(prefix=app.config['OUTPUT_PREFIX']))
 
     # open zipfile
-    z = ZipFile(output_path, 'w')
+    z = ZipFile(zip_path, 'w')
 
     # open readme
-    readme_path = tmp / 'README.txt'
+    readme_path = tmp_path / 'README.txt'
     readme = readme_path.open('w')
     readme.write('The following commands were used to create the files in this container:\n\n')
 
+    commands = []
+    commands_registry = CommandsRegistry()
+    operation_registry = OperationRegistry()
+    for index, operation_config in enumerate(operations):
+        operation = operation_registry.get(operation_config)
+        if not commands or commands[-1].command != operation.command:
+            commands.append(commands_registry.get(operation.command))
+        commands[-1].operations.append(operation)
+
     for path in paths:
-        input_path = Path(app.config['INPUT_PATH']).expanduser() / path
-        app.logger.warn(input_path)
+        input_path = output_path = output_region = None
 
-        for operation in operations:
-            print(operation)
-            app.logger.error(operation)
+        for command in commands:
+            if output_path is None:
+                input_path = Path(app.config['INPUT_PATH']).expanduser() / path
+                output_path = tmp_path / input_path.name
+            else:
+                input_path = output_path
 
-        # if args['task'] in ['select_country', 'select_bbox', 'select_point']:
-        #     tmp_name = get_output_name(path, args, suffix='.csv')
-        # else:
-        #     tmp_name = get_output_name(path, args)
+            region = command.get_region()
+            if region is not None:
+                if output_region is None:
+                    if app.config['GLOBAL_TAG'] in output_path.name:
+                        # replace the _global_ specifier
+                        output_name = output_path.name.replace(app.config['GLOBAL_TAG'], f'_{region}_')
+                    else:
+                        output_name = output_path.stem + f'_{region}' + output_path.suffix
+                else:
+                    region = f'{output_region}+{region}'
+                    output_name = output_path.name.replace(output_region, region)
 
-        # tmp_path = tmp / tmp_name
+                output_region = region
+                output_path = output_path.with_name(output_name)
 
-        # if args['task'] == 'cutout_bbox':
-        #     cmd = cutout_bbox(input_path, tmp_path, args['bbox'])
+            suffix = command.get_suffix()
+            if suffix is not None:
+                output_path = output_path.with_suffix(suffix)
 
-        # elif args['task'] == 'mask_country':
-        #     cmd = mask_country(input_path, tmp_path, args['country'])
+            # execute the command and obtain the command_string
+            command_string = command.execute(input_path, output_path)
 
-        # elif args['task'] == 'mask_bbox':
-        #     cmd = mask_bbox(input_path, tmp_path, args['bbox'])
+            # write the command_string into readme file
+            readme.write(command_string + '\n')
 
-        # elif args['task'] == 'mask_landonly':
-        #     cmd = mask_landonly(input_path, tmp_path)
+        if output_path.is_file():
+            z.write(output_path, output_path.name)
+            print(output_path, output_path.name)
+        else:
+            error_path = Path(tmp_path).with_suffix('.txt')
+            error_path.write_text('Something went wrong with processing the input file.'
+                                  ' Probably it is not using a global grid.')
+            z.write(error_path, error_path.name)
 
-        # elif args['task'] == 'select_country':
-        #     cmd = select_country(input_path, tmp_path, args['country'])
-
-        # elif args['task'] == 'select_bbox':
-        #     cmd = select_bbox(input_path, tmp_path, args['bbox'])
-
-        # elif args['task'] == 'select_point':
-        #     cmd = select_point(input_path, tmp_path, args['point'])
-
-        # # write cmd into readme file
-        # readme.write(cmd + '\n')
-
-        # if tmp_path.is_file():
-        #     z.write(tmp_path, tmp_name)
-        # else:
-        #     error_path = Path(tmp_path).with_suffix('.txt')
-        #     error_path.write_text('Something went wrong with processing the input file.'
-        #                           ' Probably it is not using a global grid.')
-        #     z.write(error_path, error_path.name)
-
-        # # update the current job and store progress
-        # job.meta['created_files'] += 1
-        # job.save_meta()
+        # update the current job and store progress
+        job.meta['created_files'] += 1
+        job.save_meta()
 
     # close and write readme file
     readme.close()
@@ -91,7 +99,7 @@ def run_task(paths, operations):
     z.close()
 
     # delete temporary directory
-    shutil.rmtree(tmp)
+    shutil.rmtree(tmp_path)
 
     # return True to indicate success
     return True
