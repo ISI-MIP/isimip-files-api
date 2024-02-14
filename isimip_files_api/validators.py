@@ -54,6 +54,8 @@ def validate_operations(data):
         errors['operations'].append('This field is required.')
     elif not isinstance(data['operations'], list):
         errors['operations'].append('Provided json data is malformatted.')
+    elif len(data['operations']) > app.config['MAX_OPERATIONS']:
+        errors['operations'].append('To many operations provided (max: {MAX_OPERATIONS}).'.format(**app.config))
     else:
         operation_registry = OperationRegistry()
         for index, operation_config in enumerate(data['operations']):
@@ -67,6 +69,11 @@ def validate_operations(data):
                         errors['operations'] += operation_errors
             else:
                 errors['operations'].append(f'operation [{index}] does not have a "operation" key')
+
+    if not errors and len(operation_registry.get_command_list(data['operations'])) > app.config['MAX_COMMANDS']:
+        errors['operations'].append('Operations result in to many commands (max: {MAX_COMMANDS}).'.format(
+            **app.config
+        ))
 
     return errors
 

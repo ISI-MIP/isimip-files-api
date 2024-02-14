@@ -1,5 +1,6 @@
 from flask import current_app as app
 
+from ..commands import CommandRegistry
 from ..utils import import_class
 
 
@@ -14,6 +15,18 @@ class OperationRegistry:
     def get(self, config):
         if 'operation' in config and config['operation'] in self.operations:
             return self.operations[config['operation']](config)
+
+    def get_command_list(self, operations):
+        commands = []
+
+        command_registry = CommandRegistry()
+        for index, operation_config in enumerate(operations):
+            operation = self.get(operation_config)
+            if not commands or commands[-1].command != operation.command:
+                commands.append(command_registry.get(operation.command))
+            commands[-1].operations.append(operation)
+
+        return commands
 
 
 class BaseOperation:

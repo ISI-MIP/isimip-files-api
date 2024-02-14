@@ -7,7 +7,6 @@ from flask import current_app as app
 
 from rq import get_current_job
 
-from .commands import CommandRegistry
 from .operations import OperationRegistry
 from .utils import get_zip_file_name
 
@@ -34,19 +33,13 @@ def run_task(paths, operations):
     readme = readme_path.open('w')
     readme.write('The following commands were used to create the files in this container:\n\n')
 
-    commands = []
-    command_registry = CommandRegistry()
-    operation_registry = OperationRegistry()
-    for index, operation_config in enumerate(operations):
-        operation = operation_registry.get(operation_config)
-        if not commands or commands[-1].command != operation.command:
-            commands.append(command_registry.get(operation.command))
-        commands[-1].operations.append(operation)
+    # construct command list from the operations
+    command_list = OperationRegistry().get_command_list(operations)
 
     for path in paths:
         input_path = output_path = output_region = None
 
-        for command in commands:
+        for command in command_list:
             if output_path is None:
                 input_path = Path(app.config['INPUT_PATH']).expanduser() / path
                 output_path = tmp_path / input_path.name

@@ -39,6 +39,9 @@ COMMANDS = [
     'isimip_files_api.commands.ncks.NcksCommand'
 ]
 
+# maximum number of commands which can be performed
+MAX_COMMANDS = 2
+
 # list of operations which can be performed
 OPERATIONS = [
     'isimip_files_api.operations.cdo.SelectBBoxOperation',
@@ -52,18 +55,11 @@ OPERATIONS = [
     'isimip_files_api.operations.ncks.CutOutBBoxOperation'
 ]
 
-# list of tasks which can be performed
-TASKS = [
-    'cutout_bbox',
-    'mask_bbox',
-    'mask_country',
-    'mask_landonly',
-    'select_bbox',
-    'select_country',
-    'select_point'
-]
+# maximum number of operations which can be performed
+MAX_OPERATIONS = 16
 
-# the tag which designates global files
+# the tag which designates global files, this tag will be replaced by the region
+# specifier of the operations, if set to None, the region will be appended
 GLOBAL_TAG = '_global_'
 
 # list of the allowed resolution tags per task

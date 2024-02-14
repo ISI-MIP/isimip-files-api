@@ -32,7 +32,7 @@ def test_malformatted(client):
     }
 
 
-def test_paths_to_many(client):
+def test_paths_to_many_files(client):
     response = client.post('/', json={'paths': [
         'test1.nc',
         'test2.nc',
@@ -99,4 +99,38 @@ def test_operations_not_found(client):
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
         'operations': ['operation "invalid" was not found']
+    }
+
+
+def test_operations_to_many_commands(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [-10, 10, -10, 10]
+        },
+        {
+            'operation': 'mask_landonly'
+        },
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [-23.43651, 23.43651, -180, 180]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['Operations result in to many commands (max: 2).']
+    }
+
+
+def test_operations_to_many_operations(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'mask_landonly'
+        } for i in range(10)
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['To many operations provided (max: 8).']
     }
