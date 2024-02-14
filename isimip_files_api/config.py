@@ -62,30 +62,6 @@ MAX_OPERATIONS = 16
 # specifier of the operations, if set to None, the region will be appended
 GLOBAL_TAG = '_global_'
 
-# list of the allowed resolution tags per task
-RESOLUTION_TAGS = {
-    'cutout_bbox': ['30arcsec', '90arcsec', '300arcsec', '1800arcsec',
-                    '15arcmin', '30arcmin', '60arcmin', '120arcmin'],
-    'mask_bbox': ['15arcmin', '30arcmin', '60arcmin', '120arcmin'],
-    'mask_country': ['30arcmin'],
-    'mask_landonly': ['30arcmin'],
-    'select_bbox': ['15arcmin', '30arcmin', '60arcmin', '120arcmin'],
-    'select_country': ['30arcmin'],
-    'select_point': ['15arcmin', '30arcmin', '60arcmin', '120arcmin']
-}
-
-# list of the concrete number of gridpoints for each resolution tag
-RESOLUTIONS = {
-    '30arcsec': (20880, 43200),
-    '90arcsec': (6960, 14400),
-    '300arcsec': (2088, 4320),
-    '1800arcsec': (348, 720),
-    '15arcmin': (720, 1440),
-    '30arcmin': (360, 720),
-    '60arcmin': (180, 360),
-    '120arcmin': (90, 180)
-}
-
 # the cdo binary on the system, e.g. /usr/bin/cdo
 CDO_BIN = 'cdo'
 

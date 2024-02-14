@@ -76,13 +76,3 @@ def validate_operations(data):
         ))
 
     return errors
-
-
-# # def validate_datasets(paths, args, errors):
-# #     for path in paths:
-# #         input_path = Path(app.config['INPUT_PATH']).expanduser()
-# #         absolute_path = input_path / path
-# #         with open_dataset(absolute_path) as ds:
-# #             resolutions = app.config['RESOLUTION_TAGS'].get(args.get('task'))
-# #             if not any(check_resolution(ds, resolution) for resolution in resolutions):
-# #                 errors['paths'].append(f'{path} is not using the correct grid: {resolutions}.')
