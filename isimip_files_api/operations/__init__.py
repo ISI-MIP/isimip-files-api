@@ -49,7 +49,7 @@ class BBoxOperationMixin:
             try:
                 self.get_bbox()
             except (ValueError, IndexError):
-                return ['bbox is not of the form [%f, %f, %f, %f]']
+                return [f'bbox is not of the form [%f, %f, %f, %f] for operation "{self.operation}"']
         else:
             return [f'bbox is missing for operation "{self.operation}"']
 
@@ -67,7 +67,7 @@ class PointOperationMixin:
             try:
                 self.get_point()
             except (ValueError, IndexError):
-                return ['bbox is not of the form [%f, %f]']
+                return [f'point is not of the form [%f, %f] for operation "{self.operation}"']
         else:
             return [f'point is missing for operation "{self.operation}"']
 
@@ -80,6 +80,6 @@ class CountryOperationMixin:
     def validate_country(self):
         if 'country' in self.config:
             if self.get_country() not in app.config['COUNTRYMASKS_COUNTRIES']:
-                return ['country not in the list of supported countries (e.g. DEU)']
+                return [f'country not in the list of supported countries (e.g. deu) for operation "{self.operation}"']
         else:
             return [f'country is missing for operation "{self.operation}"']

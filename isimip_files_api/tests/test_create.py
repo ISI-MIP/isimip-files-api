@@ -92,36 +92,11 @@ def test_paths_not_found(client):
 def test_operations_not_found(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'specifier': 'invalid'
+            'operation': 'invalid'
         }
     ]})
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
         'operations': ['operation "invalid" was not found']
-    }
-
-
-def test_select_bbox(client):
-    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
-        {
-            'specifier': 'select_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 180]
-        }
-    ]})
-    assert response.status_code == 200
-    assert response.json.get('status') == 'ok'
-    assert response.json.get('errors') is None
-
-
-def test_select_bbox_missing_bbox(client):
-    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
-        {
-            'specifier': 'select_bbox'
-        }
-    ]})
-    assert response.status_code == 400
-    assert response.json.get('status') == 'error'
-    assert response.json.get('errors') == {
-        'operations': ['bbox is missing for operation "select_bbox"']
     }

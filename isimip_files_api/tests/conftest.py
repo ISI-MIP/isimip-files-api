@@ -1,5 +1,7 @@
 import pytest
 
+from redis import Redis
+
 from ..app import create_app
 
 
@@ -18,3 +20,8 @@ def app():
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture()
+def redis(app):
+    return Redis.from_url(app.config['REDIS_URL'])
