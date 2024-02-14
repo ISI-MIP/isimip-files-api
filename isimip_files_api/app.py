@@ -3,8 +3,10 @@ from flask import Flask, request
 import tomli
 from flask_cors import CORS as FlaskCORS
 
+from .commands import CommandRegistry
 from .jobs import count_jobs, create_job, delete_job, fetch_job
 from .logging import configure_logging
+from .operations import OperationRegistry
 from .responses import get_errors_response
 from .validators import validate_data, validate_operations, validate_paths
 
@@ -28,7 +30,9 @@ def create_app():
     def index():
         return {
             'status': 'ok',
-            'jobs': count_jobs()
+            'jobs': count_jobs(),
+            'commands': list(CommandRegistry().commands.keys()),
+            'operations': list(OperationRegistry().operations.keys()),
         }, 200
 
     @app.route('/', methods=['POST'])

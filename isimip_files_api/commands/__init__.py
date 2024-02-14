@@ -3,7 +3,7 @@ from flask import current_app as app
 from ..utils import import_class
 
 
-class CommandsRegistry:
+class CommandRegistry:
 
     def __init__(self):
         self.commands = {}

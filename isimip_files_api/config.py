@@ -15,7 +15,7 @@ CORS = True
 LOG_LEVEL = 'ERROR'
 LOG_PATH = None
 
-# the base url the api is running on, in production this will be something like https://api.example.com/api/v1
+# the base url the api is running on, in production this will be something like https://api.example.com/api/v2
 BASE_URL = 'http://127.0.0.1:5000'
 
 # the output url the download packages will be available on
