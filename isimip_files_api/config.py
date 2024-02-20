@@ -22,10 +22,10 @@ BASE_URL = 'http://127.0.0.1:5000'
 OUTPUT_URL = 'http://127.0.0.1/api/output/'
 
 # input path to the NetCDF files to process
-INPUT_PATH = '..'
+INPUT_PATH = '.'
 
 # output path to store the created download packages, this directory should be exposed on OUTPUT_URL
-OUTPUT_PATH = '..'
+OUTPUT_PATH = '.'
 
 # output prefix to be prepended to the job ID to create the filename for the download package
 OUTPUT_PREFIX = 'download-'

@@ -15,7 +15,7 @@ class CdoCommand(BaseCommand):
         write_csv = (self.get_suffix() == '.csv')
 
         # use the cdo bin from the config, NETCDF4_CLASSIC and compression
-        cmd_args = [app.config['CDO_BIN'], '-f', 'nc4c', '-z', 'zip_5']
+        cmd_args = [app.config['CDO_BIN'], '-f', 'nc4c', '-z', 'zip_5', '-L']
 
         # collect args from operations
         for operation in self.operations:

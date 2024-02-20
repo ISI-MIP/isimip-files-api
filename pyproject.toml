@@ -37,8 +37,9 @@ dependencies = [
     "gunicorn~=21.2.0",
     "netCDF4~=1.6.5",
     "numpy~=1.26.3",
+    "python-dotenv~=1.0.0",
     "tomli",
-    "rq~=1.15.1"
+    "rq~=1.15.1",
 ]
 dynamic = ["version"]
 
