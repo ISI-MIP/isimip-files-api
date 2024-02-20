@@ -49,6 +49,7 @@ OPERATIONS = [
     'isimip_files_api.operations.cdo.SelectPointOperation',
     'isimip_files_api.operations.cdo.MaskBBoxOperation',
     'isimip_files_api.operations.cdo.MaskCountryOperation',
+    'isimip_files_api.operations.cdo.MaskShapeOperation',
     'isimip_files_api.operations.cdo.MaskLandonlyOperation',
     'isimip_files_api.operations.cdo.FldmeanOperation',
     'isimip_files_api.operations.cdo.OutputtabOperation',
