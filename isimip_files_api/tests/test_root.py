@@ -7,6 +7,7 @@ def test_success(client, mocker):
     assert response.json.get('status') == 'ok'
     assert response.json.get('commands') == [
         'cdo',
+        'create_mask',
         'ncks'
     ]
     assert response.json.get('operations') == [
@@ -15,8 +16,10 @@ def test_success(client, mocker):
         'select_point',
         'mask_bbox',
         'mask_country',
+        'mask_mask',
         'mask_landonly',
         'fldmean',
         'outputtab',
+        'create_mask',
         'cutout_bbox'
     ]

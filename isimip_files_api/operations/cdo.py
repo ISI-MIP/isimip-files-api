@@ -3,7 +3,7 @@ from pathlib import Path
 from flask import current_app as app
 
 from ..netcdf import get_index
-from . import BaseOperation, BBoxOperationMixin, CountryOperationMixin, PointOperationMixin, ShapeOperationMixin
+from . import BaseOperation, BBoxOperationMixin, CountryOperationMixin, PointOperationMixin
 
 
 class CdoOperation(BaseOperation):
@@ -95,9 +95,9 @@ class MaskCountryOperation(CountryOperationMixin, CdoOperation):
         return self.get_country().lower()
 
 
-class MaskShapeOperation(ShapeOperationMixin, CdoOperation):
+class MaskMaskOperation(CdoOperation):
 
-    operation = 'mask_shape'
+    operation = 'mask_mask'
 
     def validate(self):
         return self.validate_shape()

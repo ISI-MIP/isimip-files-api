@@ -14,6 +14,8 @@ class CommandRegistry:
     def get(self, command):
         if command in self.commands:
             return self.commands[command]()
+        else:
+            raise RuntimeError(f'Command "{command}" not found in CommandRegistry.')
 
 
 class BaseCommand:

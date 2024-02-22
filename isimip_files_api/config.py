@@ -36,6 +36,7 @@ MAX_FILES = 32
 # list of commands which can be executed
 COMMANDS = [
     'isimip_files_api.commands.cdo.CdoCommand',
+    'isimip_files_api.commands.create_mask.CreateMaskCommand',
     'isimip_files_api.commands.ncks.NcksCommand'
 ]
 
@@ -49,10 +50,11 @@ OPERATIONS = [
     'isimip_files_api.operations.cdo.SelectPointOperation',
     'isimip_files_api.operations.cdo.MaskBBoxOperation',
     'isimip_files_api.operations.cdo.MaskCountryOperation',
-    'isimip_files_api.operations.cdo.MaskShapeOperation',
+    'isimip_files_api.operations.cdo.MaskMaskOperation',
     'isimip_files_api.operations.cdo.MaskLandonlyOperation',
     'isimip_files_api.operations.cdo.FldmeanOperation',
     'isimip_files_api.operations.cdo.OutputtabOperation',
+    'isimip_files_api.operations.create_mask.CreateMaskOperation',
     'isimip_files_api.operations.ncks.CutOutBBoxOperation'
 ]
 
@@ -68,6 +70,10 @@ CDO_BIN = 'cdo'
 
 # the ncks binary on the system, e.g. /usr/bin/ncks
 NCKS_BIN = 'ncks'
+
+# the binary used to create masks from geojson and shapefiles,
+# shipped with this software and located in scripts/create_mask.py
+CREATE_MASK_BIN = 'create-mask'
 
 # special settings for the countries
 COUNTRYMASKS_FILE_PATH = 'countrymasks.nc'

@@ -34,14 +34,19 @@ dependencies = [
     "colorlog~=6.8.2",
     "Flask~=3.0.0",
     "Flask-Cors~=4.0.0",
+    "geopandas~=0.14.3",
     "gunicorn~=21.2.0",
     "netCDF4~=1.6.5",
     "numpy~=1.26.3",
     "python-dotenv~=1.0.0",
     "tomli",
+    "rioxarray~=0.15.1",
     "rq~=1.15.1",
 ]
 dynamic = ["version"]
+
+[project.scripts]
+create-mask = "isimip_files_api.scripts.create_mask:main"
 
 [project.urls]
 Repository = "https://github.com/ISI-MIP/isimip-files-api"
