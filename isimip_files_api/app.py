@@ -8,7 +8,8 @@ from .jobs import count_jobs, create_job, delete_job, fetch_job
 from .logging import configure_logging
 from .operations import OperationRegistry
 from .responses import get_errors_response
-from .validators import validate_data, validate_operations, validate_paths
+from .utils import get_config_path, handle_post_request
+from .validators import validate_data, validate_operations, validate_paths, validate_uploads
 
 
 def create_app():
@@ -17,7 +18,7 @@ def create_app():
     app.config.from_object('isimip_files_api.config')
     app.config.from_prefixed_env()
     if 'CONFIG' in app.config:
-        app.config.from_file(app.config['CONFIG'], load=tomli.load, text=False)
+        app.config.from_file(get_config_path(app.config['CONFIG']), load=tomli.load, text=False)
 
     # configure logging
     configure_logging(app)
@@ -37,22 +38,30 @@ def create_app():
 
     @app.route('/', methods=['POST'])
     def create():
-        app.logger.debug('request.json = %s', request.json)
+        data, uploads = handle_post_request(request)
+        app.logger.debug('data = %s', data)
+        app.logger.debug('files = %s', uploads.keys())
 
-        data = request.json
-
+        # validation step 1: check data
         errors = validate_data(data)
         if errors:
             app.logger.debug('errors = %s', errors)
             return get_errors_response(errors)
 
+        # validation step 2: check paths and operations
         errors = dict(**validate_paths(data),
                       **validate_operations(data))
         if errors:
             app.logger.debug('errors = %s', errors)
             return get_errors_response(errors)
 
-        return create_job(data)
+        # validation step 3: check uploads
+        errors = validate_uploads(data, uploads)
+        if errors:
+            app.logger.debug('errors = %s', errors)
+            return get_errors_response(errors)
+
+        return create_job(data, uploads)
 
     @app.route('/<job_id>', methods=['GET'])
     def detail(job_id):

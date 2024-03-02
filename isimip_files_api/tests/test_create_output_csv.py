@@ -3,7 +3,7 @@ def test_success(client, mocker):
 
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'fldmean'
+            'operation': 'output_csv'
         }
     ]})
 

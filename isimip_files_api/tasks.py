@@ -1,14 +1,11 @@
-import shutil
 from pathlib import Path
-from tempfile import mkdtemp
-from zipfile import ZipFile
 
 from flask import current_app as app
 
 from rq import get_current_job
 
 from .operations import OperationRegistry
-from .utils import get_zip_file_name
+from .utils import get_input_path, get_job_path, get_zip_file, mask_paths, remove_job_path
 
 
 def run_task(paths, operations):
@@ -18,18 +15,14 @@ def run_task(paths, operations):
     job.meta['total_files'] = len(paths)
     job.save_meta()
 
-    # create output paths
-    zip_path = Path(app.config['OUTPUT_PATH']).expanduser() / get_zip_file_name(job.id)
-    zip_path.parent.mkdir(parents=True, exist_ok=True)
+    # get the temporary directory
+    job_path = get_job_path(job.id)
 
-    # create a temporary directory
-    tmp_path = Path(mkdtemp(prefix=app.config['OUTPUT_PREFIX']))
-
-    # open zipfile
-    z = ZipFile(zip_path, 'w')
+    # create the output zip file
+    zip_file = get_zip_file(job.id)
 
     # open readme
-    readme_path = tmp_path / 'README.txt'
+    readme_path = job_path / 'README.txt'
     readme = readme_path.open('w')
     readme.write('The following commands were used to create the files in this container:\n\n')
 
@@ -37,17 +30,17 @@ def run_task(paths, operations):
     command_list = OperationRegistry().get_command_list(operations)
 
     for path in paths:
-        input_path = output_path = output_region = None
+        input_path = get_input_path() / path
+        output_path = Path(input_path.name)
+        output_region = None
 
         for command in command_list:
-            if output_path is None:
-                input_path = Path(app.config['INPUT_PATH']).expanduser() / path
-                output_path = tmp_path / input_path.name
-            else:
-                input_path = output_path
+            if command.perform_once and path != paths[0]:
+                continue
 
+            # update region tag in output_path
             region = command.get_region()
-            if region is not None:
+            if region:
                 if output_region is None:
                     if app.config['GLOBAL_TAG'] in output_path.name:
                         # replace the _global_ specifier
@@ -61,24 +54,37 @@ def run_task(paths, operations):
                 output_region = region
                 output_path = output_path.with_name(output_name)
 
+            # update suffix in output_path
             suffix = command.get_suffix()
-            if suffix is not None:
+            if suffix:
                 output_path = output_path.with_suffix(suffix)
 
             # execute the command and obtain the command_string
-            command_string = command.execute(input_path, output_path)
+            command_string = command.execute(job_path, input_path, output_path)
 
             # write the command_string into readme file
-            readme.write(command_string + '\n')
+            readme.write(mask_paths(command_string) + '\n')
 
-        if output_path.is_file():
-            z.write(output_path, output_path.name)
-            print(output_path, output_path.name)
-        else:
-            error_path = Path(tmp_path).with_suffix('.txt')
-            error_path.write_text('Something went wrong with processing the input file.'
-                                  ' Probably it is not using a global grid.')
-            z.write(error_path, error_path.name)
+            # write the artefacts into the zipfile
+            if command.artefacts:
+                for artefact_path in command.artefacts:
+                    if (job_path / artefact_path).is_file():
+                        zip_file.write(job_path / artefact_path, artefact_path.name)
+
+            # write the outputs into the zipfile and set the new input path
+            if command.outputs:
+                for output_path in command.outputs:
+                    # set the new input path to the output path
+                    input_path = output_path
+
+                    if (job_path / output_path).is_file():
+                        # write the output into the zipfile
+                        zip_file.write(job_path / output_path, output_path.name)
+                    else:
+                        error_path = output_path.with_suffix('.txt')
+                        error_path.write_text('Something went wrong with processing the input file.'
+                                              ' Probably it is not using a global grid.')
+                        zip_file.write(error_path, error_path.name)
 
         # update the current job and store progress
         job.meta['created_files'] += 1
@@ -86,13 +92,13 @@ def run_task(paths, operations):
 
     # close and write readme file
     readme.close()
-    z.write(readme_path, readme_path.name)
+    zip_file.write(readme_path, readme_path.name)
 
     # close zip file
-    z.close()
+    zip_file.close()
 
     # delete temporary directory
-    shutil.rmtree(tmp_path)
+    remove_job_path(job.id)
 
     # return True to indicate success
     return True

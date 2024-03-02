@@ -8,7 +8,7 @@ from redis import Redis
 
 from .responses import get_response
 from .tasks import run_task
-from .utils import get_hash
+from .utils import get_hash, store_uploads
 
 
 def count_jobs():
@@ -23,14 +23,19 @@ def count_jobs():
         'scheduled': queue.scheduled_job_registry.count
     }
 
-def create_job(data):
+def create_job(data, uploads):
     redis = Redis.from_url(app.config['REDIS_URL'])
 
-    job_id = get_hash(data)
+    job_id = get_hash(data, uploads)
+
     try:
         job = Job.fetch(job_id, connection=redis)
         return get_response(job, 200)
     except NoSuchJobError:
+        # create tmp dir and store uploaded files
+        store_uploads(job_id, uploads)
+
+        # create and enqueue asyncronous job
         job = Job.create(run_task, id=job_id, args=[data['paths'], data['operations']],
                          timeout=app.config['WORKER_TIMEOUT'],
                          ttl=app.config['WORKER_TTL'],

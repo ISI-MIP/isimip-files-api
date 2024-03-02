@@ -20,12 +20,16 @@ class CommandRegistry:
 
 class BaseCommand:
 
+    perform_once = False
+    max_operations = None
+
     def __init__(self):
         self.operations = []
+        self.outputs = []
+        self.artefacts = []
 
-    def execute(self, input_path, output_path):
+    def execute(self, input_path, output_path, tmp_path):
         raise NotImplementedError
-
 
     def get_suffix(self):
         # loop over operations and take the first one

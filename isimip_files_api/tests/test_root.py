@@ -15,11 +15,11 @@ def test_success(client, mocker):
         'select_country',
         'select_point',
         'mask_bbox',
-        'mask_country',
         'mask_mask',
+        'mask_country',
         'mask_landonly',
-        'fldmean',
-        'outputtab',
+        'compute_mean',
+        'output_csv',
         'create_mask',
         'cutout_bbox'
     ]

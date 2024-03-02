@@ -1,12 +1,6 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
-
-__author__ = 'Jochen Klar'
-__email__ = 'jochen.klar@pik-potsdam.de'
-__license__ = 'MIT'
-__copyright__ = 'Copyright (c) 2020 Potsdam Institute for Climate Impact Research'
-
 
 [project]
 name = "isimip-files-api"
@@ -40,7 +34,7 @@ dependencies = [
     "numpy~=1.26.3",
     "python-dotenv~=1.0.0",
     "tomli",
-    "rioxarray~=0.15.1",
+    "rioxarray~=0.15.0",
     "rq~=1.15.1",
 ]
 dynamic = ["version"]
@@ -62,8 +56,12 @@ dev = [
     "twine"
 ]
 
-[tool.setuptools]
-packages = ["isimip_files_api"]
+[tool.setuptools.packages.find]
+include = ["isimip_files_api*"]
+exclude = ["*tests*"]
+
+[tool.setuptools.package-data]
+"*" = ["*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "isimip_files_api.__version__" }

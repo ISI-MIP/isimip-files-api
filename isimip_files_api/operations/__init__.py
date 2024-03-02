@@ -1,3 +1,5 @@
+import re
+from pathlib import Path
 
 from flask import current_app as app
 
@@ -21,11 +23,26 @@ class OperationRegistry:
         commands = []
 
         command_registry = CommandRegistry()
+        current_command = None
         for index, operation_config in enumerate(operations):
             operation = self.get(operation_config)
-            if not commands or commands[-1].command != operation.command:
-                commands.append(command_registry.get(operation.command))
-            commands[-1].operations.append(operation)
+
+            # add a new command, if
+            # * its the first operation
+            # * the operation has a different command than the previous one
+            # * the command reached its limit of operations
+            if (
+                current_command is None or
+                current_command.command != operation.command or
+                (
+                    current_command.max_operations is not None and
+                    len(current_command.operations) >= current_command.max_operations
+                )
+            ):
+                current_command = command_registry.get(operation.command)
+                commands.append(current_command)
+
+            current_command.operations.append(operation)
 
         return commands
 
@@ -37,6 +54,9 @@ class BaseOperation:
 
     def validate(self):
         raise NotImplementedError
+
+    def validate_uploads(self, uploads):
+        pass
 
     def get_args(self):
         raise NotImplementedError
@@ -91,9 +111,36 @@ class CountryOperationMixin:
     def get_country(self):
         return self.config['country'].upper()
 
+    def get_mask_path(self):
+        return Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser().resolve()
+
     def validate_country(self):
         if 'country' in self.config:
             if self.get_country() not in app.config['COUNTRYMASKS_COUNTRIES']:
                 return [f'country not in the list of supported countries (e.g. deu) for operation "{self.operation}"']
         else:
             return [f'country is missing for operation "{self.operation}"']
+
+
+class MaskOperationMixin:
+
+    def get_var(self):
+        return self.config.get('var', 'm_0')
+
+    def get_mask_path(self):
+        return Path(self.config.get('mask'))
+
+    def validate_var(self):
+        if 'var' in self.config:
+            if not re.match(r'^[A-Za-z0-9_]*$', self.config['var']):
+                return [f'only letters, numbers, underscores are permitted in "var" for operation "{self.operation}"']
+
+    def validate_mask(self):
+        if 'mask' in self.config:
+            if not re.match(r'^[A-Za-z0-9-.]*$', self.config['mask']):
+                return ['only letters, numbers, hyphens, and periods are permitted in "mask"'
+                        f' for operation "{self.operation}"']
+            elif re.search(r'\.{2}', self.config['mask']):
+                return [f'consecutive periods are not permitted in "mask" for operation "{self.operation}"']
+        else:
+            return [f'mask is missing for operation "{self.operation}"']

@@ -2,7 +2,6 @@ import subprocess
 
 from flask import current_app as app
 
-from ..utils import mask_paths
 from . import BaseCommand
 
 
@@ -10,7 +9,7 @@ class NcksCommand(BaseCommand):
 
     command = 'ncks'
 
-    def execute(self, input_path, output_path):
+    def execute(self, job_path, input_path, output_path):
         # use the ncks bin from the config
         cmd_args = [app.config['NCKS_BIN']]
 
@@ -26,7 +25,10 @@ class NcksCommand(BaseCommand):
         # join the cmd_args and execute the the command
         cmd = ' '.join(cmd_args)
         app.logger.debug(cmd)
-        subprocess.check_output(cmd_args)
+        subprocess.check_call(cmd_args, cwd=job_path)
+
+        # add the output path to the commands outputs
+        self.outputs = [output_path]
 
         # return the command without the paths
-        return mask_paths(cmd)
+        return cmd

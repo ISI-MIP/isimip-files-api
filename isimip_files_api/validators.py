@@ -58,11 +58,11 @@ def validate_operations(data):
         errors['operations'].append('To many operations provided (max: {MAX_OPERATIONS}).'.format(**app.config))
     else:
         operation_registry = OperationRegistry()
-        for index, operation_config in enumerate(data['operations']):
-            if 'operation' in operation_config:
-                operation = operation_registry.get(operation_config)
+        for index, config in enumerate(data['operations']):
+            if 'operation' in config:
+                operation = operation_registry.get(config)
                 if operation is None:
-                    errors['operations'].append('operation "{operation}" was not found'.format(**operation_config))
+                    errors['operations'].append('operation "{operation}" was not found'.format(**config))
                 else:
                     operation_errors = operation.validate()
                     if operation_errors:
@@ -74,5 +74,19 @@ def validate_operations(data):
         errors['operations'].append('Operations result in to many commands (max: {MAX_COMMANDS}).'.format(
             **app.config
         ))
+
+    return errors
+
+
+def validate_uploads(data, uploads):
+    errors = defaultdict(list)
+
+    operation_registry = OperationRegistry()
+    for index, config in enumerate(data['operations']):
+        if 'operation' in config:
+            operation = operation_registry.get(config)
+            operation_errors = operation.validate_uploads(uploads)
+            if operation_errors:
+                errors['operations'] += operation_errors
 
     return errors

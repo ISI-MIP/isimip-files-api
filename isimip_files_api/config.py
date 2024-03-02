@@ -22,10 +22,13 @@ BASE_URL = 'http://127.0.0.1:5000'
 OUTPUT_URL = 'http://127.0.0.1/api/output/'
 
 # input path to the NetCDF files to process
-INPUT_PATH = '.'
+INPUT_PATH = 'input'
+
+# temporary path to store interim files
+TMP_PATH = 'tmp'
 
 # output path to store the created download packages, this directory should be exposed on OUTPUT_URL
-OUTPUT_PATH = '.'
+OUTPUT_PATH = 'output'
 
 # output prefix to be prepended to the job ID to create the filename for the download package
 OUTPUT_PREFIX = 'download-'
@@ -36,12 +39,12 @@ MAX_FILES = 32
 # list of commands which can be executed
 COMMANDS = [
     'isimip_files_api.commands.cdo.CdoCommand',
-    'isimip_files_api.commands.create_mask.CreateMaskCommand',
+    'isimip_files_api.commands.python.create_mask.CreateMaskCommand',
     'isimip_files_api.commands.ncks.NcksCommand'
 ]
 
 # maximum number of commands which can be performed
-MAX_COMMANDS = 2
+MAX_COMMANDS = 8
 
 # list of operations which can be performed
 OPERATIONS = [
@@ -49,12 +52,12 @@ OPERATIONS = [
     'isimip_files_api.operations.cdo.SelectCountryOperation',
     'isimip_files_api.operations.cdo.SelectPointOperation',
     'isimip_files_api.operations.cdo.MaskBBoxOperation',
-    'isimip_files_api.operations.cdo.MaskCountryOperation',
     'isimip_files_api.operations.cdo.MaskMaskOperation',
+    'isimip_files_api.operations.cdo.MaskCountryOperation',
     'isimip_files_api.operations.cdo.MaskLandonlyOperation',
-    'isimip_files_api.operations.cdo.FldmeanOperation',
-    'isimip_files_api.operations.cdo.OutputtabOperation',
-    'isimip_files_api.operations.create_mask.CreateMaskOperation',
+    'isimip_files_api.operations.cdo.ComputeMeanOperation',
+    'isimip_files_api.operations.cdo.OutputCsvOperation',
+    'isimip_files_api.operations.python.create_mask.CreateMaskOperation',
     'isimip_files_api.operations.ncks.CutOutBBoxOperation'
 ]
 

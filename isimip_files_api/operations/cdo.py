@@ -3,7 +3,7 @@ from pathlib import Path
 from flask import current_app as app
 
 from ..netcdf import get_index
-from . import BaseOperation, BBoxOperationMixin, CountryOperationMixin, PointOperationMixin
+from . import BaseOperation, BBoxOperationMixin, CountryOperationMixin, MaskOperationMixin, PointOperationMixin
 
 
 class CdoOperation(BaseOperation):
@@ -36,8 +36,8 @@ class SelectCountryOperation(CountryOperationMixin, CdoOperation):
 
     def get_args(self):
         country = self.get_country()
-        mask_path = str(Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser())
-        return ['-ifthen', f'-selname,m_{country:3.3}', mask_path]
+        mask_path = self.get_mask_path()
+        return ['-ifthen', f'-selname,m_{country:3.3}', str(mask_path)]
 
     def get_region(self):
         return self.get_country().lower()
@@ -63,6 +63,7 @@ class SelectPointOperation(PointOperationMixin, CdoOperation):
         lat, lon = self.get_point()
         return f'lat{lat}lon{lon}'
 
+
 class MaskBBoxOperation(BBoxOperationMixin, CdoOperation):
 
     operation = 'mask_bbox'
@@ -77,6 +78,26 @@ class MaskBBoxOperation(BBoxOperationMixin, CdoOperation):
     def get_region(self):
         south, north, west, east = self.get_bbox()
         return f'lat{south}to{north}lon{west}to{east}'
+
+
+class MaskMaskOperation(MaskOperationMixin, CdoOperation):
+
+    operation = 'mask_mask'
+
+    def validate(self):
+        errors = []
+        errors += self.validate_var() or []
+        errors += self.validate_mask() or []
+        return errors
+
+    def get_args(self):
+        var = self.get_var()
+        mask_path = self.get_mask_path()
+        return ['-ifthen', f'-selname,{var}', str(mask_path)]
+
+    def get_region(self):
+        mask_path = self.get_mask_path()
+        return mask_path.stem
 
 
 class MaskCountryOperation(CountryOperationMixin, CdoOperation):
@@ -95,17 +116,6 @@ class MaskCountryOperation(CountryOperationMixin, CdoOperation):
         return self.get_country().lower()
 
 
-class MaskMaskOperation(CdoOperation):
-
-    operation = 'mask_mask'
-
-    def validate(self):
-        return self.validate_shape()
-
-    def get_args(self):
-        return []
-
-
 class MaskLandonlyOperation(CdoOperation):
 
     operation = 'mask_landonly'
@@ -121,9 +131,9 @@ class MaskLandonlyOperation(CdoOperation):
         return 'landonly'
 
 
-class FldmeanOperation(CdoOperation):
+class ComputeMeanOperation(CdoOperation):
 
-    operation = 'fldmean'
+    operation = 'compute_mean'
 
     def validate(self):
         pass
@@ -132,9 +142,9 @@ class FldmeanOperation(CdoOperation):
         return ['-fldmean']
 
 
-class OutputtabOperation(CdoOperation):
+class OutputCsvOperation(CdoOperation):
 
-    operation = 'outputtab'
+    operation = 'output_csv'
 
     def validate(self):
         pass
