@@ -3,11 +3,29 @@ Operations
 
 The following operations are available. Please note that some of the operations can be chained, e.g.
 
-```
-create_mask -> mask_mask -> compute_mean -> output_csv
+```python
+data = {
+    'paths': [...],
+    'operations': [
+        {
+            'operation': 'create_mask',
+            ...
+        },
+        {
+            'operation': 'mask_mask',
+            ...
+        },
+        {
+            'operation': 'compute_mean'
+        },
+        {
+            'operation': 'output_csv'
+        }
+    ]
+}
 ```
 
-Pleas also note the examples given in the [examples](../examples) directory.
+Please also note the examples given in the [examples](../examples) directory.
 
 ### Select point
 
@@ -79,7 +97,7 @@ cdo -f nc4c -z zip_5 -L -sellonlatbox,WEST,EAST,SOUTH,NORTH IFILE OFILE
 
 ### Mask country
 
-A country can be masked (everything outside is set to `missing_value`) using:
+A country can be masked (i.e. everything outside is set to `missing_value`) using:
 
 ```python
 response = requests.post('https://files.isimip.org/api/v2', json={
@@ -101,7 +119,7 @@ cdo -f nc4c -z zip_5 -L -ifthen -selname,m_BRA COUNTRYMASK IFILE OFILE
 
 ### Mask land only
 
-The landmass (without antarctica) can be masked (everything outside is set to `missing_value`) using:
+The landmass (without antarctica) can be masked (i.e. the ocean is set to `missing_value`) using:
 
 ```python
 response = requests.post('https://files.isimip.org/api/v2', json={
@@ -210,7 +228,7 @@ cdo -s outputtab,date,value,nohead -fldmean -ifthen -selname,m_BRA COUNTRYMASK I
 
 Afterwards the TAB seperated CDO output is converted to CSV.
 
-Full examples are is given in [examples/time_series_bbox.py](../time_series_bbox.py) and [examples/time_series_country.py](../time_series_country.py).
+Full examples are is given in [examples/time_series_bbox.py](../examples/time_series_bbox.py) and [examples/time_series_country.py](../examples/time_series_country.py).
 
 ### Cutout bounding box
 
@@ -267,4 +285,4 @@ response = requests.post(url, files={
 })
 ```
 
-Full examples are is given in [examples/time_series_shapefile.py](../time_series_shapefile.py) and [examples/time_series_geojson.py](../time_series_geojson.py).
+Full examples are is given in [examples/time_series_shapefile.py](../examples/time_series_shapefile.py) and [examples/time_series_geojson.py](../examples/time_series_geojson.py).

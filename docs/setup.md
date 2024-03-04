@@ -31,7 +31,7 @@ The API is then available at http://127.0.0.1:5000.
 
 ## Deployment
 
-When deploying to the internet, a setup of [NGINX](https://www.nginx.com/), (gunicorn)[https://gunicorn.org/], and [systemd](https://www.freedesktop.org/wiki/Software/systemd/) services is recommended, but other services can be used as well. We further assume that a user `isimip` with the group `isimip` and the home `/home/isimip` exists, and that the repository is cloned at `/home/isimip/api`.
+When deploying to the internet, a setup of [NGINX](https://www.nginx.com/), [gunicorn](https://gunicorn.org/), and [systemd](https://www.freedesktop.org/wiki/Software/systemd/) is recommended, but other services can be used as well. We further assume that a user `isimip` with the group `isimip` and the home `/home/isimip` exists, and that the repository is cloned at `/home/isimip/api`.
 
 Then, as `root`, create a file `/etc/tmpfiles.d/api.conf` with the following content:
 

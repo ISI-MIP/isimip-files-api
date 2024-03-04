@@ -1,7 +1,7 @@
-isimip-files-api
+ISIMIP Files API
 ================
 
-A webservice to asynchronously perform operations on NetCDF files, using [Flask](https://palletsprojects.com/p/flask/) and [RQ](https://python-rq.org/).
+A webservice to asynchronously perform operations on NetCDF files before downloading them, using [Flask](https://palletsprojects.com/p/flask/) and [RQ](https://python-rq.org/).
 
 The service is deployed on https://files.isimip.org/api/v2 as part of the [ISIMIP Repository](https://data.isimip.org). The previous version of the API is available at https://files.isimip.org/api/v1.
 
@@ -19,7 +19,7 @@ The service is integrated into the [ISIMIP Repository](https://data.isimip.org) 
 
 For programmatic access, the API can be used with standard HTTP libraries (e.g. [requests](https://requests.readthedocs.io) for Python). While the following examples use the ISIMIP Repository, Python and `requests`, they should be transferable to other servers, languages or libraries.
 
-The API is used by sending HTTP POST request to its root endpoint. The request needs to use the content type `application/json` and contain a single JSON object with a list of `paths` and a list of `operations`. While the `paths` can be obtained from the [ISIMIP Repository](https://data.isimip.org) (they usually start with `ISIMIP3`), the operations are described in [docs/operations.md](docs/operations.md).
+The API is used by sending HTTP POST request to its root endpoint. The request needs to use the content type `application/json` and contain a single JSON object with a list of `paths` and a list of `operations`. While the `paths` can be obtained from the [ISIMIP Repository](https://data.isimip.org) (e.g. `ISIMIP3b/InputData/climate/atmosphere/bias-adjusted/global/daily/ssp585/GFDL-ESM4/gfdl-esm4_r1i1p1f1_w5e5_ssp585_tas_global_daily_2015_2020.nc`), the operations are described in [docs/operations.md](docs/operations.md).
 
 Using Python and `requests`, requests can be performed like this:
 
@@ -28,9 +28,9 @@ import requests
 
 response = requests.post('https://files.isimip.org/api/v2', json={
     'paths': [
-        'ISIMIP3b/InputData/climate/.../gfdl-esm4_r1i1p1f1_w5e5_ssp585_tas_global_daily_2015_2020.nc',
-        'ISIMIP3b/InputData/climate/.../gfdl-esm4_r1i1p1f1_w5e5_ssp585_tas_global_daily_2021_2030.nc',
-        'ISIMIP3b/InputData/climate/.../gfdl-esm4_r1i1p1f1_w5e5_ssp585_tas_global_daily_2031_2031.nc',
+        'ISIMIP3b/InputData/.../gfdl-esm4_r1i1p1f1_w5e5_ssp585_tas_global_daily_2015_2020.nc',
+        'ISIMIP3b/InputData/.../gfdl-esm4_r1i1p1f1_w5e5_ssp585_tas_global_daily_2021_2030.nc',
+        'ISIMIP3b/InputData/.../gfdl-esm4_r1i1p1f1_w5e5_ssp585_tas_global_daily_2031_2031.nc',
         ...
     ],
     'operations': [
@@ -44,7 +44,7 @@ response = requests.post('https://files.isimip.org/api/v2', json={
 result = response.json()
 ```
 
-The response is a JSON object:
+The `result` is a dictionary describing the job on the server:
 
 ```json
 {
@@ -71,7 +71,7 @@ Performing the initial request again, or performing a `GET` on the url given in 
 }
 ```
 
-When the job is completed on the server the status becomes `finished` and the JSON contains a `file_name` and a `file_url`.
+When the job is completed on the server the status becomes `finished` and the result contains a `file_name` and a `file_url`.
 
 ```json
 {
@@ -89,3 +89,5 @@ When the job is completed on the server the status becomes `finished` and the JS
 ```
 
 The file can be downloaded under the URL given by `file_url` (if the output directory of the API is made public via a web server).
+
+Please also note the examples given in the [examples](examples) directory.
