@@ -38,6 +38,7 @@ Asynchronous jobs are created using a HTTP `POST` request to the root api entpoi
 POST /
 {
   "path": "path/to/file.nc",
+  "task": "mask_bbox",
   "bbox": [south, north, west, east]
 }
 ```
@@ -48,6 +49,7 @@ where `south`, `north`, `west`, `east` are floats and `path` is the path to the 
 POST /
 {
   "path": "path/to/file.nc",
+  "task": "mask_country",
   "country": "deu"
 }
 ```
@@ -58,7 +60,7 @@ for, e. g. Germany. To mask out all sea and antarctica data use:
 POST /
 {
   "path": "path/to/file.nc",
-  "landonly": true
+  "task": "mask_landonly"
 }
 ```
 
@@ -66,12 +68,13 @@ The response is a JSON like this:
 
 ```
 {
+    "file_name": "isimip-download-1eff769a7edd0a8076f11dc85609f0090562a671.zip",
+    "file_url": "https://files.isimip.org/api/v1/output/isimip-download-1eff769a7edd0a8076f11dc85609f0090562a671.zip",
     "id": "5741ca0e7f824d37ef23e107f5e5261a31e974a6",
     "job_url": "http://127.0.0.1:5000/5741ca0e7f824d37ef23e107f5e5261a31e974a6",
-    "meta": {
-        "output_path": "path/to/file.nc"
-    },
-    "status": "queued"
+    "meta": {},
+    "status": "queued",
+    "ttl": 604800
 }
 ```
 
@@ -79,17 +82,17 @@ Performing the initial request again, or performing a `GET` on the url given in 
 
 ```
 {
-    "file_url": "http://127.0.0.1/api/output/path/to/file.nc",
+    "file_name": "isimip-download-1eff769a7edd0a8076f11dc85609f0090562a671.zip",
+    "file_url": "https://files.isimip.org/api/v1/output/isimip-download-1eff769a7edd0a8076f11dc85609f0090562a671.zip",
     "id": "5741ca0e7f824d37ef23e107f5e5261a31e974a6",
     "job_url": "http://127.0.0.1:5000/5741ca0e7f824d37ef23e107f5e5261a31e974a6",
-    "meta": {
-        "output_path": "path/to/file.nc"
-    },
-    "status": "finished"
+    "meta": {"created_files": 1, "total_files": 1},
+    "status": "finished",
+    "ttl": 604800
 }
 ```
 
-When the job is finished, the resulting file is located at `path/to/file.nc` relative to the path given in `OUTPUT_PATH` in `.env`. When `OUTPUT_PATH` is made public via a web server (e.g. NGINX, see below for deployment), the file can be downloaded under the URL given by `file_url`.
+When the job is finished, the resulting file is located at `file_name` relative to the path given in `OUTPUT_PATH` in `.env`. When `OUTPUT_PATH` is made public via a web server (e.g. NGINX, see below for deployment), the file can be downloaded under the URL given by `file_url`.
 
 The following exaples can be used from the command line with [httpie](https://httpie.org/) or [curl](https://curl.haxx.se/):
 
@@ -98,9 +101,9 @@ http :5000 path=path/to/file.nc bbox=:"[0, 10, 0, 10]"
 http :5000 path=path/to/file.nc country=deu
 http :5000 path=path/to/file.nc landonly:=true
 
-curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "bbox": [south, north, west, east]}'
-curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "country": "deu"}'
-curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "landonly": true}'
+curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "task": "mask_bbox","bbox": [south, north, west, east]}'
+curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "task": "mask_country", "country": "deu"}'
+curl 127.0.0.1:5000 -H "Content-Type: application/json" -d '{"path": "path/to/file.nc", "task": "mask_landonly"}'
 ```
 
 Deployment
