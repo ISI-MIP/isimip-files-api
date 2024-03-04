@@ -1,66 +1,99 @@
 import hashlib
+import importlib
+import json
 import re
+import shutil
 from pathlib import Path
+from zipfile import ZipFile
 
-from .settings import BASE_URL, GLOBAL, OUTPUT_PREFIX, OUTPUT_URL, WORKER_RESULT_TTL
-
-
-def get_response(job, http_status):
-    file_name = get_zip_file_name(job.id)
-
-    return {
-        'id': job.id,
-        'job_url': BASE_URL + '/' + job.id,
-        'file_name': file_name,
-        'file_url': OUTPUT_URL + '/' + file_name,
-        'meta': job.meta,
-        'ttl': WORKER_RESULT_TTL,
-        'status': job.get_status(),
-    }, http_status
+from flask import current_app as app
 
 
-def get_errors_response(errors):
-    return {
-        'status': 'error',
-        'errors': errors
-    }, 400
+def get_config_path(config_file):
+    if config_file is not None:
+        config_path = Path(config_file)
+        if not config_path.is_absolute():
+            config_path = Path().cwd() / config_path
+
+        if config_path.is_file():
+            return config_path
 
 
-def get_output_name(path, args, suffix=None):
-    if args.get('bbox'):
-        south, north, west, east = args['bbox']
-        region = f'lat{south}to{north}lon{west}to{east}'
+def handle_post_request(request):
+    data = {}
+    files = {}
 
-    elif args.get('country'):
-        region = args['country'].lower()
-
-    elif args.get('point'):
-        lat, lon = args['point']
-        region = f'lat{lat}lon{lon}'
-
+    if request.content_type.startswith('multipart/form-data'):
+        for file_name, file_storage in request.files.items():
+            if file_name == 'data':
+                data = json.loads(file_storage.read())
+            else:
+                files[file_name] = file_storage
     else:
-        region = 'landonly'
+        data = request.json
 
-    path = Path(path)
-    suffix = suffix if suffix else path.suffix
-    if GLOBAL in path.name:
-        # replace the _global_ specifier
-        return path.with_suffix(suffix).name.replace(GLOBAL, f'_{region}_')
-    else:
-        # append region specifier
-        return path.stem + f'_{region}' + suffix
+    return data, files
 
 
-def get_zip_file_name(job_id):
-    return Path(OUTPUT_PREFIX + job_id).with_suffix('.zip').as_posix()
-
-
-def get_hash(paths, args):
+def get_hash(data, uploads):
     m = hashlib.sha1()
-    m.update(str(paths).encode())
-    m.update(str(args).encode())
+    m.update(str(data).encode())
+    for file_name, file_storage in uploads.items():
+        m.update(file_storage.read())
     return m.hexdigest()
 
 
-def mask_cmd(cmd):
-    return re.sub(r'\/\S+\/', '', cmd)
+def get_input_path():
+    return Path(app.config['INPUT_PATH']).expanduser().resolve()
+
+
+def get_tmp_path():
+    return Path(app.config['TMP_PATH']).expanduser().resolve()
+
+
+def get_output_path():
+    return Path(app.config['OUTPUT_PATH']).expanduser().resolve()
+
+
+def get_job_path(job_id):
+    job_path = get_tmp_path().joinpath(app.config['OUTPUT_PREFIX'] + job_id)
+    job_path.mkdir(parents=True, exist_ok=True)
+    return job_path
+
+
+def get_zip_file_name(job_id):
+    return Path(app.config['OUTPUT_PREFIX'] + job_id).with_suffix('.zip').as_posix()
+
+
+def get_zip_path(job_id):
+    zip_path = get_output_path() / get_zip_file_name(job_id)
+    zip_path.parent.mkdir(parents=True, exist_ok=True)
+    return zip_path
+
+
+def get_zip_file(job_id):
+    zip_path = get_zip_path(job_id)
+    return ZipFile(zip_path.as_posix(), 'w')
+
+
+def store_uploads(job_id, uploads):
+    job_path = get_job_path(job_id)
+
+    for file_name, file_storage in uploads.items():
+        with open(job_path / file_name, 'wb') as fp:
+            file_storage.seek(0)
+            file_storage.save(fp)
+
+
+def remove_job_path(job_id):
+    job_path = get_job_path(job_id)
+    shutil.rmtree(job_path)
+
+
+def mask_paths(string):
+    return re.sub(r'\/\S+\/', '', string)
+
+
+def import_class(string):
+    module_name, class_name = string.rsplit('.', 1)
+    return getattr(importlib.import_module(module_name), class_name)

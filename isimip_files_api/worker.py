@@ -1,12 +1,16 @@
-import logging
+from rq import Worker as RQWorker
 
-from rq import Worker as Worker
+from dotenv import load_dotenv
 
-from .settings import WORKER_LOG_FILE, WORKER_LOG_LEVEL
-
-logging.basicConfig(level=WORKER_LOG_LEVEL, filename=WORKER_LOG_FILE,
-                    format='[%(asctime)s] %(levelname)s %(name)s: %(message)s')
+from .app import create_app
 
 
-class LogWorker(Worker):
-    pass
+class Worker(RQWorker):
+
+    def work(self, *args, **kwargs):
+        load_dotenv()
+
+        app = create_app()
+
+        with app.app_context():
+            super().work(*args, **kwargs)

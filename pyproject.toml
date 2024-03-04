@@ -1,12 +1,6 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
-
-__author__ = 'Jochen Klar'
-__email__ = 'jochen.klar@pik-potsdam.de'
-__license__ = 'MIT'
-__copyright__ = 'Copyright (c) 2020 Potsdam Institute for Climate Impact Research'
-
 
 [project]
 name = "isimip-files-api"
@@ -31,24 +25,25 @@ classifiers = [
     'Programming Language :: Python :: 3.12'
 ]
 dependencies = [
-    "Flask~=1.1.1",
-    "Flask-Cors~=3.0.8",
-    "gunicorn~=20.0.4",
-    "netCDF4~=1.5.3",
-    "numpy~=1.18.2",
-    "python-dotenv~=0.12.0",
-    "rq~=1.3.0"
+    "colorlog~=6.8.2",
+    "Flask~=3.0.0",
+    "Flask-Cors~=4.0.0",
+    "geopandas~=0.14.3",
+    "gunicorn~=21.2.0",
+    "netCDF4~=1.6.5",
+    "numpy~=1.26.3",
+    "python-dotenv~=1.0.0",
+    "tomli",
+    "rioxarray~=0.15.0",
+    "rq~=1.15.1",
 ]
 dynamic = ["version"]
 
+[project.scripts]
+create-mask = "isimip_files_api.scripts.create_mask:main"
+
 [project.urls]
 Repository = "https://github.com/ISI-MIP/isimip-files-api"
-
-[project.scripts]
-isimip-files-api-select = "isimip_files_api.scripts:select"
-isimip-files-api-mask = "isimip_files_api.scripts:mask"
-isimip-files-api-cutout = "isimip_files_api.scripts:cutout"
-isimip-files-api-clean = "isimip_files_api.scripts:clean"
 
 [project.optional-dependencies]
 dev = [
@@ -56,12 +51,17 @@ dev = [
     "pre-commit",
     "pytest",
     "pytest-cov",
+    "pytest-mock",
     "ruff",
     "twine"
 ]
 
-[tool.setuptools]
-packages = ["isimip_files_api"]
+[tool.setuptools.packages.find]
+include = ["isimip_files_api*"]
+exclude = ["*tests*"]
+
+[tool.setuptools.package-data]
+"*" = ["*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "isimip_files_api.__version__" }
@@ -95,10 +95,18 @@ known-first-party = [
 section-order = [
     "future",
     "standard-library",
+    "pytest",
+    "flask",
+    "rq",
     "third-party",
     "first-party",
     "local-folder"
 ]
+
+[tool.ruff.isort.sections]
+pytest = ["pytest"]
+flask = ["flask"]
+rq = ["rq"]
 
 [tool.pytest.ini_options]
 testpaths = ["isimip_files_api"]

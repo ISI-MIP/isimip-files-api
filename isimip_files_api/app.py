@@ -1,43 +1,69 @@
-import logging
-from collections import defaultdict
-
 from flask import Flask, request
+
+import tomli
 from flask_cors import CORS as FlaskCORS
 
-from .jobs import create_job, delete_job, fetch_job
-from .settings import CORS, LOG_FILE, LOG_LEVEL
-from .utils import get_errors_response
-from .validators import validate_data, validate_datasets
-
-logging.basicConfig(level=LOG_LEVEL, filename=LOG_FILE)
+from .commands import CommandRegistry
+from .jobs import count_jobs, create_job, delete_job, fetch_job
+from .logging import configure_logging
+from .operations import OperationRegistry
+from .responses import get_errors_response
+from .utils import get_config_path, handle_post_request
+from .validators import validate_data, validate_operations, validate_paths, validate_uploads
 
 
 def create_app():
     # create and configure the app
     app = Flask(__name__)
+    app.config.from_object('isimip_files_api.config')
+    app.config.from_prefixed_env()
 
-    if CORS:
+    config_path = get_config_path(app.config.get('CONFIG'))
+    if config_path:
+        app.config.from_file(get_config_path(config_path), load=tomli.load, text=False)
+
+    # configure logging
+    configure_logging(app)
+
+    # enable CORS
+    if app.config['CORS']:
         FlaskCORS(app)
 
     @app.route('/', methods=['GET'])
     def index():
         return {
-            'status': 'ok'
+            'status': 'ok',
+            'jobs': count_jobs(),
+            'commands': list(CommandRegistry().commands.keys()),
+            'operations': list(OperationRegistry().operations.keys()),
         }, 200
 
     @app.route('/', methods=['POST'])
     def create():
-        errors = defaultdict(list)
+        data, uploads = handle_post_request(request)
+        app.logger.debug('data = %s', data)
+        app.logger.debug('files = %s', uploads.keys())
 
-        cleaned_data = validate_data(request.json, errors)
+        # validation step 1: check data
+        errors = validate_data(data)
         if errors:
+            app.logger.debug('errors = %s', errors)
             return get_errors_response(errors)
 
-        validate_datasets(*cleaned_data, errors)
+        # validation step 2: check paths and operations
+        errors = dict(**validate_paths(data),
+                      **validate_operations(data))
         if errors:
+            app.logger.debug('errors = %s', errors)
             return get_errors_response(errors)
 
-        return create_job(*cleaned_data)
+        # validation step 3: check uploads
+        errors = validate_uploads(data, uploads)
+        if errors:
+            app.logger.debug('errors = %s', errors)
+            return get_errors_response(errors)
+
+        return create_job(data, uploads)
 
     @app.route('/<job_id>', methods=['GET'])
     def detail(job_id):

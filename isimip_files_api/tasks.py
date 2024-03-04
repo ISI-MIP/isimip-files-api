@@ -1,78 +1,90 @@
-import shutil
 from pathlib import Path
-from tempfile import mkdtemp
-from zipfile import ZipFile
+
+from flask import current_app as app
 
 from rq import get_current_job
 
-from .cdo import mask_bbox, mask_country, mask_landonly, select_bbox, select_country, select_point
-from .nco import cutout_bbox
-from .settings import INPUT_PATH, OUTPUT_PATH, OUTPUT_PREFIX
-from .utils import get_output_name, get_zip_file_name
+from .operations import OperationRegistry
+from .utils import get_input_path, get_job_path, get_zip_file, mask_paths, remove_job_path
 
 
-def run_task(paths, args):
+def run_task(paths, operations):
     # get current job and init metadata
     job = get_current_job()
     job.meta['created_files'] = 0
     job.meta['total_files'] = len(paths)
     job.save_meta()
 
-    # create output paths
-    output_path = OUTPUT_PATH / get_zip_file_name(job.id)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # get the temporary directory
+    job_path = get_job_path(job.id)
 
-    # create a temporary directory
-    tmp = Path(mkdtemp(prefix=OUTPUT_PREFIX))
-
-    # open zipfile
-    z = ZipFile(output_path, 'w')
+    # create the output zip file
+    zip_file = get_zip_file(job.id)
 
     # open readme
-    readme_path = tmp / 'README.txt'
+    readme_path = job_path / 'README.txt'
     readme = readme_path.open('w')
     readme.write('The following commands were used to create the files in this container:\n\n')
 
+    # construct command list from the operations
+    command_list = OperationRegistry().get_command_list(operations)
+
     for path in paths:
-        input_path = INPUT_PATH / path
-        if args['task'] in ['select_country', 'select_bbox', 'select_point']:
-            tmp_name = get_output_name(path, args, suffix='.csv')
-        else:
-            tmp_name = get_output_name(path, args)
+        input_path = get_input_path() / path
+        output_path = Path(input_path.name)
+        output_region = None
 
-        tmp_path = tmp / tmp_name
+        for command in command_list:
+            if command.perform_once and path != paths[0]:
+                continue
 
-        if args['task'] == 'cutout_bbox':
-            cmd = cutout_bbox(input_path, tmp_path, args['bbox'])
+            # update region tag in output_path
+            region = command.get_region()
+            if region:
+                if output_region is None:
+                    if app.config['GLOBAL_TAG'] in output_path.name:
+                        # replace the _global_ specifier
+                        output_name = output_path.name.replace(app.config['GLOBAL_TAG'], f'_{region}_')
+                    else:
+                        output_name = output_path.stem + f'_{region}' + output_path.suffix
+                else:
+                    region = f'{output_region}+{region}'
+                    output_name = output_path.name.replace(output_region, region)
 
-        elif args['task'] == 'mask_country':
-            cmd = mask_country(input_path, tmp_path, args['country'])
+                output_region = region
+                output_path = output_path.with_name(output_name)
 
-        elif args['task'] == 'mask_bbox':
-            cmd = mask_bbox(input_path, tmp_path, args['bbox'])
+            # update suffix in output_path
+            suffix = command.get_suffix()
+            if suffix:
+                output_path = output_path.with_suffix(suffix)
 
-        elif args['task'] == 'mask_landonly':
-            cmd = mask_landonly(input_path, tmp_path)
+            # execute the command and obtain the command_string
+            command_string = command.execute(job_path, input_path, output_path)
 
-        elif args['task'] == 'select_country':
-            cmd = select_country(input_path, tmp_path, args['country'])
+            # write the command_string into readme file
+            readme.write(mask_paths(command_string) + '\n')
 
-        elif args['task'] == 'select_bbox':
-            cmd = select_bbox(input_path, tmp_path, args['bbox'])
+            # write the artefacts into the zipfile
+            if command.artefacts:
+                for artefact_path in command.artefacts:
+                    if (job_path / artefact_path).is_file():
+                        zip_file.write(job_path / artefact_path, artefact_path.name)
 
-        elif args['task'] == 'select_point':
-            cmd = select_point(input_path, tmp_path, args['point'])
+            # write the outputs into the zipfile and set the new input path
+            if command.outputs:
+                for output_path in command.outputs:
+                    # set the new input path to the output path
+                    input_path = output_path
 
-        # write cmd into readme file
-        readme.write(cmd + '\n')
-
-        if tmp_path.is_file():
-            z.write(tmp_path, tmp_name)
-        else:
-            error_path = Path(tmp_path).with_suffix('.txt')
-            error_path.write_text('Something went wrong with processing the input file.'
-                                  ' Probably it is not using a global grid.')
-            z.write(error_path, error_path.name)
+                    if (job_path / output_path).is_file():
+                        # write the output into the zipfile
+                        zip_file.write(job_path / output_path, output_path.name)
+                    else:
+                        error_path = output_path.with_suffix('.txt')
+                        error_path.write_text('Something went wrong with processing the input file.'
+                                              ' Probably it is not using a global grid.')
+                        zip_file.write(error_path, error_path.name)
 
         # update the current job and store progress
         job.meta['created_files'] += 1
@@ -80,13 +92,13 @@ def run_task(paths, args):
 
     # close and write readme file
     readme.close()
-    z.write(readme_path, readme_path.name)
+    zip_file.write(readme_path, readme_path.name)
 
     # close zip file
-    z.close()
+    zip_file.close()
 
     # delete temporary directory
-    shutil.rmtree(tmp)
+    remove_job_path(job.id)
 
     # return True to indicate success
     return True

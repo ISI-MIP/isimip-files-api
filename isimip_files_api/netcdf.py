@@ -1,6 +1,6 @@
-from netCDF4 import Dataset
+from flask import current_app as app
 
-from .settings import RESOLUTIONS
+from netCDF4 import Dataset
 
 
 def open_dataset(path):
@@ -9,7 +9,7 @@ def open_dataset(path):
 
 def check_resolution(ds, resolution):
     try:
-        lat_size, lon_size = RESOLUTIONS[resolution]
+        lat_size, lon_size = app.config['RESOLUTIONS'][resolution]
         return ds.dimensions['lat'].size == lat_size or ds.dimensions['lon'].size == lon_size
     except KeyError:
         return False

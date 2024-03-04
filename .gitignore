@@ -9,8 +9,21 @@ __pycache__/
 
 /build
 /dist
+/volumes
+
+/log
+/input
+/tmp
+/output
+/testing/output/
+
+/*.log
+/*.toml
+!/pyproject.toml
+
 /*.egg-info
 /env
+
+/.coverage
+
 /.env
-/log
-/*.log
