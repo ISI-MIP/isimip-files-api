@@ -15,8 +15,8 @@ data = {
     'paths': paths,
     'operations': [
         {
-            'operation': 'mask_country',
-            'country': 'bra'
+            'operation': 'select_point',
+            'point': [52.380551, 13.064332]
         },
         {
             'operation': 'compute_mean',

@@ -15,14 +15,8 @@ data = {
     'paths': paths,
     'operations': [
         {
-            'operation': 'mask_country',
-            'country': 'bra'
-        },
-        {
-            'operation': 'compute_mean',
-        },
-        {
-            'operation': 'output_csv'
+            'operation': 'cutout_bbox',
+            'bbox': [-23.43651, 23.43651, -180, 180]
         }
     ]
 }

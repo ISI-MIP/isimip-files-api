@@ -15,14 +15,7 @@ data = {
     'paths': paths,
     'operations': [
         {
-            'operation': 'mask_country',
-            'country': 'bra'
-        },
-        {
-            'operation': 'compute_mean',
-        },
-        {
-            'operation': 'output_csv'
+            'operation': 'mask_landonly'
         }
     ]
 }
