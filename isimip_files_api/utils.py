@@ -10,10 +10,13 @@ from flask import current_app as app
 
 
 def get_config_path(config_file):
-    config_path = Path(config_file)
-    if not config_path.is_absolute():
-        config_path = Path().cwd() / config_path
-    return config_path
+    if config_file is not None:
+        config_path = Path(config_file)
+        if not config_path.is_absolute():
+            config_path = Path().cwd() / config_path
+
+        if config_path.is_file():
+            return config_path
 
 
 def handle_post_request(request):

@@ -3,6 +3,7 @@
 export FLASK_APP=isimip_files_api.app
 export FLASK_ENV=development
 export FLASK_DEBUG=true
+export FLASK_CONFIG=config.toml
 export RQ_WORKER_CLASS=isimip_files_api.worker.Worker
 
 server:
