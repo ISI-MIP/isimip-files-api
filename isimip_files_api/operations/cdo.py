@@ -27,22 +27,6 @@ class SelectBBoxOperation(BBoxOperationMixin, CdoOperation):
         return f'lat{south}to{north}lon{west}to{east}'
 
 
-class SelectCountryOperation(CountryOperationMixin, CdoOperation):
-
-    operation = 'select_country'
-
-    def validate(self):
-        return self.validate_country()
-
-    def get_args(self):
-        country = self.get_country()
-        mask_path = self.get_mask_path()
-        return ['-ifthen', f'-selname,m_{country:3.3}', str(mask_path)]
-
-    def get_region(self):
-        return self.get_country().lower()
-
-
 class SelectPointOperation(PointOperationMixin, CdoOperation):
 
     operation = 'select_point'
@@ -110,7 +94,7 @@ class MaskCountryOperation(CountryOperationMixin, CdoOperation):
     def get_args(self):
         country = self.get_country()
         mask_path = str(Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser())
-        return [f'-selname,m_{country:3.3}', mask_path]
+        return ['-ifthen', f'-selname,m_{country:3.3}', mask_path]
 
     def get_region(self):
         return self.get_country().lower()

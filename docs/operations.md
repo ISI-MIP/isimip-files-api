@@ -19,7 +19,7 @@ response = requests.post('https://files.isimip.org/api/v2', json={
     'operations': [
         {
             'operation': 'select_point',
-            'bbox': [52.380551, 13.064332]
+            'point': [52.380551, 13.064332]
         }
     ]
 })

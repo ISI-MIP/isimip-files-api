@@ -49,7 +49,6 @@ MAX_COMMANDS = 8
 # list of operations which can be performed
 OPERATIONS = [
     'isimip_files_api.operations.cdo.SelectBBoxOperation',
-    'isimip_files_api.operations.cdo.SelectCountryOperation',
     'isimip_files_api.operations.cdo.SelectPointOperation',
     'isimip_files_api.operations.cdo.MaskBBoxOperation',
     'isimip_files_api.operations.cdo.MaskMaskOperation',
