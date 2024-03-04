@@ -12,7 +12,6 @@ def test_success(client, mocker):
     ]
     assert response.json.get('operations') == [
         'select_bbox',
-        'select_country',
         'select_point',
         'mask_bbox',
         'mask_mask',
