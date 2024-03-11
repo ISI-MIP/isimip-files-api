@@ -38,16 +38,12 @@ def test_paths_to_many_files(client):
         'test2.nc',
         'test3.nc',
         'test4.nc',
-        'test5.nc',
-        'test6.nc',
-        'test7.nc',
-        'test8.nc',
-        'test9.nc'
+        'test5.nc'
     ]})
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'paths': ['To many files match that dataset (max: 8).'],
+        'paths': ['To many files match that dataset (max: 4).'],
         'operations': ['This field is required.']
     }
 
@@ -102,27 +98,6 @@ def test_operations_not_found(client):
     }
 
 
-def test_operations_to_many_commands(client):
-    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
-        {
-            'operation': 'cutout_bbox',
-            'bbox': [-10, 10, -10, 10]
-        },
-        {
-            'operation': 'mask_landonly'
-        },
-        {
-            'operation': 'cutout_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 180]
-        }
-    ]})
-    assert response.status_code == 400
-    assert response.json.get('status') == 'error'
-    assert response.json.get('errors') == {
-        'operations': ['Operations result in to many commands (max: 2).']
-    }
-
-
 def test_operations_to_many_operations(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
@@ -132,5 +107,5 @@ def test_operations_to_many_operations(client):
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['To many operations provided (max: 8).']
+        'operations': ['To many operations provided (max: 4).']
     }

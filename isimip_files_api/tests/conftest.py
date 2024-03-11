@@ -12,9 +12,7 @@ def app():
         'TESTING': True,
         'INPUT_PATH': 'testing/input',
         'OUTPUT_PATH': 'testing/output',
-        'MAX_FILES': 8,
-        'MAX_COMMANDS': 2,
-        'MAX_OPERATIONS': 8
+        'MAX_FILES': 4
     })
 
     yield app

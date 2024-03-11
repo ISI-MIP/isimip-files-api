@@ -3,7 +3,6 @@ from flask import Flask, request
 import tomli
 from flask_cors import CORS as FlaskCORS
 
-from .commands import CommandRegistry
 from .jobs import count_jobs, create_job, delete_job, fetch_job
 from .logging import configure_logging
 from .operations import OperationRegistry
@@ -34,7 +33,6 @@ def create_app():
         return {
             'status': 'ok',
             'jobs': count_jobs(),
-            'commands': list(CommandRegistry().commands.keys()),
             'operations': list(OperationRegistry().operations.keys()),
         }, 200
 

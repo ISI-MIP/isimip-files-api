@@ -16,13 +16,9 @@ data = {
     'operations': [
         {
             'operation': 'select_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 180]
-        },
-        {
-            'operation': 'compute_mean',
-        },
-        {
-            'operation': 'output_csv'
+            'bbox': [-23.43651, 23.43651, -180, 180],
+            'compute_mean': True,
+            'output_csv': False
         }
     ]
 }

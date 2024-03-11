@@ -70,11 +70,6 @@ def validate_operations(data):
             else:
                 errors['operations'].append(f'operation [{index}] does not have a "operation" key')
 
-    if not errors and len(operation_registry.get_command_list(data['operations'])) > app.config['MAX_COMMANDS']:
-        errors['operations'].append('Operations result in to many commands (max: {MAX_COMMANDS}).'.format(
-            **app.config
-        ))
-
     return errors
 
 

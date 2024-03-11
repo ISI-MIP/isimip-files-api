@@ -16,13 +16,9 @@ data = {
     'operations': [
         {
             'operation': 'mask_country',
-            'country': 'bra'
-        },
-        {
-            'operation': 'compute_mean',
-        },
-        {
-            'operation': 'output_csv'
+            'country': 'bra',
+            'compute_mean': True,
+            'output_csv': False
         }
     ]
 }

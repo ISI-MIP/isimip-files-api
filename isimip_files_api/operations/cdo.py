@@ -1,22 +1,76 @@
+import csv
+import subprocess
 from pathlib import Path
 
 from flask import current_app as app
 
 from ..netcdf import get_index
-from . import BaseOperation, BBoxOperationMixin, CountryOperationMixin, MaskOperationMixin, PointOperationMixin
+from . import (
+    BaseOperation,
+    BBoxOperationMixin,
+    ComputeMeanMixin,
+    CountryOperationMixin,
+    MaskOperationMixin,
+    OutputCsvMixin,
+    PointOperationMixin,
+)
 
 
 class CdoOperation(BaseOperation):
 
-    command = 'cdo'
+    def execute(self, job_path, input_path, output_path):
+        # store the input_path in the instance
+        self.input_path = input_path
+
+        # use the cdo bin from the config
+        cmd_args = [app.config['CDO_BIN']]
+
+        if self.config.get('write_tab') or self.config.get('output_csv'):
+            cmd_args += ['-s', 'outputtab,date,value,nohead']
+        else:
+            # create NETCDF4_CLASSIC and add compression
+            cmd_args += ['-f', 'nc4c', '-z', 'zip_5', '-L']
+
+        if self.config.get('compute_mean'):
+            cmd_args += ['-fldmean']
+
+        # get args from operation
+        cmd_args += self.get_args()
+
+        # add the input file
+        cmd_args += [str(input_path)]
+
+        # add the output file
+        if not (self.config.get('output_tab') or self.config.get('output_csv')):
+            cmd_args += [str(output_path)]
+
+        # join the cmd_args and execute the the command
+        cmd = ' '.join(cmd_args)
+        app.logger.debug(cmd)
+
+        output = subprocess.check_output(cmd_args, env={
+            'CDI_VERSION_INFO': '0',
+            'CDO_VERSION_INFO': '0',
+            'CDO_HISTORY_INFO': '0'
+        }, cwd=job_path)
+
+        # write the subprocess output into a csv file
+        if self.config.get('output_csv'):
+            with open(job_path / output_path, 'w', newline='') as fp:
+                writer = csv.writer(fp, delimiter=',')
+                for line in output.splitlines():
+                    writer.writerow(line.decode().strip().split())
+
+        # add the output path to the commands outputs
+        self.outputs = [output_path]
+
+        # return the command without the paths
+        return cmd
 
 
-class SelectBBoxOperation(BBoxOperationMixin, CdoOperation):
+class SelectBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, CdoOperation):
 
     operation = 'select_bbox'
-
-    def validate(self):
-        return self.validate_bbox()
 
     def get_args(self):
         south, north, west, east = self.get_bbox()
@@ -27,12 +81,9 @@ class SelectBBoxOperation(BBoxOperationMixin, CdoOperation):
         return f'lat{south}to{north}lon{west}to{east}'
 
 
-class SelectPointOperation(PointOperationMixin, CdoOperation):
+class SelectPointOperation(OutputCsvMixin, PointOperationMixin, CdoOperation):
 
     operation = 'select_point'
-
-    def validate(self):
-        return self.validate_point()
 
     def get_args(self):
         point = self.get_point()
@@ -48,12 +99,9 @@ class SelectPointOperation(PointOperationMixin, CdoOperation):
         return f'lat{lat}lon{lon}'
 
 
-class MaskBBoxOperation(BBoxOperationMixin, CdoOperation):
+class MaskBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, CdoOperation):
 
     operation = 'mask_bbox'
-
-    def validate(self):
-        return self.validate_bbox()
 
     def get_args(self):
         south, north, west, east = self.get_bbox()
@@ -64,15 +112,9 @@ class MaskBBoxOperation(BBoxOperationMixin, CdoOperation):
         return f'lat{south}to{north}lon{west}to{east}'
 
 
-class MaskMaskOperation(MaskOperationMixin, CdoOperation):
+class MaskMaskOperation(OutputCsvMixin, ComputeMeanMixin, MaskOperationMixin, CdoOperation):
 
     operation = 'mask_mask'
-
-    def validate(self):
-        errors = []
-        errors += self.validate_var() or []
-        errors += self.validate_mask() or []
-        return errors
 
     def get_args(self):
         var = self.get_var()
@@ -84,12 +126,9 @@ class MaskMaskOperation(MaskOperationMixin, CdoOperation):
         return mask_path.stem
 
 
-class MaskCountryOperation(CountryOperationMixin, CdoOperation):
+class MaskCountryOperation(OutputCsvMixin, ComputeMeanMixin, CountryOperationMixin, CdoOperation):
 
     operation = 'mask_country'
-
-    def validate(self):
-        return self.validate_country()
 
     def get_args(self):
         country = self.get_country()
@@ -104,37 +143,9 @@ class MaskLandonlyOperation(CdoOperation):
 
     operation = 'mask_landonly'
 
-    def validate(self):
-        pass
-
     def get_args(self):
         mask_path = str(Path(app.config['LANDSEAMASK_FILE_PATH']).expanduser())
         return ['-ifthen', mask_path]
 
     def get_region(self):
         return 'landonly'
-
-
-class ComputeMeanOperation(CdoOperation):
-
-    operation = 'compute_mean'
-
-    def validate(self):
-        pass
-
-    def get_args(self):
-        return ['-fldmean']
-
-
-class OutputCsvOperation(CdoOperation):
-
-    operation = 'output_csv'
-
-    def validate(self):
-        pass
-
-    def get_args(self):
-        return ['-s', 'outputtab,date,value,nohead']
-
-    def get_suffix(self):
-        return '.csv'

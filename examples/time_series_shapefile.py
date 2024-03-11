@@ -23,14 +23,10 @@ data = {
         },
         {
             'operation': 'mask_mask',
-            'mask': 'pm.nc'
-        },
-        # {
-        #     'operation': 'compute_mean',
-        # },
-        # {
-        #     'operation': 'output_csv'
-        # }
+            'mask': 'pm.nc',
+            'compute_mean': True,
+            'output_csv': False
+        }
     ]
 }
 

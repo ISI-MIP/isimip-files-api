@@ -26,20 +26,22 @@ def run_task(paths, operations):
     readme = readme_path.open('w')
     readme.write('The following commands were used to create the files in this container:\n\n')
 
-    # construct command list from the operations
-    command_list = OperationRegistry().get_command_list(operations)
+    # get the list of operation objects to perform
+    operation_registry = OperationRegistry()
+    operation_list = [operation_registry.get(config) for config in operations]
 
     for path in paths:
         input_path = get_input_path() / path
         output_path = Path(input_path.name)
         output_region = None
 
-        for command in command_list:
-            if command.perform_once and path != paths[0]:
+        for operation in operation_list:
+            # check if the operation should only be performed once and skip all but the first loop iteration
+            if operation.perform_once and path != paths[0]:
                 continue
 
             # update region tag in output_path
-            region = command.get_region()
+            region = operation.get_region()
             if region:
                 if output_region is None:
                     if app.config['GLOBAL_TAG'] in output_path.name:
@@ -55,25 +57,25 @@ def run_task(paths, operations):
                 output_path = output_path.with_name(output_name)
 
             # update suffix in output_path
-            suffix = command.get_suffix()
+            suffix = operation.get_suffix()
             if suffix:
                 output_path = output_path.with_suffix(suffix)
 
             # execute the command and obtain the command_string
-            command_string = command.execute(job_path, input_path, output_path)
+            command_string = operation.execute(job_path, input_path, output_path)
 
             # write the command_string into readme file
             readme.write(mask_paths(command_string) + '\n')
 
             # write the artefacts into the zipfile
-            if command.artefacts:
-                for artefact_path in command.artefacts:
+            if operation.artefacts:
+                for artefact_path in operation.artefacts:
                     if (job_path / artefact_path).is_file():
                         zip_file.write(job_path / artefact_path, artefact_path.name)
 
             # write the outputs into the zipfile and set the new input path
-            if command.outputs:
-                for output_path in command.outputs:
+            if operation.outputs:
+                for output_path in operation.outputs:
                     # set the new input path to the output path
                     input_path = output_path
 

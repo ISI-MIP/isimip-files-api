@@ -3,7 +3,6 @@ from pathlib import Path
 
 from flask import current_app as app
 
-from ..commands import CommandRegistry
 from ..utils import import_class
 
 
@@ -19,41 +18,32 @@ class OperationRegistry:
         if 'operation' in config and config['operation'] in self.operations:
             return self.operations[config['operation']](config)
 
-    def get_command_list(self, operations):
-        commands = []
-
-        command_registry = CommandRegistry()
-        current_command = None
-        for index, operation_config in enumerate(operations):
-            operation = self.get(operation_config)
-
-            # add a new command, if
-            # * its the first operation
-            # * the operation has a different command than the previous one
-            # * the command reached its limit of operations
-            if (
-                current_command is None or
-                current_command.command != operation.command or
-                (
-                    current_command.max_operations is not None and
-                    len(current_command.operations) >= current_command.max_operations
-                )
-            ):
-                current_command = command_registry.get(operation.command)
-                commands.append(current_command)
-
-            current_command.operations.append(operation)
-
-        return commands
-
 
 class BaseOperation:
 
+    perform_once = False
+
     def __init__(self, config):
         self.config = config
+        self.artefacts = []
+        self.outputs = []
 
     def validate(self):
-        raise NotImplementedError
+        # gather all methods in the class which start with "validate_", but not "validate_uploads"
+        method_names = [
+            method_name for method_name in dir(self)
+            if all([
+                callable(getattr(self, method_name)),
+                method_name.startswith('validate_'),
+                method_name != 'validate_uploads'
+            ])
+        ]
+
+        # loop over validation_methods and collect errors
+        errors = []
+        for method_name in method_names:
+            errors += getattr(self, method_name)() or []
+        return errors
 
     def validate_uploads(self, uploads):
         pass
@@ -144,3 +134,23 @@ class MaskOperationMixin:
                 return [f'consecutive periods are not permitted in "mask" for operation "{self.operation}"']
         else:
             return [f'mask is missing for operation "{self.operation}"']
+
+
+class ComputeMeanMixin:
+
+    def validate_compute_mean(self):
+        if 'compute_mean' in self.config:
+            if self.config['compute_mean'] not in [True, False]:
+                return [f'only true or false are permitted in "compute_mean" for operation "{self.operation}"']
+
+
+class OutputCsvMixin:
+
+    def validate_output_csv(self):
+        if 'output_csv' in self.config:
+            if self.config['output_csv'] not in [True, False]:
+                return [f'only true or false are permitted in "output_csv" for operation "{self.operation}"']
+
+    def get_suffix(self):
+        if self.config.get('output_csv'):
+            return '.csv'

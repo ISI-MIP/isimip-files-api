@@ -16,13 +16,8 @@ data = {
     'operations': [
         {
             'operation': 'select_point',
-            'point': [52.380551, 13.064332]
-        },
-        {
-            'operation': 'compute_mean',
-        },
-        {
-            'operation': 'output_csv'
+            'point': [52.380551, 13.064332],
+            'output_csv': False
         }
     ]
 }
