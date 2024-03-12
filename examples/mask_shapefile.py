@@ -24,8 +24,8 @@ data = {
         {
             'operation': 'mask_mask',
             'mask': 'shape.nc',        # needs to be the same as in the create_mask operation
-            'compute_mean': False,     # optional: set True to get a time series of the field mean
-            'output_csv': False,       # optional: set True to get a csv file instead of NetCDF
+            'compute_mean': False,     # optional: set to True to get a time series of the field mean
+            'output_csv': False,       # optional: set to True to get a CSV file instead of NetCDF
             'var': 'm_0'               # optional: use this mask variable, the number is the layer in the shapefile
         }
     ]

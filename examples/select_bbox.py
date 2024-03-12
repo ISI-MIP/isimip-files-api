@@ -15,12 +15,15 @@ data = {
     'paths': paths,
     'operations': [
         {
-            'operation': 'select_point',
-            'point': [
-                52.380551,       # latitude
-                13.064332        # longitude
+            'operation': 'select_bbox',
+            'bbox': [
+                -23.43651,          # south
+                23.43651,           # north
+                -180,               # east
+                180                 # west
             ],
-            'output_csv': False  # optional: set to True to get a csv file instead of NetCDF
+            'compute_mean': False,  # optional: set to True to get a time series of the field mean
+            'output_csv': False     # optional: set to True to get a CSV file instead of NetCDF
         }
     ]
 }

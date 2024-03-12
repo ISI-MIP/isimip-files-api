@@ -22,8 +22,8 @@ data = {
                 -180,       # east
                 180         # west
             ],
-            'compute_mean': False,  # set True to get a time series of the field mean
-            'output_csv': False     # set True to get a csv file instead of NetCDF
+            'compute_mean': False,  # optional: set True to get a time series of the field mean
+            'output_csv': False     # optional: set True to get a CSV file instead of NetCDF
         }
     ]
 }

@@ -16,9 +16,9 @@ data = {
     'operations': [
         {
             'operation': 'mask_country',
-            'country': 'aus',             # three letter code for australia
-            'compute_mean': False,        # set True to get a time series of the field mean
-            'output_csv': False           # set True to get a csv file instead of NetCDF
+            'country': 'aus',       # three letter code for, e.g. australia
+            'compute_mean': False,  # optional: set to True to get a time series of the field mean
+            'output_csv': False     # optional: set to True to get a CSV file instead of NetCDF
         }
     ]
 }
