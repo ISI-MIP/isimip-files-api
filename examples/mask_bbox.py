@@ -43,7 +43,7 @@ for i in range(100):
     print(json.dumps(job, indent=2))
 
     if job['status'] in ['queued', 'started']:
-        time.sleep(2)  # wait for 4 sec
+        time.sleep(4)  # wait for 4 sec
     else:
         break
 

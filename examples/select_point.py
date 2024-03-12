@@ -20,7 +20,7 @@ data = {
                 52.380551,       # latitude
                 13.064332        # longitude
             ],
-            'output_csv': False  # optional: set to True to get a csv file instead of NetCDF
+            'output_csv': False  # optional: set to True to get a CSV file instead of NetCDF
         }
     ]
 }
@@ -40,7 +40,7 @@ for i in range(100):
     print(json.dumps(job, indent=2))
 
     if job['status'] in ['queued', 'started']:
-        time.sleep(2)  # wait for 4 sec
+        time.sleep(4)  # wait for 4 sec
     else:
         break
 
