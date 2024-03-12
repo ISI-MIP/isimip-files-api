@@ -15,6 +15,7 @@ __pycache__/
 /input
 /tmp
 /output
+/download
 /testing/output/
 
 /*.log
