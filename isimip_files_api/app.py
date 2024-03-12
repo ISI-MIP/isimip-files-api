@@ -34,6 +34,8 @@ def create_app():
             'status': 'ok',
             'jobs': count_jobs(),
             'operations': list(OperationRegistry().operations.keys()),
+            'base_url': app.config.get('BASE_URL'),
+            'output_url': app.config.get('OUTPUT_URL')
         }, 200
 
     @app.route('/', methods=['POST'])

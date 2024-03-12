@@ -6,7 +6,8 @@ RUN apt-get update -y && \
 
 WORKDIR /api
 
-COPY . .
+COPY pyproject.toml pyproject.toml
+COPY isimip_files_api isimip_files_api
 
 RUN pip3 install .
 

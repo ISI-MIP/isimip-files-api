@@ -1,19 +1,23 @@
 version: "3.7"
 
 services:
-  api:
+  app:
     build: .
     depends_on:
     - redis
     volumes:
-    - ${DOCKER_INPUT_PATH}:/input
-    - ${DOCKER_OUTPUT_PATH}:/output
+    - "${DOCKER_INPUT_PATH}:/volumes/input:ro"
+    - "${DOCKER_OUTPUT_PATH}:/volumes/output"
+    - "${DOCKER_TMP_PATH}:/volumes/tmp"
     ports:
-    - "${DOCKER_API_PORT}:5000"
+    - "${DOCKER_PORT}:5000"
     environment:
+      FLASK_APP: isimip_files_api.app
+      FLASK_CONFIG: config.toml
       FLASK_REDIS_URL: redis://redis:6379
-      FLASK_INPUT_PATH: /input
-      FLASK_OUTPUT_PATH: /output
+      FLASK_INPUT_PATH: /volumes/input
+      FLASK_OUTPUT_PATH: /volumes/output
+      FLASK_TMP_PATH: /volumes/tmp
     env_file: .env
 
   worker:
@@ -22,11 +26,16 @@ services:
     depends_on:
     - redis
     volumes:
-    - ${DOCKER_INPUT_PATH}:/input
-    - ${DOCKER_OUTPUT_PATH}:/output
+    - "${DOCKER_INPUT_PATH}:/volumes/input:ro"
+    - "${DOCKER_OUTPUT_PATH}:/volumes/output"
+    - "${DOCKER_TMP_PATH}:/volumes/tmp"
     environment:
-      FLASK_INPUT_PATH: /input
-      FLASK_OUTPUT_PATH: /output
+      FLASK_APP: isimip_files_api.app
+      FLASK_CONFIG: config.toml
+      FLASK_REDIS_URL: redis://redis:6379
+      FLASK_INPUT_PATH: /volumes/input
+      FLASK_OUTPUT_PATH: /volumes/output
+      FLASK_TMP_PATH: /volumes/tmp
       RQ_REDIS_URL: redis://redis:6379
       RQ_WORKER_CLASS: isimip_files_api.worker.Worker
     env_file: .env
@@ -36,5 +45,5 @@ services:
     command: redis-server --appendonly yes
     restart: always
     volumes:
-    - ${DOCKER_REDIS_PATH}:/data
+    - "${DOCKER_REDIS_PATH}:/data"
     env_file: .env
