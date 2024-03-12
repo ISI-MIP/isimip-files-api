@@ -26,3 +26,8 @@ def get_index(path, point):
         iy = round(float((lat - ds.variables['lat'][0]) / dy))
 
         return ix, iy
+
+
+def get_grid(path):
+    with Dataset(path) as ds:
+        return (ds.dimensions['lon'].size, ds.dimensions['lat'].size)

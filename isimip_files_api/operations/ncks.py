@@ -2,7 +2,7 @@ import subprocess
 
 from flask import current_app as app
 
-from . import BaseOperation, BBoxOperationMixin
+from isimip_files_api.operations import BaseOperation, BBoxOperationMixin
 
 
 class NcksOperation(BaseOperation):

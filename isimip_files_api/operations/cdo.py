@@ -4,8 +4,8 @@ from pathlib import Path
 
 from flask import current_app as app
 
-from ..netcdf import get_index
-from . import (
+from isimip_files_api.netcdf import get_index
+from isimip_files_api.operations import (
     BaseOperation,
     BBoxOperationMixin,
     ComputeMeanMixin,

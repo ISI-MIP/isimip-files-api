@@ -61,10 +61,6 @@ CDO_BIN = 'cdo'
 # the ncks binary on the system, e.g. /usr/bin/ncks
 NCKS_BIN = 'ncks'
 
-# the binary used to create masks from geojson and shapefiles,
-# shipped with this software and located in scripts/create_mask.py
-CREATE_MASK_BIN = 'create-mask'
-
 # special settings for the countries
 COUNTRYMASKS_FILE_PATH = 'countrymasks.nc'
 COUNTRYMASKS_COUNTRIES = [
