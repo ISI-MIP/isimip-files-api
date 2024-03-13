@@ -8,20 +8,36 @@ import requests
 url = 'https://files.isimip.org/api/v2'
 
 paths = [
-    'ISIMIP3a/InputData/climate/atmosphere/obsclim/global/daily/historical/CHELSA-W5E5v1.0/chelsa-w5e5v1.0_obsclim_tas_30arcsec_global_daily_197901.nc'
+    'ISIMIP3a/InputData/climate/atmosphere/obsclim/global/daily/historical/CHELSA-W5E5/chelsa-w5e5_obsclim_tas_30arcsec_global_daily_197901.nc'
 ]
+
+# a shapefile of e.g. switzerland can be downloaded at
+# https://github.com/ISI-MIP/isipedia-countries/raw/master/country_data/CHE/country.geojson
+shape_path = 'country.geojson'
 
 data = {
     'paths': paths,
     'operations': [
+        # first, cut-out a region around switzerland
         {
             'operation': 'cutout_bbox',
             'bbox': [
-                47.25,  # south
-                47.75,  # north
-                12.50,  # east
-                13.50   # west
+                45.800,  # south
+                47.900,  # north
+                 5.800,  # east
+                10.600   # west
             ]
+        },
+        # next, create a mask from the shape with the resolution of the cut-out file
+        {
+            'operation': 'create_mask',
+            'shape': 'che.geojson',
+            'mask': 'che.nc',
+        },
+        # lastly, mask the file using the created mask
+        {
+            'operation': 'mask_mask',
+            'mask': 'che.nc',
         }
     ]
 }
@@ -29,7 +45,10 @@ data = {
 download_path = 'download'
 
 # perform the initial request to the server
-response = requests.post(url, json=data)
+response = requests.post(url, files={
+    'data': json.dumps(data),
+    'che.geojson': Path(shape_path).read_bytes(),  # needs to be the same as in the create_mask operation
+})
 
 # extract the job object from the response
 job = response.json()
