@@ -32,28 +32,31 @@ download_path = 'download'
 response = requests.post(url, json=data)
 
 # extract the job object from the response
-job = response.json()
-print(json.dumps(job, indent=2))
-
-while job['status'] in ['queued', 'started']:
-    # wait for 4 sec
-    time.sleep(4)
-
-    # check the status of the job
-    job = requests.get(job['job_url']).json()
+try:
+    job = response.json()
     print(json.dumps(job, indent=2))
+except requests.exceptions.JSONDecodeError:
+    print(response.text)
+else:
+    while job['status'] in ['queued', 'started']:
+        # wait for 4 sec
+        time.sleep(4)
 
-if job['status'] == 'finished':
-    # download file
-    zip_path = Path(download_path) / job['file_name']
-    zip_path.parent.mkdir(exist_ok=True)
-    with requests.get(job['file_url'], stream=True) as response:
-        with zip_path.open('wb') as fp:
-            for chunk in response.iter_content(chunk_size=8192):
-                 fp.write(chunk)
+        # check the status of the job
+        job = requests.get(job['job_url']).json()
+        print(json.dumps(job, indent=2))
 
-    # extract zip file
-    out_path = zip_path.with_suffix('')
-    out_path.mkdir(exist_ok=True)
-    with zipfile.ZipFile(zip_path, 'r') as zf:
-        zf.extractall(out_path)
+    if job['status'] == 'finished':
+        # download file
+        zip_path = Path(download_path) / job['file_name']
+        zip_path.parent.mkdir(exist_ok=True)
+        with requests.get(job['file_url'], stream=True) as response:
+            with zip_path.open('wb') as fp:
+                for chunk in response.iter_content(chunk_size=8192):
+                     fp.write(chunk)
+
+        # extract zip file
+        out_path = zip_path.with_suffix('')
+        out_path.mkdir(exist_ok=True)
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            zf.extractall(out_path)
