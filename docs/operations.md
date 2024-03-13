@@ -50,8 +50,6 @@ The operation is performed using [CDO](https://code.mpimet.mpg.de/projects/cdo) 
 cdo -f nc4c -z zip_5 -L -sellonlatbox,WEST,EAST,SOUTH,NORTH IFILE OFILE
 ```
 
-where `IX` and `IY` are the grid indexes of the point computed from the file.
-
 ### Select point
 
 A time series of a point can be selected using:
@@ -77,6 +75,8 @@ The operation is performed using [CDO](https://code.mpimet.mpg.de/projects/cdo) 
 ```bash
 cdo -f nc4c -z zip_5 -L -selindexbox,IX,IX,IY,IY IFILE OFILE
 ```
+
+where `IX` and `IY` are the grid indexes of the point computed from the file.
 
 ### Mask bounding box
 
