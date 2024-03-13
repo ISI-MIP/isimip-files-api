@@ -75,13 +75,14 @@ def run_task(paths, operations):
 
             # write the outputs into the zipfile and set the new input path
             if operation.outputs:
-                for output_path in operation.outputs:
+                for output in operation.outputs:
                     # set the new input path to the output path
+                    output_path = job_path / output
                     input_path = output_path
 
-                    if (job_path / output_path).is_file():
+                    if output_path.is_file():
                         # write the output into the zipfile
-                        zip_file.write(job_path / output_path, output_path.name)
+                        zip_file.write(output_path, output_path.name)
                     else:
                         error_path = output_path.with_suffix('.txt')
                         error_path.write_text('Something went wrong with processing the input file.'

@@ -24,15 +24,12 @@ class CreateMaskOperation(MaskOperationMixin, BaseOperation):
         shape_file = job_path / self.config.get('shape')
         mask_file = job_path / self.config.get('mask')
 
-        # get the resolution of the mask from the (first) input file, in arcsec
-        grid = get_grid(input_path)
-
         # create a cmd string for log and README
-        cmd = f'CreateMaskOperation.create_mask({shape_file.name}, {mask_file.name}, {grid})'
+        cmd = f'CreateMaskOperation.create_mask({input_path.name}, {shape_file.name}, {mask_file.name})'
         app.logger.debug(cmd)
 
         # create the mask file
-        self.create_mask(shape_file, mask_file, grid)
+        self.create_mask(input_path, shape_file, mask_file)
 
         # add the input and the output path of the command to the commands artefacts
         self.artefacts = [shape_file, mask_file]
@@ -50,19 +47,17 @@ class CreateMaskOperation(MaskOperationMixin, BaseOperation):
             if not uploads.get(shape):
                 return [f'File "{shape}" for operation "{self.operation}" is not part of the uploads']
 
-    def create_mask(self, shape_file, mask_file, grid):
-        # get number of gridpoints and spacing
-        n_lon, n_lat = grid
-        d_lon = 360.0 / n_lon
-        d_lat = 180.0 / n_lat
+    def create_mask(self, input_path, shape_file, mask_file):
+        # get the longitude and latitude values for the mask from the input file
+        lon_values, lat_values = get_grid(input_path)
 
         # read shapefile/geojson using geopandas
         df = geopandas.read_file(shape_file)
 
         # create a diskless netcdf file using python-netCDF4
         ds = nc.Dataset(mask_file, 'w', format='NETCDF4_CLASSIC', diskless=True)
-        ds.createDimension('lon', n_lon)
-        ds.createDimension('lat', n_lat)
+        ds.createDimension('lon', len(lon_values))
+        ds.createDimension('lat', len(lat_values))
 
         # create lon variable
         lon = ds.createVariable('lon', 'f8', ('lon',), fill_value=FILL_VALUE_FLOAT)
@@ -70,7 +65,7 @@ class CreateMaskOperation(MaskOperationMixin, BaseOperation):
         lon.long_name = 'Longitude'
         lon.units = 'degrees_east'
         lon.axis = 'X'
-        lon[:] = np.arange(-180 + 0.5 * d_lon, 180, d_lon)
+        lon[:] = lon_values
 
         # create lat variable
         lat = ds.createVariable('lat', 'f8', ('lat',), fill_value=FILL_VALUE_FLOAT)
@@ -78,7 +73,7 @@ class CreateMaskOperation(MaskOperationMixin, BaseOperation):
         lat.long_name = 'Latitude'
         lat.units = 'degrees_north'
         lat.axis = 'Y'
-        lat[:] = np.arange(90 - 0.5 * d_lat, -90, -d_lat)
+        lat[:] = lat_values
 
         # create mask variable, with the properties of the shape
         for index, row in df.iterrows():
@@ -88,9 +83,12 @@ class CreateMaskOperation(MaskOperationMixin, BaseOperation):
 
             for key, value in row.items():
                 if isinstance(value, (str, int, float)):
-                    setattr(variable, key.lower(), value)
+                    try:
+                        setattr(variable, key.lower(), value)
+                    except AttributeError:
+                        pass
 
-            variable[:, :] = np.ones((n_lat, n_lon))
+            variable[:, :] = np.ones(variable.shape)
 
         # convert to a crs-aware xarray dataset
         ds = xr.open_dataset(xr.backends.NetCDF4DataStore(ds))
