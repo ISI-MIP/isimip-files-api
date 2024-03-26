@@ -127,8 +127,8 @@ class MaskOperationMixin:
 
     def validate_mask(self):
         if 'mask' in self.config:
-            if not re.match(r'^[A-Za-z0-9-.]*$', self.config['mask']):
-                return ['only letters, numbers, hyphens, and periods are permitted in "mask"'
+            if not re.match(r'^[A-Za-z0-9-_.]*$', self.config['mask']):
+                return ['only letters, numbers, hyphens, underscores, and periods are permitted in "mask"'
                         f' for operation "{self.operation}"']
             elif re.search(r'\.{2}', self.config['mask']):
                 return [f'consecutive periods are not permitted in "mask" for operation "{self.operation}"']
