@@ -17,8 +17,8 @@ data = {
         {
             'operation': 'select_point',
             'point': [
-                52.380551,       # latitude
-                13.064332        # longitude
+                13.064332,       # longitude
+                52.380551        # latitude
             ],
             'output_csv': False  # optional: set to True to get a CSV file instead of NetCDF
         }

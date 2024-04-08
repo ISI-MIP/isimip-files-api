@@ -72,28 +72,28 @@ def test_wrong_country(client):
 def test_invalid_compute_mean(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'mask_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 180],
+            'operation': 'mask_country',
+            'country': 'deu',
             'compute_mean': 'wrong'
         }
     ]})
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['only true or false are permitted in "compute_mean" for operation "mask_bbox"']
+        'operations': ['only true or false are permitted in "compute_mean" for operation "mask_country"']
     }
 
 
 def test_invalid_output_csv(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'mask_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 180],
+            'operation': 'mask_country',
+            'country': 'deu',
             'output_csv': 'wrong'
         }
     ]})
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['only true or false are permitted in "output_csv" for operation "mask_bbox"']
+        'operations': ['only true or false are permitted in "output_csv" for operation "mask_country"']
     }

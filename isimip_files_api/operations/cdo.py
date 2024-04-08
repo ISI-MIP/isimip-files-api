@@ -73,12 +73,12 @@ class SelectBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, 
     operation = 'select_bbox'
 
     def get_args(self):
-        south, north, west, east = self.get_bbox()
+        west, east, south, north = self.get_bbox()
         return [f'-sellonlatbox,{west:f},{east:f},{south:f},{north:f}']
 
     def get_region(self):
-        south, north, west, east = self.get_bbox()
-        return f'lat{south}to{north}lon{west}to{east}'
+        west, east, south, north = self.get_bbox()
+        return f'lon{west}to{east}lat{south}to{north}'
 
 
 class SelectPointOperation(OutputCsvMixin, PointOperationMixin, CdoOperation):
@@ -96,7 +96,7 @@ class SelectPointOperation(OutputCsvMixin, PointOperationMixin, CdoOperation):
 
     def get_region(self):
         lat, lon = self.get_point()
-        return f'lat{lat}lon{lon}'
+        return f'lon{lon}lat{lat}'
 
 
 class MaskBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, CdoOperation):
@@ -104,12 +104,12 @@ class MaskBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, Cd
     operation = 'mask_bbox'
 
     def get_args(self):
-        south, north, west, east = self.get_bbox()
-        return [f'-masklonlatbox,{west:f},{east:f},{south:f},{north:f}']
+        west, east, south, north = self.get_bbox()
+        return [f'-sellonlatbox,{west:f},{east:f},{south:f},{north:f}']
 
     def get_region(self):
-        south, north, west, east = self.get_bbox()
-        return f'lat{south}to{north}lon{west}to{east}'
+        west, east, south, north = self.get_bbox()
+        return f'lon{west}to{east}lat{south}to{north}'
 
 
 class MaskMaskOperation(OutputCsvMixin, ComputeMeanMixin, MaskOperationMixin, CdoOperation):

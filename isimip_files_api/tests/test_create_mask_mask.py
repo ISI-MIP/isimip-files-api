@@ -66,8 +66,8 @@ def test_invalid_mask1(client):
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['only letters, numbers, hyphens, and periods are permitted in "mask"'
-                       ' for operation "mask_mask"']
+        'operations': ['only letters, numbers, hyphens, underscores, and periods are'
+                       ' permitted in "mask" for operation "mask_mask"']
     }
 
 
@@ -106,28 +106,28 @@ def test_invalid_var(client):
 def test_invalid_compute_mean(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'mask_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 180],
+            'operation': 'mask_mask',
+            'mask': 'pm.nc',
             'compute_mean': 'wrong'
         }
     ]})
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['only true or false are permitted in "compute_mean" for operation "mask_bbox"']
+        'operations': ['only true or false are permitted in "compute_mean" for operation "mask_mask"']
     }
 
 
 def test_invalid_output_csv(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'mask_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 180],
+            'operation': 'mask_mask',
+            'mask': 'pm.nc',
             'output_csv': 'wrong'
         }
     ]})
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['only true or false are permitted in "output_csv" for operation "mask_bbox"']
+        'operations': ['only true or false are permitted in "output_csv" for operation "mask_mask"']
     }

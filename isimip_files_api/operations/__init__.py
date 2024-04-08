@@ -71,7 +71,23 @@ class BBoxOperationMixin:
     def validate_bbox(self):
         if 'bbox' in self.config:
             try:
-                self.get_bbox()
+                west, east, south, north = self.get_bbox()
+                if west > 180.0:
+                    return [f'west longitude is > 180 in bbox for operation "{self.operation}"']
+                if west < -180.0:
+                    return [f'west longitude is < -180 in bbox for operation "{self.operation}"']
+                if east > 180.0:
+                    return [f'east longitude is > 180 in bbox for operation "{self.operation}"']
+                if east < -180.0:
+                    return [f'east longitude is < -180 in bbox for operation "{self.operation}"']
+                if south > 90.0:
+                    return [f'south latitude is > 90 in bbox for operation "{self.operation}"']
+                if south < -90.0:
+                    return [f'south latitude is < -90 in bbox for operation "{self.operation}"']
+                if north > 90.0:
+                    return [f'north latitude is > 90 in bbox for operation "{self.operation}"']
+                if north < -90.0:
+                    return [f'north latitude is < -90 in bbox for operation "{self.operation}"']
             except (ValueError, IndexError):
                 return [f'bbox is not of the form [%f, %f, %f, %f] for operation "{self.operation}"']
         else:
@@ -89,7 +105,15 @@ class PointOperationMixin:
     def validate_point(self):
         if 'point' in self.config:
             try:
-                self.get_point()
+                lon, lat = self.get_point()
+                if lon > 180.0:
+                    return [f'longitude is > 180 in point for operation "{self.operation}"']
+                if lon < -180.0:
+                    return [f'longitude is < -180 in point for operation "{self.operation}"']
+                if lat > 90.0:
+                    return [f'latitude is > 90 in point for operation "{self.operation}"']
+                if lat < -90.0:
+                    return [f'latitude is < -90 in point for operation "{self.operation}"']
             except (ValueError, IndexError):
                 return [f'point is not of the form [%f, %f] for operation "{self.operation}"']
         else:

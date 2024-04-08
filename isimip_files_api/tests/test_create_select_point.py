@@ -4,7 +4,7 @@ def test_success(client, mocker):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': 'select_point',
-            'point': [52.380551, 13.064332]
+            'point': [13.064332, 52.380551]
         }
     ]})
 
@@ -18,7 +18,7 @@ def test_output_csv_success(client, mocker):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': 'select_point',
-            'point': [52.380551, 13.064332],
+            'point': [13.064332, 52.380551],
             'output_csv': True
         }
     ]})
@@ -44,7 +44,7 @@ def test_wrong_point(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': 'select_point',
-            'point': [52.380551, 'wrong']
+            'point': [13.064332, 'wrong']
         }
     ]})
     assert response.status_code == 400
@@ -54,11 +54,67 @@ def test_wrong_point(client):
     }
 
 
+def test_wrong_point_lat_low(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'select_point',
+            'point': [-181, 52.380551]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['longitude is < -180 in point for operation "select_point"']
+    }
+
+
+def test_wrong_point_lat_high(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'select_point',
+            'point': [181, 52.380551]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['longitude is > 180 in point for operation "select_point"']
+    }
+
+
+def test_wrong_point_lon_low(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'select_point',
+            'point': [13.064332, -91]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['latitude is < -90 in point for operation "select_point"']
+    }
+
+
+def test_wrong_point_lon_high(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'select_point',
+            'point': [13.064332, 91]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['latitude is > 90 in point for operation "select_point"']
+    }
+
+
 def test_invalid_output_csv(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': 'select_point',
-            'point': [52.380551, 13.064332],
+            'point': [13.064332, 52.380551],
             'output_csv': 'wrong'
         }
     ]})

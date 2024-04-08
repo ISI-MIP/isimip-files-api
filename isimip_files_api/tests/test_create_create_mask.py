@@ -69,7 +69,7 @@ def test_invalid_mask1(client):
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['only letters, numbers, hyphens, and periods are permitted in "mask"'
+        'operations': ['only letters, numbers, hyphens, underscores, and periods are permitted in "mask"'
                        ' for operation "create_mask"']
     }
 

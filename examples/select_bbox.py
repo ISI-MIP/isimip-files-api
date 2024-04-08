@@ -17,10 +17,10 @@ data = {
         {
             'operation': 'select_bbox',
             'bbox': [
+                -180,               # west
+                 180,               # east
                 -23.43651,          # south
-                23.43651,           # north
-                -180,               # east
-                180                 # west
+                 23.43651,          # north
             ],
             'compute_mean': False,  # optional: set to True to get a time series of the field mean
             'output_csv': False     # optional: set to True to get a CSV file instead of NetCDF

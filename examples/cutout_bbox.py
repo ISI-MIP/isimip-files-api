@@ -17,10 +17,10 @@ data = {
         {
             'operation': 'cutout_bbox',
             'bbox': [
+                12.50,  # west
+                13.50,  # east
                 47.25,  # south
                 47.75,  # north
-                12.50,  # east
-                13.50   # west
             ]
         }
     ]

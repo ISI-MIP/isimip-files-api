@@ -34,13 +34,13 @@ class CutOutBBoxOperation(BBoxOperationMixin, NcksOperation):
     operation = 'cutout_bbox'
 
     def get_args(self):
-        south, north, west, east = self.get_bbox()
+        west, east, south, north = self.get_bbox()
         return [
             '-h',                              # omit history
-            '-d', f'lat,{south:f},{north:f}',  # longitude
-            '-d', f'lon,{west:f},{east:f}',    # latitude
+            '-d', f'lon,{west:f},{east:f}',    # longitude
+            '-d', f'lat,{south:f},{north:f}',  # latitude
         ]
 
     def get_region(self):
-        south, north, west, east = self.get_bbox()
-        return f'lat{south}to{north}lon{west}to{east}'
+        west, east, south, north = self.get_bbox()
+        return f'lon{west}to{east}lat{south}to{north}'

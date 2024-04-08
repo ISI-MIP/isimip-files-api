@@ -22,10 +22,10 @@ data = {
         {
             'operation': 'cutout_bbox',
             'bbox': [
+                 5.800,  # west
+                10.600,  # east
                 45.800,  # south
-                47.900,  # north
-                 5.800,  # east
-                10.600   # west
+                47.900   # north
             ]
         },
         # next, create a mask from the shape with the resolution of the cut-out file

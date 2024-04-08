@@ -4,7 +4,7 @@ def test_success(client, mocker):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': 'cutout_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 180]
+            'bbox': [-180, 180, -23.43651, 23.43651]
         }
     ]})
 
@@ -29,11 +29,109 @@ def test_wrong_bbox(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': 'cutout_bbox',
-            'bbox': [-23.43651, 23.43651, -180, 'wrong']
+            'bbox': [-180, 180, -23.43651, 'wrong']
         }
     ]})
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
         'operations': ['bbox is not of the form [%f, %f, %f, %f] for operation "cutout_bbox"']
+    }
+
+
+def test_wrong_bbox_west_high(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [181, 180, -23.43651, 23.43651]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['west longitude is > 180 in bbox for operation "cutout_bbox"']
+    }
+
+
+def test_wrong_bbox_east_low(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [-180, -181, -23.43651, 23.43651]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['east longitude is < -180 in bbox for operation "cutout_bbox"']
+    }
+
+
+def test_wrong_bbox_east_high(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [-180, 181, -23.43651, 23.43651]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['east longitude is > 180 in bbox for operation "cutout_bbox"']
+    }
+
+
+def test_wrong_bbox_south_low(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [-180, 180, -91, 23.43651]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['south latitude is < -90 in bbox for operation "cutout_bbox"']
+    }
+
+
+def test_wrong_bbox_south_high(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [-180, 180, 91, 23.43651]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['south latitude is > 90 in bbox for operation "cutout_bbox"']
+    }
+
+
+def test_wrong_bbox_north_low(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [-180, 180, -23.43651, -91]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['north latitude is < -90 in bbox for operation "cutout_bbox"']
+    }
+
+
+def test_wrong_bbox_north_high(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': 'cutout_bbox',
+            'bbox': [-180, 180, -23.43651, 91]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['north latitude is > 90 in bbox for operation "cutout_bbox"']
     }
