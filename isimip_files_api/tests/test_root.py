@@ -13,5 +13,6 @@ def test_success(client, mocker):
         'mask_country',
         'mask_landonly',
         'create_mask',
-        'cutout_bbox'
+        'cutout_bbox',
+        'cutout_point'
     ]

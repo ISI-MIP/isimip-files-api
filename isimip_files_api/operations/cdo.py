@@ -85,10 +85,6 @@ class SelectBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, 
         west, east, south, north = self.get_bbox()
         return [f'-sellonlatbox,{west:f},{east:f},{south:f},{north:f}']
 
-    def get_region(self):
-        west, east, south, north = self.get_bbox()
-        return f'lon{west}to{east}lat{south}to{north}'
-
 
 class SelectPointOperation(OutputCsvMixin, PointOperationMixin, CdoOperation):
 
@@ -103,10 +99,6 @@ class SelectPointOperation(OutputCsvMixin, PointOperationMixin, CdoOperation):
 
         return [f'-selindexbox,{ix:d},{ix:d},{iy:d},{iy:d}']
 
-    def get_region(self):
-        lat, lon = self.get_point()
-        return f'lon{lon}lat{lat}'
-
 
 class MaskBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, CdoOperation):
 
@@ -115,10 +107,6 @@ class MaskBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, Cd
     def get_args(self):
         west, east, south, north = self.get_bbox()
         return [f'-sellonlatbox,{west:f},{east:f},{south:f},{north:f}']
-
-    def get_region(self):
-        west, east, south, north = self.get_bbox()
-        return f'lon{west}to{east}lat{south}to{north}'
 
 
 class MaskMaskOperation(OutputCsvMixin, ComputeMeanMixin, MaskOperationMixin, CdoOperation):
@@ -130,10 +118,6 @@ class MaskMaskOperation(OutputCsvMixin, ComputeMeanMixin, MaskOperationMixin, Cd
         mask_path = self.get_mask_path()
         return ['-ifthen', f'-selname,{var}', str(mask_path)]
 
-    def get_region(self):
-        mask_path = self.get_mask_path()
-        return mask_path.stem
-
 
 class MaskCountryOperation(OutputCsvMixin, ComputeMeanMixin, CountryOperationMixin, CdoOperation):
 
@@ -143,9 +127,6 @@ class MaskCountryOperation(OutputCsvMixin, ComputeMeanMixin, CountryOperationMix
         country = self.get_country()
         mask_path = str(Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser())
         return ['-ifthen', f'-selname,m_{country:3.3}', mask_path]
-
-    def get_region(self):
-        return self.get_country().lower()
 
     def validate_resolution(self, path):
         input_resolution = get_resolution(get_input_path() / path)

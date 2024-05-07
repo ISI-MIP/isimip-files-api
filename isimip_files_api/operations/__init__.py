@@ -100,6 +100,10 @@ class BBoxOperationMixin:
         else:
             return [f'bbox is missing for operation "{self.operation}"']
 
+    def get_region(self):
+        west, east, south, north = self.get_bbox()
+        return f'lon{west}to{east}lat{south}to{north}'
+
 
 class PointOperationMixin:
 
@@ -126,6 +130,10 @@ class PointOperationMixin:
         else:
             return [f'point is missing for operation "{self.operation}"']
 
+    def get_region(self):
+        lon, lat = self.get_point()
+        return f'lon{lon}lat{lat}'
+
 
 class CountryOperationMixin:
 
@@ -141,6 +149,9 @@ class CountryOperationMixin:
                 return [f'country not in the list of supported countries (e.g. deu) for operation "{self.operation}"']
         else:
             return [f'country is missing for operation "{self.operation}"']
+
+    def get_region(self):
+        return self.get_country().lower()
 
 
 class MaskOperationMixin:
@@ -165,6 +176,10 @@ class MaskOperationMixin:
                 return [f'consecutive periods are not permitted in "mask" for operation "{self.operation}"']
         else:
             return [f'mask is missing for operation "{self.operation}"']
+
+    def get_region(self):
+        mask_path = self.get_mask_path()
+        return mask_path.stem
 
 
 class ComputeMeanMixin:

@@ -2,7 +2,9 @@ import subprocess
 
 from flask import current_app as app
 
-from isimip_files_api.operations import BaseOperation, BBoxOperationMixin
+from isimip_files_api.netcdf import get_resolution
+from isimip_files_api.operations import BaseOperation, BBoxOperationMixin, PointOperationMixin
+from isimip_files_api.utils import get_input_path
 
 
 class NcksOperation(BaseOperation):
@@ -28,6 +30,14 @@ class NcksOperation(BaseOperation):
         # return the command without the paths
         return cmd
 
+    def validate_resolution(self, path):
+        input_resolution = get_resolution(get_input_path() / path)
+        config_resolution = app.config['NCKS_MAX_RESOLUTION']
+
+        if input_resolution[0] > config_resolution[0] or input_resolution[1] > config_resolution[1]:
+            return [f'resolution of {path} {input_resolution} is to high {config_resolution}'
+                    f' for operation "{self.operation}"']
+
 
 class CutOutBBoxOperation(BBoxOperationMixin, NcksOperation):
 
@@ -41,6 +51,15 @@ class CutOutBBoxOperation(BBoxOperationMixin, NcksOperation):
             '-d', f'lat,{south:f},{north:f}',  # latitude
         ]
 
-    def get_region(self):
-        west, east, south, north = self.get_bbox()
-        return f'lon{west}to{east}lat{south}to{north}'
+
+class CutOutPointOperation(PointOperationMixin, NcksOperation):
+
+    operation = 'cutout_point'
+
+    def get_args(self):
+        lat, lon = self.get_point()
+        return [
+            '-h',                  # omit history
+            '-d', f'lon,{lon:f}',  # longitude
+            '-d', f'lat,{lat:f}',  # latitude
+        ]

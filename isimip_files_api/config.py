@@ -45,7 +45,8 @@ OPERATIONS = [
     'isimip_files_api.operations.cdo.MaskCountryOperation',
     'isimip_files_api.operations.cdo.MaskLandonlyOperation',
     'isimip_files_api.operations.python.create_mask.CreateMaskOperation',
-    'isimip_files_api.operations.ncks.CutOutBBoxOperation'
+    'isimip_files_api.operations.ncks.CutOutBBoxOperation',
+    'isimip_files_api.operations.ncks.CutOutPointOperation'
 ]
 
 # maximum number of operations which can be performed
