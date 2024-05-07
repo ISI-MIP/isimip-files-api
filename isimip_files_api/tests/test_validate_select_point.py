@@ -1,9 +1,11 @@
+operation = 'select_point'
+
 def test_success(client, mocker):
     mocker.patch('isimip_files_api.app.create_job', mocker.Mock(return_value=({}, 201)))
 
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [13.064332, 52.380551]
         }
     ]})
@@ -17,7 +19,7 @@ def test_output_csv_success(client, mocker):
 
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [13.064332, 52.380551],
             'output_csv': True
         }
@@ -30,7 +32,7 @@ def test_output_csv_success(client, mocker):
 def test_missing_bbox(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point'
+            'operation': operation
         }
     ]})
     assert response.status_code == 400
@@ -43,7 +45,7 @@ def test_missing_bbox(client):
 def test_wrong_point(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [13.064332, 'wrong']
         }
     ]})
@@ -57,7 +59,7 @@ def test_wrong_point(client):
 def test_wrong_point_lat_low(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [-181, 52.380551]
         }
     ]})
@@ -71,7 +73,7 @@ def test_wrong_point_lat_low(client):
 def test_wrong_point_lat_high(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [181, 52.380551]
         }
     ]})
@@ -85,7 +87,7 @@ def test_wrong_point_lat_high(client):
 def test_wrong_point_lon_low(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [13.064332, -91]
         }
     ]})
@@ -99,7 +101,7 @@ def test_wrong_point_lon_low(client):
 def test_wrong_point_lon_high(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [13.064332, 91]
         }
     ]})
@@ -113,7 +115,7 @@ def test_wrong_point_lon_high(client):
 def test_invalid_output_csv(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [13.064332, 52.380551],
             'output_csv': 'wrong'
         }
@@ -128,7 +130,7 @@ def test_invalid_output_csv(client):
 def test_invalid_resolution(mocker, client):
     response = client.post('/', json={'paths': ['large.nc'], 'operations': [
         {
-            'operation': 'select_point',
+            'operation': operation,
             'point': [13.064332, 52.380551]
         }
     ]})

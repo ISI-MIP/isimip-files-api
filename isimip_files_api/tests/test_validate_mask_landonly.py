@@ -1,9 +1,11 @@
+operation = 'mask_landonly'
+
 def test_success(client, mocker):
     mocker.patch('isimip_files_api.app.create_job', mocker.Mock(return_value=({}, 201)))
 
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'mask_landonly'
+            'operation': operation
         }
     ]})
 
@@ -14,7 +16,7 @@ def test_success(client, mocker):
 def test_invalid_resolution(mocker, client):
     response = client.post('/', json={'paths': ['large.nc'], 'operations': [
         {
-            'operation': 'mask_landonly'
+            'operation': operation
         }
     ]})
 

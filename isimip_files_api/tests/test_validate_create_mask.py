@@ -2,6 +2,8 @@ import io
 import json
 from pathlib import Path
 
+operation = 'create_mask'
+
 shapefile_path = Path('testing') / 'shapes' / 'pm.zip'
 wrong_path = Path('testing') / 'shapes' / 'wrong.zip'
 geojson_path = Path('testing') / 'shapes' / 'pm.json'
@@ -14,7 +16,7 @@ def test_shape(client, mocker):
         'paths': ['constant.nc'],
         'operations': [
             {
-                'operation': 'create_mask',
+                'operation': operation,
                 'shape': 'pm.zip',
                 'mask': 'pm.nc'
             }
@@ -33,7 +35,7 @@ def test_shape(client, mocker):
 def test_missing_shape(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'create_mask',
+            'operation': operation,
             'mask': 'pm.nc'
         }
     ]})
@@ -47,7 +49,7 @@ def test_missing_shape(client):
 def test_missing_mask(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'create_mask',
+            'operation': operation,
             'shape': 'pm.zip'
         }
     ]})
@@ -61,7 +63,7 @@ def test_missing_mask(client):
 def test_invalid_mask1(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'create_mask',
+            'operation': operation,
             'shape': 'pm.zip',
             'mask': 'pm.nc ; wrong'
         }
@@ -77,7 +79,7 @@ def test_invalid_mask1(client):
 def test_invalid_mask2(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'create_mask',
+            'operation': operation,
             'shape': 'pm.zip',
             'mask': '..pm.nc'
         }
@@ -96,7 +98,7 @@ def test_missing_file(client, mocker):
         'paths': ['constant.nc'],
         'operations': [
             {
-                'operation': 'create_mask',
+                'operation': operation,
                 'shape': 'pm.zip',
                 'mask': 'pm.nc'
             }
