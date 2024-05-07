@@ -76,13 +76,12 @@ def validate_operations(data):
 def validate_resolution(data):
     errors = defaultdict(list)
 
-    operation_registry = OperationRegistry()
-    for config in data['operations']:
-        operation = operation_registry.get(config)
-        for path in data['paths']:
-            operation_errors = operation.validate_resolution(path)
-            if operation_errors:
-                errors['resolution'] += operation_errors
+    # resolution can only be checked for the first operation
+    operation = OperationRegistry().get(data['operations'][0])
+    for path in data['paths']:
+        operation_errors = operation.validate_resolution(path)
+        if operation_errors:
+            errors['resolution'] += operation_errors
 
     return errors
 
