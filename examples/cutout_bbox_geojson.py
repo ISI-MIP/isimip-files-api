@@ -53,6 +53,7 @@ response = requests.post(url, files={
     'data': json.dumps(data),
     'che.geojson': Path(shape_path).read_bytes(),  # needs to be the same as in the create_mask operation
 })
+response.raise_for_status()
 
 # extract the job object from the response
 try:

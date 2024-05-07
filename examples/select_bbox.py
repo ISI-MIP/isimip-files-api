@@ -35,6 +35,7 @@ download_path = 'download'
 
 # perform the initial request to the server
 response = requests.post(url, json=data)
+response.raise_for_status()
 
 # extract the job object from the response
 try:
