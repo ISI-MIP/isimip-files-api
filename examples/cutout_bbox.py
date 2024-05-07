@@ -11,7 +11,7 @@ log = structlog.get_logger()
 url = 'https://files.isimip.org/api/v2'
 
 paths = [
-    'ISIMIP3a/InputData/climate/atmosphere/obsclim/global/daily/historical/CHELSA-W5E5v1.0/chelsa-w5e5v1.0_obsclim_tas_30arcsec_global_daily_197901.nc'
+    'ISIMIP3a/InputData/climate/atmosphere/obsclim/global/daily/historical/CHELSA-W5E5/chelsa-w5e5_obsclim_tas_30arcsec_global_daily_197901.nc'
 ]
 
 data = {

@@ -1,0 +1,14 @@
+:80 {
+    handle_path /api/output* {
+        root * /volumes/output
+        file_server
+    }
+
+    handle_path /api/v2* {
+        reverse_proxy app:5000
+    }
+
+    handle {
+        respond "Not found" 404
+    }
+}
