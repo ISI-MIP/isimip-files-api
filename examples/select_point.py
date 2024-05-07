@@ -32,16 +32,16 @@ download_path = 'download'
 
 # perform the initial request to the server
 response = requests.post(url, json=data)
-response.raise_for_status()
 
-# extract the job object from the response
 try:
-    job = response.json()
-    log.info('job submitted', id=job['id'], status=job['status'])
-except requests.exceptions.JSONDecodeError:
-    log.info('job submission failed', error=response.text)
+    response.raise_for_status()  # check if the request was successfull
+    job = response.json()        # extract the job object from the response
+except (requests.exceptions.HTTPError, requests.exceptions.JSONDecodeError):
+    log.error('job submission failed', error=response.text)
 else:
-    while job['status'] in ['queued', 'started']:
+    log.info('job submitted', id=job.get('id'), status=job.get('status'))
+
+    while job.get('status') in ['queued', 'started']:
         # wait for 4 sec
         time.sleep(4)
 
@@ -49,7 +49,7 @@ else:
         job = requests.get(job['job_url']).json()
         log.info('job updated', id=job['id'], status=job['status'], meta=job['meta'])
 
-    if job['status'] == 'finished':
+    if job.get('status') == 'finished':
         # download file
         zip_path = Path(download_path) / job['file_name']
         zip_path.parent.mkdir(exist_ok=True)
