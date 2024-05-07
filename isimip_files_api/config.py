@@ -58,8 +58,14 @@ GLOBAL_TAG = '_global_'
 # the cdo binary on the system, e.g. /usr/bin/cdo
 CDO_BIN = 'cdo'
 
+# the maximum resolution for cdo based operations
+CDO_MAX_RESOLUTION = (1440, 720)
+
 # the ncks binary on the system, e.g. /usr/bin/ncks
 NCKS_BIN = 'ncks'
+
+# the maximum resolution for ncks based operations
+NCKS_MAX_RESOLUTION = (43200, 20880)
 
 # special settings for the countries
 COUNTRYMASKS_FILE_PATH = 'countrymasks.nc'

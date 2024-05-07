@@ -28,14 +28,18 @@ class BaseOperation:
         self.artefacts = []
         self.outputs = []
 
-    def validate(self):
+    def validate_config(self):
         # gather all methods in the class which start with "validate_", but not "validate_uploads"
         method_names = [
             method_name for method_name in dir(self)
             if all([
                 callable(getattr(self, method_name)),
                 method_name.startswith('validate_'),
-                method_name != 'validate_uploads'
+                method_name not in [
+                    'validate_config',
+                    'validate_resolution',
+                    'validate_uploads'
+                ]
             ])
         ]
 
@@ -44,6 +48,9 @@ class BaseOperation:
         for method_name in method_names:
             errors += getattr(self, method_name)() or []
         return errors
+
+    def validate_resolution(self, uploads):
+        pass
 
     def validate_uploads(self, uploads):
         pass

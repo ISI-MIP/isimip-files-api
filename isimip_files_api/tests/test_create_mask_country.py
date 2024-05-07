@@ -97,3 +97,18 @@ def test_invalid_output_csv(client):
     assert response.json.get('errors') == {
         'operations': ['only true or false are permitted in "output_csv" for operation "mask_country"']
     }
+
+
+def test_invalid_resolution(mocker, client):
+    response = client.post('/', json={'paths': ['large.nc'], 'operations': [
+        {
+            'operation': 'mask_country',
+            'country': 'deu',
+        }
+    ]})
+
+    assert response.status_code == 400
+    assert response.json.get('errors') == {
+        'resolution': ['resolution of large.nc (360, 180) does not match mask resolution (180, 90)'
+                       ' for operation "mask_country"']
+    }

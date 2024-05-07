@@ -196,3 +196,18 @@ def test_invalid_output_csv(client):
         'operations': ['only true or false are permitted in "output_csv" for operation "mask_bbox"']
 
     }
+
+
+def test_invalid_resolution(mocker, client):
+    response = client.post('/', json={'paths': ['large.nc'], 'operations': [
+        {
+            'operation': 'mask_bbox',
+            'bbox': [-180, 180, -23.43651, 23.43651]
+        }
+    ]})
+
+    assert response.status_code == 400
+    assert response.json.get('errors') == {
+        'resolution': ['resolution of large.nc (360, 180) is to high (180, 90)'
+                       ' for operation "mask_bbox"']
+    }

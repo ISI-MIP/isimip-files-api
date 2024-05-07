@@ -31,3 +31,8 @@ def get_index(path, point):
 def get_grid(path):
     with Dataset(path) as ds:
         return (ds.variables['lon'][:], ds.variables['lat'][:])
+
+
+def get_resolution(path):
+    with Dataset(path) as ds:
+        return (ds.dimensions['lon'].size, ds.dimensions['lat'].size)

@@ -110,5 +110,5 @@ def test_missing_file(client, mocker):
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['File "pm.zip" for operation "create_mask" is not part of the uploads']
+        'uploads': ['File "pm.zip" for operation "create_mask" is not part of the uploads']
     }

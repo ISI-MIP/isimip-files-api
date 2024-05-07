@@ -64,7 +64,7 @@ def validate_operations(data):
                 if operation is None:
                     errors['operations'].append('operation "{operation}" was not found'.format(**config))
                 else:
-                    operation_errors = operation.validate()
+                    operation_errors = operation.validate_config()
                     if operation_errors:
                         errors['operations'] += operation_errors
             else:
@@ -73,15 +73,28 @@ def validate_operations(data):
     return errors
 
 
+def validate_resolution(data):
+    errors = defaultdict(list)
+
+    operation_registry = OperationRegistry()
+    for config in data['operations']:
+        operation = operation_registry.get(config)
+        for path in data['paths']:
+            operation_errors = operation.validate_resolution(path)
+            if operation_errors:
+                errors['resolution'] += operation_errors
+
+    return errors
+
+
 def validate_uploads(data, uploads):
     errors = defaultdict(list)
 
     operation_registry = OperationRegistry()
-    for index, config in enumerate(data['operations']):
-        if 'operation' in config:
-            operation = operation_registry.get(config)
-            operation_errors = operation.validate_uploads(uploads)
-            if operation_errors:
-                errors['operations'] += operation_errors
+    for config in data['operations']:
+        operation = operation_registry.get(config)
+        operation_errors = operation.validate_uploads(uploads)
+        if operation_errors:
+            errors['uploads'] += operation_errors
 
     return errors

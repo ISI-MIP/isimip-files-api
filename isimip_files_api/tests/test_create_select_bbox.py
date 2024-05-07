@@ -184,7 +184,7 @@ def test_wrong_bbox_north_high(client):
 def test_invalid_compute_mean(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'mask_bbox',
+            'operation': 'select_bbox',
             'bbox': [-180, 180, -23.43651, 23.43651],
             'compute_mean': 'wrong'
         }
@@ -192,14 +192,14 @@ def test_invalid_compute_mean(client):
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['only true or false are permitted in "compute_mean" for operation "mask_bbox"']
+        'operations': ['only true or false are permitted in "compute_mean" for operation "select_bbox"']
     }
 
 
 def test_invalid_output_csv(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
-            'operation': 'mask_bbox',
+            'operation': 'select_bbox',
             'bbox': [-180, 180, -23.43651, 23.43651],
             'output_csv': 'wrong'
         }
@@ -207,5 +207,20 @@ def test_invalid_output_csv(client):
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
-        'operations': ['only true or false are permitted in "output_csv" for operation "mask_bbox"']
+        'operations': ['only true or false are permitted in "output_csv" for operation "select_bbox"']
+    }
+
+
+def test_invalid_resolution(mocker, client):
+    response = client.post('/', json={'paths': ['large.nc'], 'operations': [
+        {
+            'operation': 'select_bbox',
+            'bbox': [-180, 180, -23.43651, 23.43651]
+        }
+    ]})
+
+    assert response.status_code == 400
+    assert response.json.get('errors') == {
+        'resolution': ['resolution of large.nc (360, 180) is to high (180, 90)'
+                       ' for operation "select_bbox"']
     }

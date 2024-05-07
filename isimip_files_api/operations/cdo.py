@@ -4,7 +4,7 @@ from pathlib import Path
 
 from flask import current_app as app
 
-from isimip_files_api.netcdf import get_index
+from isimip_files_api.netcdf import get_index, get_resolution
 from isimip_files_api.operations import (
     BaseOperation,
     BBoxOperationMixin,
@@ -14,6 +14,7 @@ from isimip_files_api.operations import (
     OutputCsvMixin,
     PointOperationMixin,
 )
+from isimip_files_api.utils import get_input_path
 
 
 class CdoOperation(BaseOperation):
@@ -66,6 +67,14 @@ class CdoOperation(BaseOperation):
 
         # return the command without the paths
         return cmd
+
+    def validate_resolution(self, path):
+        input_resolution = get_resolution(get_input_path() / path)
+        config_resolution = app.config['CDO_MAX_RESOLUTION']
+
+        if input_resolution[0] > config_resolution[0] or input_resolution[1] > config_resolution[1]:
+            return [f'resolution of {path} {input_resolution} is to high {config_resolution}'
+                    f' for operation "{self.operation}"']
 
 
 class SelectBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, CdoOperation):
@@ -138,6 +147,14 @@ class MaskCountryOperation(OutputCsvMixin, ComputeMeanMixin, CountryOperationMix
     def get_region(self):
         return self.get_country().lower()
 
+    def validate_resolution(self, path):
+        input_resolution = get_resolution(get_input_path() / path)
+        mask_resolution = get_resolution(Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser())
+
+        if input_resolution != mask_resolution:
+            return [f'resolution of {path} {input_resolution} does not match mask resolution {mask_resolution}'
+                    f' for operation "{self.operation}"']
+
 
 class MaskLandonlyOperation(CdoOperation):
 
@@ -149,3 +166,11 @@ class MaskLandonlyOperation(CdoOperation):
 
     def get_region(self):
         return 'landonly'
+
+    def validate_resolution(self, path):
+        input_resolution = get_resolution(get_input_path() / path)
+        mask_resolution = get_resolution(Path(app.config['LANDSEAMASK_FILE_PATH']).expanduser())
+
+        if input_resolution != mask_resolution:
+            return [f'resolution of {path} {input_resolution} does not match mask resolution {mask_resolution}'
+                    f' for operation "{self.operation}"']

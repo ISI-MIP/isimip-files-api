@@ -12,6 +12,10 @@ def app():
         'TESTING': True,
         'INPUT_PATH': 'testing/input',
         'OUTPUT_PATH': 'testing/output',
+        'LANDSEAMASK_FILE_PATH': 'testing/masks/mask.nc',
+        'COUNTRYMASKS_FILE_PATH': 'testing/masks/mask.nc',
+        'CDO_MAX_RESOLUTION': (180, 90),
+        'NCKS_MAX_RESOLUTION': (180, 90),
         'MAX_FILES': 4
     })
 
