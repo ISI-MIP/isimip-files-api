@@ -2,7 +2,7 @@ FROM python:3.12-slim-bookworm
 
 RUN apt-get update -y && \
     apt-get upgrade -y && \
-    apt-get install -y build-essential cdo nco
+    apt-get install -y build-essential cdo nco libgdal-dev
 
 WORKDIR /api
 
