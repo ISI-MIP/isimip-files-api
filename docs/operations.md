@@ -32,10 +32,10 @@ response = requests.post('https://files.isimip.org/api/v2', json={
         {
             'operation': 'select_bbox',
             'bbox': [
+                -180                # west
+                180,                # east
                 -23.43651,          # south
                 23.43651,           # north
-                -180,               # east
-                180                 # west
             ],
             'compute_mean': False,  # optional: set to True to get a time series of the field mean
             'output_csv': False     # optional: set to True to get a CSV file instead of NetCDF
@@ -61,8 +61,8 @@ response = requests.post('https://files.isimip.org/api/v2', json={
         {
             'operation': 'select_point',
             'point': [
-                52.380551,       # latitude
-                13.064332        # longitude
+                13.064332,  # longitude
+                52.38051    # latitude
             ],
             'output_csv': False  # optional: set to True to get a CSV file instead of NetCDF
         }
@@ -89,10 +89,10 @@ response = requests.post('https://files.isimip.org/api/v2', json={
         {
             'operation': 'mask_bbox',
             'bbox': [
+                -180                # west
+                180,                # east
                 -23.43651,          # south
                 23.43651,           # north
-                -180,               # east
-                180                 # west
             ],
             'compute_mean': False,  # optional: set to True to get a time series of the field mean
             'output_csv': False     # optional: set to True to get a CSV file instead of NetCDF
@@ -194,10 +194,35 @@ response = requests.post('https://files.isimip.org/api/v2', json={
         {
             'operation': 'cutout_bbox',
             'bbox': [
+                12.50,  # west
+                13.50   # east
                 47.25,  # south
                 47.75,  # north
-                12.50,  # east
-                13.50   # west
+            ]
+        }
+    ]
+})
+```
+
+The operation is performed using [ncks](https://nco.sourceforge.net/nco.html) using:
+
+```bash
+ncks -h -d lat,SOUTH,NORTH -d WEST,EAST IFILE OFILE
+```
+
+### Cutout point
+
+As for the bounding box, we also provide an operation to create a time series for a point using [ncks](https://nco.sourceforge.net/nco.html). Again, this has a much better performance when applied to the high resolution data from [CHELSA-W5E5 v1.0: W5E5 v1.0 downscaled with CHELSA v2.0](https://doi.org/10.48364/ISIMIP.836809.3).
+
+```python
+response = requests.post('https://files.isimip.org/api/v2', json={
+    'paths': [...],
+    'operations': [
+        {
+            'operation': 'cutout_point',
+            'point': [
+                13.064332,  # longitude
+                52.38051    # latitude
             ]
         }
     ]

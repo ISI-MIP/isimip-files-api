@@ -185,11 +185,14 @@ The created files can be automatically deleted using the included `isimip-files-
 The API can also be deployed using Docker. The repository contains a `dockerfile' and a `docker-compose.yaml' for this. The Docker setup is configured using environment variables. To do this, first create an `.env' file in the root of the repository:
 
 ```
-DOCKER_PORT=9000
+DOCKER_HOSTNAME=localhost
+DOCKER_PORT=5000
 
 DOCKER_INPUT_PATH=/path/to/the/datasets
+
 DOCKER_OUTPUT_PATH=./volumes/output
 DOCKER_TMP_PATH=./volumes/tmp
+DOCKER_CADDY_PATH=./volumes/caddy
 DOCKER_REDIS_PATH=./volumes/redis
 ```
 
@@ -199,6 +202,4 @@ Then the containers can be started using
 docker-compose up
 ```
 
-While you can create a `config.toml` file as in the regular setup, please note that `INPUT_PATH`, `OUTPUT_PATH`, `TMP_PATH` and `RQ_REDIS_URL` *inside* the Docker containers are set in `docker-compose.yaml` and therefore should not be set in `config.toml`. The directories on the host machine need to be set in `.env` as shown above.
-
-Right now, the Docker setup assumes that the web server, including the hosting of the output files is configured independently.
+While you can create a `config.toml` file as in the regular setup, please note that `INPUT_PATH`, `OUTPUT_PATH`, `TMP_PATH`, `BASE_URL`, `OUTPUT_URL`, and `RQ_REDIS_URL` *inside* the Docker containers are set in `docker-compose.yaml` and therefore should not be set in `config.toml`. The directories on the host machine need to be set in `.env` as shown above.

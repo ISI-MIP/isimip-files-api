@@ -32,6 +32,8 @@ services:
     environment:
       FLASK_APP: isimip_files_api.app
       FLASK_CONFIG: config.toml
+      FLASK_BASE_URL: "http://${DOCKER_HOSTNAME}:${DOCKER_PORT}/api/v2"
+      FLASK_OUTPUT_URL: "http://${DOCKER_HOSTNAME}:${DOCKER_PORT}/api/output"
       FLASK_REDIS_URL: redis://redis:6379
       FLASK_INPUT_PATH: /volumes/input
       FLASK_OUTPUT_PATH: /volumes/output
