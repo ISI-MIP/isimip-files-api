@@ -7,7 +7,7 @@ repos:
     hooks:
       - id: check-ast
       - id: end-of-file-fixer
-        exclude: \.json$|.prj$
+        exclude: \.json$|.prj|.svg$
       - id: trailing-whitespace
       - id: debug-statements
   - repo: https://github.com/charliermarsh/ruff-pre-commit
