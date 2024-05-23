@@ -51,6 +51,10 @@ class CutOutBBoxOperation(BBoxOperationMixin, NcksOperation):
             '-d', f'lat,{south:f},{north:f}',  # latitude
         ]
 
+    def get_region(self):
+        west, east, south, north = self.get_bbox()
+        return f'lon{west}to{east}lat{south}to{north}'
+
 
 class CutOutPointOperation(PointOperationMixin, NcksOperation):
 
@@ -63,3 +67,7 @@ class CutOutPointOperation(PointOperationMixin, NcksOperation):
             '-d', f'lon,{lon:f}',  # longitude
             '-d', f'lat,{lat:f}',  # latitude
         ]
+
+    def get_region(self):
+        lon, lat = self.get_point()
+        return f'lon{lon}lat{lat}'
