@@ -9,6 +9,9 @@ export RQ_WORKER_CLASS=isimip_files_api.worker.Worker
 server:
 	flask run
 
+gunicorn:
+	gunicorn -b 0.0.0.0:5000 "${FLASK_APP}:create_app()"
+
 worker:
 	rq worker
 
