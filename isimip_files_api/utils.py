@@ -23,14 +23,14 @@ def handle_post_request(request):
     data = {}
     files = {}
 
-    if request.content_type.startswith('multipart/form-data'):
+    if request.content_type and request.content_type.startswith('multipart/form-data'):
         for file_name, file_storage in request.files.items():
             if file_name == 'data':
                 data = json.loads(file_storage.read())
             else:
                 files[file_name] = file_storage
     else:
-        data = request.json
+        data = request.json  # will return 415 if content_type is not set to 'application/json'
 
     return data, files
 
