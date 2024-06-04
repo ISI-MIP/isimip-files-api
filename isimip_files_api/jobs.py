@@ -8,7 +8,7 @@ from redis import Redis
 
 from .responses import get_response
 from .tasks import run_task
-from .utils import get_hash, store_uploads
+from .utils import get_hash, remove_job_path, store_uploads
 
 
 def count_jobs():
@@ -25,13 +25,17 @@ def count_jobs():
 
 def create_job(data, uploads):
     redis = Redis.from_url(app.config['REDIS_URL'])
+    queue = Queue(connection=redis)
 
     job_id = get_hash(data, uploads)
 
     # check if a successfull job with this hash/job_id already exists
     try:
         job = Job.fetch(job_id, connection=redis)
-        if job.get_status() != 'failed':
+        if job.get_status() == 'failed':
+            queue.failed_job_registry.remove(job_id)
+            remove_job_path(job_id)
+        else:
             return get_response(job, 200)
     except NoSuchJobError:
         pass
@@ -46,7 +50,6 @@ def create_job(data, uploads):
                      result_ttl=app.config['WORKER_RESULT_TTL'],
                      failure_ttl=app.config['WORKER_FAILURE_TTL'],
                      connection=redis)
-    queue = Queue(connection=redis)
     queue.enqueue_job(job)
     return get_response(job, 201)
 
