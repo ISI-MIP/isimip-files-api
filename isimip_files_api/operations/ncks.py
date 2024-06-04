@@ -52,6 +52,7 @@ class CutOutBBoxOperation(BBoxOperationMixin, NcksOperation):
     def get_args(self):
         west, east, south, north = self.get_bbox()
         return [
+            '-O',                              # overwrite
             '-h',                              # omit history
             '-d', f'lon,{west:f},{east:f}',    # longitude
             '-d', f'lat,{south:f},{north:f}',  # latitude
@@ -69,6 +70,7 @@ class CutOutPointOperation(PointOperationMixin, NcksOperation):
     def get_args(self):
         lat, lon = self.get_point()
         return [
+            '-O',                  # overwrite
             '-h',                  # omit history
             '-d', f'lon,{lon:f}',  # longitude
             '-d', f'lat,{lat:f}',  # latitude
