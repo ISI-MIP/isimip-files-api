@@ -41,6 +41,20 @@ def test_wrong_point(client):
     }
 
 
+def test_malformatted_point(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': operation,
+            'point': [[13.064332, 52.380551]]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['point is not of the form [%f, %f] for operation "cutout_point"']
+    }
+
+
 def test_wrong_point_lat_low(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {

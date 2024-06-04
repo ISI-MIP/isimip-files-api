@@ -34,6 +34,8 @@ def validate_paths(data):
                     input_path = Path(app.config['INPUT_PATH']).expanduser()
                     absolute_path = input_path / path
                     absolute_path.parent.resolve().relative_to(input_path.resolve())
+                except TypeError:
+                    errors['paths'].append(f'{path} is not a file path.')
                 except ValueError:
                     errors['paths'].append(f'{path} is below the root path.')
                 else:

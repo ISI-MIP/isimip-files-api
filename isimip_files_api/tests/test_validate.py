@@ -32,6 +32,19 @@ def test_malformatted(client):
     }
 
 
+def test_paths_malformatted(client):
+    response = client.post('/', json={
+        'paths': [[
+        'test.nc'
+    ]]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'paths': ['[\'test.nc\'] is not a file path.'],
+        'operations': ['This field is required.']
+    }
+
+
 def test_paths_to_many_files(client):
     response = client.post('/', json={'paths': [
         'test1.nc',

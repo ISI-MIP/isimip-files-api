@@ -41,6 +41,20 @@ def test_wrong_bbox(client):
     }
 
 
+def test_malformatted_bbox(client):
+    response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
+        {
+            'operation': operation,
+            'bbox': [[-180, 180, -23.43651, 23.43651]]
+        }
+    ]})
+    assert response.status_code == 400
+    assert response.json.get('status') == 'error'
+    assert response.json.get('errors') == {
+        'operations': ['bbox is not of the form [%f, %f, %f, %f] for operation "cutout_bbox"']
+    }
+
+
 def test_wrong_bbox_west_high(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {

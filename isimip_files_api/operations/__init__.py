@@ -95,7 +95,7 @@ class BBoxOperationMixin:
                     return [f'north latitude is > 90 in bbox for operation "{self.operation}"']
                 if north < -90.0:
                     return [f'north latitude is < -90 in bbox for operation "{self.operation}"']
-            except (ValueError, IndexError):
+            except (ValueError, IndexError, TypeError):
                 return [f'bbox is not of the form [%f, %f, %f, %f] for operation "{self.operation}"']
         else:
             return [f'bbox is missing for operation "{self.operation}"']
@@ -121,7 +121,7 @@ class PointOperationMixin:
                     return [f'latitude is > 90 in point for operation "{self.operation}"']
                 if lat < -90.0:
                     return [f'latitude is < -90 in point for operation "{self.operation}"']
-            except (ValueError, IndexError):
+            except (ValueError, IndexError, TypeError):
                 return [f'point is not of the form [%f, %f] for operation "{self.operation}"']
         else:
             return [f'point is missing for operation "{self.operation}"']
