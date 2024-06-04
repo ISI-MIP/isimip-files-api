@@ -2,6 +2,7 @@ import subprocess
 
 from flask import current_app as app
 
+from isimip_files_api.exceptions import OperationError
 from isimip_files_api.netcdf import get_resolution
 from isimip_files_api.operations import BaseOperation, BBoxOperationMixin, PointOperationMixin
 from isimip_files_api.utils import get_input_path
@@ -22,7 +23,12 @@ class NcksOperation(BaseOperation):
         # join the cmd_args and execute the the command
         cmd = ' '.join(cmd_args)
         app.logger.debug(cmd)
-        subprocess.check_call(cmd_args, cwd=job_path)
+
+        try:
+            subprocess.check_call(cmd_args, cwd=job_path)
+        except subprocess.CalledProcessError as e:
+            app.logger.error(e)
+            raise OperationError(e) from e
 
         # add the output path to the commands outputs
         self.outputs = [output_path]

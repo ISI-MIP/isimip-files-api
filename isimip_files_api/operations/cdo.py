@@ -4,6 +4,7 @@ from pathlib import Path
 
 from flask import current_app as app
 
+from isimip_files_api.exceptions import OperationError
 from isimip_files_api.netcdf import get_index, get_resolution
 from isimip_files_api.operations import (
     BaseOperation,
@@ -49,11 +50,15 @@ class CdoOperation(BaseOperation):
         cmd = ' '.join(cmd_args)
         app.logger.debug(cmd)
 
-        output = subprocess.check_output(cmd_args, env={
-            'CDI_VERSION_INFO': '0',
-            'CDO_VERSION_INFO': '0',
-            'CDO_HISTORY_INFO': '0'
-        }, cwd=job_path)
+        try:
+            output = subprocess.check_output(cmd_args, env={
+                'CDI_VERSION_INFO': '0',
+                'CDO_VERSION_INFO': '0',
+                'CDO_HISTORY_INFO': '0'
+            }, cwd=job_path)
+        except subprocess.CalledProcessError as e:
+            app.logger.error(e)
+            raise OperationError(e) from e
 
         # write the subprocess output into a csv file
         if self.config.get('output_csv'):

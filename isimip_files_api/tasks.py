@@ -4,6 +4,7 @@ from flask import current_app as app
 
 from rq import get_current_job
 
+from .exceptions import OperationError
 from .operations import OperationRegistry
 from .utils import get_input_path, get_job_path, get_zip_file, mask_paths, remove_job_path
 
@@ -62,7 +63,12 @@ def run_task(paths, operations):
                 output_path = output_path.with_suffix(suffix)
 
             # execute the command and obtain the command_string
-            command_string = operation.execute(job_path, input_path, output_path)
+            try:
+                command_string = operation.execute(job_path, input_path, output_path)
+            except OperationError as e:
+                job.meta['error'] = mask_paths(str(e))
+                job.save_meta()
+                raise e
 
             # write the command_string into readme file
             readme.write(mask_paths(command_string) + '\n')
