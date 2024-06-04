@@ -28,23 +28,27 @@ def create_job(data, uploads):
 
     job_id = get_hash(data, uploads)
 
+    # check if a successfull job with this hash/job_id already exists
     try:
         job = Job.fetch(job_id, connection=redis)
-        return get_response(job, 200)
+        if job.get_status() != 'failed':
+            return get_response(job, 200)
     except NoSuchJobError:
-        # create tmp dir and store uploaded files
-        store_uploads(job_id, uploads)
+        pass
 
-        # create and enqueue asyncronous job
-        job = Job.create(run_task, id=job_id, args=[data['paths'], data['operations']],
-                         timeout=app.config['WORKER_TIMEOUT'],
-                         ttl=app.config['WORKER_TTL'],
-                         result_ttl=app.config['WORKER_RESULT_TTL'],
-                         failure_ttl=app.config['WORKER_FAILURE_TTL'],
-                         connection=redis)
-        queue = Queue(connection=redis)
-        queue.enqueue_job(job)
-        return get_response(job, 201)
+    # create tmp dir and store uploaded files
+    store_uploads(job_id, uploads)
+
+    # create and enqueue asyncronous job
+    job = Job.create(run_task, id=job_id, args=[data['paths'], data['operations']],
+                     timeout=app.config['WORKER_TIMEOUT'],
+                     ttl=app.config['WORKER_TTL'],
+                     result_ttl=app.config['WORKER_RESULT_TTL'],
+                     failure_ttl=app.config['WORKER_FAILURE_TTL'],
+                     connection=redis)
+    queue = Queue(connection=redis)
+    queue.enqueue_job(job)
+    return get_response(job, 201)
 
 
 def fetch_job(job_id):
