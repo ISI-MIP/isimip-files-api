@@ -119,7 +119,7 @@ class MaskBBoxOperation(OutputCsvMixin, ComputeMeanMixin, BBoxOperationMixin, Cd
 
     def get_args(self):
         west, east, south, north = self.get_bbox()
-        return [f'-sellonlatbox,{west:f},{east:f},{south:f},{north:f}']
+        return [f'-masklonlatbox,{west:f},{east:f},{south:f},{north:f}']
 
     def get_region(self):
         west, east, south, north = self.get_bbox()
