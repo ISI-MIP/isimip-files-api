@@ -67,6 +67,7 @@ def run_task(paths, operations):
                 command_string = operation.execute(job_path, input_path, output_path)
             except OperationError as e:
                 job.meta['error'] = mask_paths(str(e))
+                job.meta['errorMessage'] = mask_paths(str(e.message))
                 job.save_meta()
                 raise e
 
@@ -90,7 +91,7 @@ def run_task(paths, operations):
                         # write the output into the zipfile
                         zip_file.write(output_path, output_path.name)
                     else:
-                        error_path = output_path.with_suffix('.txt')
+                        error_path = output_path.with_suffix('.error.txt')
                         error_path.write_text('Something went wrong with processing the input file.'
                                               ' Probably it is not using a global grid.')
                         zip_file.write(error_path, error_path.name)

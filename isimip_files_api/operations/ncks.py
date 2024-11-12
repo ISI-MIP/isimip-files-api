@@ -25,10 +25,12 @@ class NcksOperation(BaseOperation):
         app.logger.debug(cmd)
 
         try:
-            subprocess.check_call(cmd_args, cwd=job_path)
+            subprocess.check_call(cmd_args, cwd=job_path, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
+            message = e.output.decode()
             app.logger.error(e)
-            raise OperationError(e) from e
+            app.logger.error(message)
+            raise OperationError(e, message) from e
 
         # add the output path to the commands outputs
         self.outputs = [output_path]

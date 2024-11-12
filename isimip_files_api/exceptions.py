@@ -1,2 +1,5 @@
 class OperationError(RuntimeError):
-    pass
+
+    def __init__(self, e, message=''):
+        super().__init__(e)
+        self.message = message

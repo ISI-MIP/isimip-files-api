@@ -55,10 +55,12 @@ class CdoOperation(BaseOperation):
                 'CDI_VERSION_INFO': '0',
                 'CDO_VERSION_INFO': '0',
                 'CDO_HISTORY_INFO': '0'
-            }, cwd=job_path)
+            }, cwd=job_path, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
+            message = e.output.decode()
             app.logger.error(e)
-            raise OperationError(e) from e
+            app.logger.error(message)
+            raise OperationError(e, message) from e
 
         # write the subprocess output into a csv file
         if self.config.get('output_csv'):
