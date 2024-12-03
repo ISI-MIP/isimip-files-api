@@ -33,7 +33,7 @@ class NcksOperation(BaseOperation):
             raise OperationError(e, message) from e
 
         # add the output path to the commands outputs
-        self.outputs = [output_path]
+        self.output = output_path
 
         # return the command without the paths
         return cmd

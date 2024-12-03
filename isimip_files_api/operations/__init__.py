@@ -26,7 +26,7 @@ class BaseOperation:
     def __init__(self, config):
         self.config = config
         self.artefacts = []
-        self.outputs = []
+        self.output = None
 
     def validate_config(self):
         # gather all methods in the class which start with "validate_", but not "validate_uploads"

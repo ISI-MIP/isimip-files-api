@@ -87,13 +87,14 @@ def run_task(paths, operations):
                     if (job_path / artefact_path).is_file():
                         zip_file.write(job_path / artefact_path, artefact_path.name)
 
-            # write the outputs into the zipfile and set the new input path
-            if operation.outputs:
-                for output in operation.outputs:
-                    # set the new input path to the output path
-                    output_path = job_path / output
-                    input_path = output_path
+            # set the new input path
+            if operation.output is not None:
+                # set the new input path to the output path
+                output_path = job_path / operation.output
+                input_path = output_path
 
+                # write the outputs into the zipfile if this is the last operation
+                if operation == operation_list[-1]:
                     if output_path.is_file():
                         # write the output into the zipfile
                         zip_file.write(output_path, output_path.name)
