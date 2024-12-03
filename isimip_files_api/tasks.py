@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from flask import current_app as app
@@ -14,6 +15,7 @@ def run_task(paths, operations):
     job = get_current_job()
     job.meta['created_files'] = 0
     job.meta['total_files'] = len(paths)
+    job.meta['errors'] = {}
     job.save_meta()
 
     # get the temporary directory
@@ -25,7 +27,6 @@ def run_task(paths, operations):
     # open readme
     readme_path = job_path / 'README.txt'
     readme = readme_path.open('w')
-    readme.write('The following commands were used to create the files in this container:\n\n')
 
     # get the list of operation objects to perform
     operation_registry = OperationRegistry()
@@ -40,6 +41,13 @@ def run_task(paths, operations):
             # check if the operation should only be performed once and skip all but the first loop iteration
             if operation.perform_once and path != paths[0]:
                 continue
+
+            # validate the resolution and break if an error occures
+            resolution_error = operation.validate_resolution(path)
+            if resolution_error:
+                job.meta['errors'][input_path.name] = resolution_error
+                job.save_meta()
+                break
 
             # update region tag in output_path
             region = operation.get_region()
@@ -66,10 +74,10 @@ def run_task(paths, operations):
             try:
                 command_string = operation.execute(job_path, input_path, output_path)
             except OperationError as e:
-                job.meta['error'] = mask_paths(str(e))
-                job.meta['errorMessage'] = mask_paths(str(e.message))
+                command_error = str(e.message)
+                job.meta['errors'][path.name] = command_error
                 job.save_meta()
-                raise e
+                break
 
             # write the command_string into readme file
             readme.write(mask_paths(command_string) + '\n')
@@ -101,8 +109,20 @@ def run_task(paths, operations):
         job.save_meta()
 
     # close and write readme file
-    readme.close()
-    zip_file.write(readme_path, readme_path.name)
+    if readme.tell() == 0:
+        # nothing was written to the readme
+        readme.close()
+    else:
+        readme.seek(0)
+        readme.write('The following commands were used to create the files in this container:\n\n')
+        readme.close()
+        zip_file.write(readme_path, readme_path.name)
+
+    # open readme
+    if job.meta['errors']:
+        errors_path = job_path / 'errors.json'
+        errors_path.write_text(json.dumps(job.meta['errors'], indent=2))
+        zip_file.write(errors_path, errors_path.name)
 
     # close zip file
     zip_file.close()

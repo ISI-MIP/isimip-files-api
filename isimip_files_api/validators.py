@@ -75,19 +75,6 @@ def validate_operations(data):
     return errors
 
 
-def validate_resolution(data):
-    errors = defaultdict(list)
-
-    # resolution can only be checked for the first operation
-    operation = OperationRegistry().get(data['operations'][0])
-    for path in data['paths']:
-        operation_errors = operation.validate_resolution(path)
-        if operation_errors:
-            errors['resolution'] += operation_errors
-
-    return errors
-
-
 def validate_uploads(data, uploads):
     errors = defaultdict(list)
 

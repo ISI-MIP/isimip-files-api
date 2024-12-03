@@ -8,7 +8,7 @@ from .logging import configure_logging
 from .operations import OperationRegistry
 from .responses import get_errors_response
 from .utils import get_config_path, handle_post_request
-from .validators import validate_data, validate_operations, validate_paths, validate_resolution, validate_uploads
+from .validators import validate_data, validate_operations, validate_paths, validate_uploads
 
 
 def create_app():
@@ -56,13 +56,7 @@ def create_app():
             app.logger.debug('errors = %s', errors)
             return get_errors_response(errors)
 
-        # validation step 3: check resolutions
-        errors = validate_resolution(data)
-        if errors:
-            app.logger.debug('errors = %s', errors)
-            return get_errors_response(errors)
-
-        # validation step 4: check uploads
+        # validation step 3: check uploads
         errors = validate_uploads(data, uploads)
         if errors:
             app.logger.debug('errors = %s', errors)
