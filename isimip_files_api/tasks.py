@@ -43,7 +43,7 @@ def run_task(paths, operations):
                 continue
 
             # validate the resolution and break if an error occures
-            resolution_error = operation.validate_resolution(path)
+            resolution_error = operation.validate_resolution(input_path)
             if resolution_error:
                 job.meta['errors'][input_path.name] = resolution_error
                 job.save_meta()
