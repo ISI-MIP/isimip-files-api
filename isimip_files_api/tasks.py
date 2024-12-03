@@ -74,8 +74,7 @@ def run_task(paths, operations):
             try:
                 command_string = operation.execute(job_path, input_path, output_path)
             except OperationError as e:
-                command_error = str(e.message)
-                job.meta['errors'][path.name] = command_error
+                job.meta['errors'][input_path.name] = mask_paths(str(e.message))
                 job.save_meta()
                 break
 
