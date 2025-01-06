@@ -109,14 +109,10 @@ def run_task(paths, operations):
         job.save_meta()
 
     # close and write readme file
-    if readme.tell() == 0:
-        # nothing was written to the readme
-        readme.close()
-    else:
-        readme.seek(0)
-        readme.write('The following commands were used to create the files in this container:\n\n')
-        readme.close()
-        zip_file.write(readme_path, readme_path.name)
+    readme.close()
+    if readme_path.stat().st_size > 0:
+        message = 'The following commands were used to create the files in this container:\n\n'
+        zip_file.writestr(readme_path.name, message + readme_path.read_text())
 
     # open readme
     if job.meta['errors']:
