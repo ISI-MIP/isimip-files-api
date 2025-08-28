@@ -76,7 +76,7 @@ class BBoxOperationMixin:
         )
 
     def validate_bbox(self):
-        if 'bbox' in self.config:
+        if self.config.get('bbox'):
             try:
                 west, east, south, north = self.get_bbox()
                 if west > 180.0:
@@ -110,7 +110,7 @@ class PointOperationMixin:
         )
 
     def validate_point(self):
-        if 'point' in self.config:
+        if self.config.get('point'):
             try:
                 lon, lat = self.get_point()
                 if lon > 180.0:
@@ -136,7 +136,7 @@ class CountryOperationMixin:
         return Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser().resolve()
 
     def validate_country(self):
-        if 'country' in self.config:
+        if self.config.get('country'):
             if self.get_country() not in app.config['COUNTRYMASKS_COUNTRIES']:
                 return [f'country not in the list of supported countries (e.g. deu) for operation "{self.operation}"']
         else:
@@ -152,12 +152,12 @@ class MaskOperationMixin:
         return Path(self.config.get('mask'))
 
     def validate_var(self):
-        if 'var' in self.config:
+        if self.config.get('var'):
             if not re.match(r'^[A-Za-z0-9_]*$', self.config['var']):
                 return [f'only letters, numbers, underscores are permitted in "var" for operation "{self.operation}"']
 
     def validate_mask(self):
-        if 'mask' in self.config:
+        if self.config.get('mask'):
             if not re.match(r'^[A-Za-z0-9-_.]*$', self.config['mask']):
                 return ['only letters, numbers, hyphens, underscores, and periods are permitted in "mask"'
                         f' for operation "{self.operation}"']
@@ -170,7 +170,7 @@ class MaskOperationMixin:
 class ComputeMeanMixin:
 
     def validate_compute_mean(self):
-        if 'compute_mean' in self.config:
+        if self.config.get('compute_mean'):
             if self.config['compute_mean'] not in [True, False]:
                 return [f'only true or false are permitted in "compute_mean" for operation "{self.operation}"']
 
@@ -178,7 +178,7 @@ class ComputeMeanMixin:
 class OutputCsvMixin:
 
     def validate_output_csv(self):
-        if 'output_csv' in self.config:
+        if self.config.get('output_csv'):
             if self.config['output_csv'] not in [True, False]:
                 return [f'only true or false are permitted in "output_csv" for operation "{self.operation}"']
 
