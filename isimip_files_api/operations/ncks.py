@@ -79,5 +79,5 @@ class CutOutPointOperation(PointOperationMixin, NcksOperation):
         ]
 
     def get_region(self):
-        lon, lat = self.get_point()
+        lat, lon = self.get_point()
         return f'lon{lon}lat{lat}'

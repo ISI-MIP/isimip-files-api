@@ -112,7 +112,7 @@ class PointOperationMixin:
     def validate_point(self):
         if self.config.get('point'):
             try:
-                lon, lat = self.get_point()
+                lat, lon = self.get_point()
                 if lon > 180.0:
                     return [f'longitude is > 180 in point for operation "{self.operation}"']
                 if lon < -180.0:

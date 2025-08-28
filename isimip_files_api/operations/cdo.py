@@ -111,7 +111,7 @@ class SelectPointOperation(OutputCsvMixin, PointOperationMixin, CdoOperation):
         return [f'-selindexbox,{ix:d},{ix:d},{iy:d},{iy:d}']
 
     def get_region(self):
-        lon, lat = self.get_point()
+        lat, lon = self.get_point()
         return f'lon{lon}lat{lat}'
 
 
