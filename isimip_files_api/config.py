@@ -69,7 +69,7 @@ NCKS_BIN = 'ncks'
 NCKS_MAX_RESOLUTION = (43200, 20880)
 
 # special settings for the countries
-COUNTRYMASKS_FILE_PATH = 'countrymasks.nc'
+COUNTRYMASKS = {}
 COUNTRYMASKS_COUNTRIES = [
     'AFG', 'ALB', 'DZA', 'AND', 'AGO', 'ATG', 'ARG', 'ARM', 'AUS', 'AUT',
     'AZE', 'BHS', 'BHR', 'BGD', 'BRB', 'BLR', 'BEL', 'BLZ', 'BEN', 'BTN',
