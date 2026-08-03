@@ -133,13 +133,17 @@ class CountryOperationMixin:
         return self.config['country'].upper()
 
     def get_country_mask(self):
-        return self.config['country_mask']
+        default = next(iter(app.config['COUNTRYMASKS']))
+        return self.config.get('country_mask', default)
 
     def get_mask_config(self):
         country_mask = self.get_country_mask()
         return app.config['COUNTRYMASKS'][country_mask]
 
     def validate_country(self):
+        if not app.config['COUNTRYMASKS_COUNTRIES']:
+            return [f'no countries are configured for operation "{self.operation}"']
+
         if self.config.get('country'):
             if self.get_country() not in app.config['COUNTRYMASKS_COUNTRIES']:
                 return [f'country not in the list of supported countries (e.g. deu) for operation "{self.operation}"']
@@ -147,9 +151,12 @@ class CountryOperationMixin:
             return [f'country is missing for operation "{self.operation}"']
 
     def validate_country_mask(self):
-        if self.config.get('country_mask'):
-            if self.get_country_mask() not in app.config['COUNTRYMASKS']:
-                return [f'country mask not in the list of supported masks for operation "{self.operation}"']
+        if not app.config['COUNTRYMASKS']:
+            return [f'no country masks are configured for operation "{self.operation}"']
+
+        country_mask = self.config.get('country_mask')
+        if country_mask and country_mask not in app.config['COUNTRYMASKS']:
+            return [f'country mask not in the list of supported masks for operation "{self.operation}"']
 
 
 class MaskOperationMixin:
