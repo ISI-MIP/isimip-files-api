@@ -7,10 +7,10 @@ export FLASK_CONFIG=config.toml
 export RQ_WORKER_CLASS=isimip_files_api.worker.Worker
 
 server:
-	flask run
+	flask run --port 3000
 
 gunicorn:
-	gunicorn -b 0.0.0.0:5000 "${FLASK_APP}:create_app()"
+	gunicorn -b 0.0.0.0:3000 "${FLASK_APP}:create_app()"
 
 worker:
 	rq worker

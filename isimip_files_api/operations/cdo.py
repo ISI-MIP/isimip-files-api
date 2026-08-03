@@ -147,15 +147,20 @@ class MaskCountryOperation(OutputCsvMixin, ComputeMeanMixin, CountryOperationMix
 
     def get_args(self):
         country = self.get_country()
-        mask_path = str(Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser())
-        return ['-ifthen', f'-selname,m_{country:3.3}', mask_path]
+        mask_config = self.get_mask_config()
+
+        mask_prefix = mask_config['prefix']
+        mask_path = str(Path(mask_config['path']).expanduser())
+        return ['-ifthen', f'-selname,{mask_prefix}{country:3.3}', mask_path]
 
     def get_region(self):
         return self.get_country().lower()
 
     def validate_resolution(self, path):
+        mask_config = self.get_mask_config()
+
         input_resolution = get_resolution(get_input_path() / path)
-        mask_resolution = get_resolution(Path(app.config['COUNTRYMASKS_FILE_PATH']).expanduser())
+        mask_resolution = get_resolution(Path(mask_config['path']).expanduser())
 
         if input_resolution != mask_resolution:
             return [f'resolution of {path} {input_resolution} does not match mask resolution {mask_resolution}'
