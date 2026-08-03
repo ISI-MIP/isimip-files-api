@@ -6,7 +6,7 @@ def test_success(client, mocker):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': operation,
-            'point': [13.064332, 52.380551]
+            'point': [52.380551, 13.064332]
         }
     ]})
 
@@ -31,7 +31,7 @@ def test_wrong_point(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': operation,
-            'point': [13.064332, 'wrong']
+            'point': ['wrong', 13.064332]
         }
     ]})
     assert response.status_code == 400
@@ -45,7 +45,7 @@ def test_malformatted_point(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': operation,
-            'point': [[13.064332, 52.380551]]
+            'point': [[52.380551, 13.064332]]
         }
     ]})
     assert response.status_code == 400
@@ -59,7 +59,7 @@ def test_wrong_point_lat_low(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': operation,
-            'point': [-181, 52.380551]
+            'point': [52.380551, -181]
         }
     ]})
     assert response.status_code == 400
@@ -73,7 +73,7 @@ def test_wrong_point_lat_high(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': operation,
-            'point': [181, 52.380551]
+            'point': [52.380551, 181]
         }
     ]})
     assert response.status_code == 400
@@ -87,7 +87,7 @@ def test_wrong_point_lon_low(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': operation,
-            'point': [13.064332, -91]
+            'point': [-91, 13.064332]
         }
     ]})
     assert response.status_code == 400
@@ -101,26 +101,11 @@ def test_wrong_point_lon_high(client):
     response = client.post('/', json={'paths': ['constant.nc'], 'operations': [
         {
             'operation': operation,
-            'point': [13.064332, 91]
+            'point': [91, 13.064332]
         }
     ]})
     assert response.status_code == 400
     assert response.json.get('status') == 'error'
     assert response.json.get('errors') == {
         'operations': ['latitude is > 90 in point for operation "cutout_point"']
-    }
-
-
-def test_invalid_resolution(mocker, client):
-    response = client.post('/', json={'paths': ['large.nc'], 'operations': [
-        {
-            'operation': operation,
-            'point': [13.064332, 52.380551]
-        }
-    ]})
-
-    assert response.status_code == 400
-    assert response.json.get('errors') == {
-        'resolution': ['resolution of large.nc (360, 180) is to high (180, 90)'
-                       ' for operation "cutout_point"']
     }

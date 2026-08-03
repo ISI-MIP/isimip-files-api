@@ -105,8 +105,8 @@ class PointOperationMixin:
 
     def get_point(self):
         return (
-            float(self.config['point'][0]),
-            float(self.config['point'][1])
+            float(self.config['point'][0]),  # latitude
+            float(self.config['point'][1])   # longitude
         )
 
     def validate_point(self):
