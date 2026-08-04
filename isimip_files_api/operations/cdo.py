@@ -175,7 +175,12 @@ class MaskLandonlyOperation(OutputCsvMixin, ComputeMeanMixin, LandonlyOperationM
     def get_args(self):
         mask_config = self.get_mask_config()
         mask_path = str(Path(mask_config['path']).expanduser())
-        return ['-ifthen', mask_path]
+        mask_var = mask_config.get('var')
+
+        if mask_var:
+            return ['-ifthen', f'-selname,{mask_var}', mask_path]
+        else:
+            return ['-ifthen', mask_path]
 
     def get_region(self):
         return 'landonly'
