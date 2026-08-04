@@ -117,9 +117,10 @@ response = requests.post('https://files.isimip.org/api/v2', json={
     'operations': [
         {
             'operation': 'mask_country',
-            'country': 'aus',       # three letter code for, e.g. australia
-            'compute_mean': False,  # optional: set to True to get a time series of the field mean
-            'output_csv': False     # optional: set to True to get a csv file instead of NetCDF
+            'country': 'aus',           # three letter code for, e.g. australia
+            'country_mask': 'isimip3',  # optional: select country mask ('isimip3' or 'isipedia')
+            'compute_mean': False,      # optional: set to True to get a time series of the field mean
+            'output_csv': False         # optional: set to True to get a csv file instead of NetCDF
         }
     ]
 })
@@ -140,7 +141,10 @@ response = requests.post('https://files.isimip.org/api/v2', json={
     'paths': [...],
     'operations': [
         {
-            'operation': 'mask_landonly'
+            'operation': 'mask_landonly',
+            'land_sea_mask': 'isimip3',  # optional: select land sea mask ('landseamask_no-ant' or 'landseamask')
+            'compute_mean': False,       # optional: set to True to get a time series of the field mean
+            'output_csv': False          # optional: set to True to get a csv file instead of NetCDF
         }
     ]
 })
