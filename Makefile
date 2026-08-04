@@ -6,6 +6,9 @@ export FLASK_DEBUG=true
 export FLASK_CONFIG=config.toml
 export RQ_WORKER_CLASS=isimip_files_api.worker.Worker
 
+# macOS only: allows fork() in RQ workers
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
 server:
 	flask run --port 3000
 

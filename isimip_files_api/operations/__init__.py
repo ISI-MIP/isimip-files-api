@@ -133,30 +133,49 @@ class CountryOperationMixin:
         return self.config['country'].upper()
 
     def get_country_mask(self):
-        default = next(iter(app.config['COUNTRYMASKS']))
+        default = next(iter(app.config['COUNTRY_MASKS']))
         return self.config.get('country_mask', default)
 
     def get_mask_config(self):
         country_mask = self.get_country_mask()
-        return app.config['COUNTRYMASKS'][country_mask]
+        return app.config['COUNTRY_MASKS'][country_mask]
 
     def validate_country(self):
-        if not app.config['COUNTRYMASKS_COUNTRIES']:
+        if not app.config['COUNTRY_MASKS_COUNTRIES']:
             return [f'no countries are configured for operation "{self.operation}"']
 
         if self.config.get('country'):
-            if self.get_country() not in app.config['COUNTRYMASKS_COUNTRIES']:
+            if self.get_country() not in app.config['COUNTRY_MASKS_COUNTRIES']:
                 return [f'country not in the list of supported countries (e.g. deu) for operation "{self.operation}"']
         else:
             return [f'country is missing for operation "{self.operation}"']
 
     def validate_country_mask(self):
-        if not app.config['COUNTRYMASKS']:
+        if not app.config['COUNTRY_MASKS']:
             return [f'no country masks are configured for operation "{self.operation}"']
 
         country_mask = self.config.get('country_mask')
-        if country_mask and country_mask not in app.config['COUNTRYMASKS']:
+        if country_mask and country_mask not in app.config['COUNTRY_MASKS']:
             return [f'country mask not in the list of supported masks for operation "{self.operation}"']
+
+
+class LandonlyOperationMixin:
+
+    def get_land_sea_mask(self):
+        default = next(iter(app.config['LAND_SEA_MASKS']))
+        return self.config.get('land_sea_mask', default)
+
+    def get_mask_config(self):
+        land_sea_mask = self.get_land_sea_mask()
+        return app.config['LAND_SEA_MASKS'][land_sea_mask]
+
+    def validate_country_mask(self):
+        if not app.config['LAND_SEA_MASKS']:
+            return [f'no land-sea masks are configured for operation "{self.operation}"']
+
+        land_sea_mask = self.get_land_sea_mask()
+        if land_sea_mask and land_sea_mask not in app.config['LAND_SEA_MASKS']:
+            return [f'land-sea mask not in the list of supported masks for operation "{self.operation}"']
 
 
 class MaskOperationMixin:

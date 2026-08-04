@@ -69,8 +69,8 @@ NCKS_BIN = 'ncks'
 NCKS_MAX_RESOLUTION = (43200, 20880)
 
 # special settings for the countries
-COUNTRYMASKS = {}
-COUNTRYMASKS_COUNTRIES = [
+COUNTRY_MASKS = {}
+COUNTRY_MASKS_COUNTRIES = [
     'AFG', 'ALB', 'DZA', 'AND', 'AGO', 'ATG', 'ARG', 'ARM', 'AUS', 'AUT',
     'AZE', 'BHS', 'BHR', 'BGD', 'BRB', 'BLR', 'BEL', 'BLZ', 'BEN', 'BTN',
     'BOL', 'BIH', 'BWA', 'BRA', 'BRN', 'BGR', 'BFA', 'BDI', 'KHM', 'CMR',
@@ -95,8 +95,8 @@ COUNTRYMASKS_COUNTRIES = [
     'ESH', 'YEM', 'ZMB', 'ZWE'
 ]
 
-# special settings for the land sea mask
-LANDSEAMASK_FILE_PATH = 'landseamask.nc'
+# special settings for the land sea masks
+LAND_SEA_MASKS = {}
 
 # redis configuration
 REDIS_URL = 'redis://localhost:6379'
